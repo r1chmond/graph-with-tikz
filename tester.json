@@ -1,5 +1,15 @@
 {
-    "start": {"id": "idx1","type": "terminator", "next": {"id": "idx2"}}, 
-    "walk": {"id":"idx2", "type": "process"}
+    "idx1": {
+                "label": "start",
+                "type": "terminator", 
+                "next": {
+                            "id": "idx2"
+                            
+                        }
+            }, 
+    "idx2": {
+                "label":"walk", 
+                "type": "process"
+            }
 }
 

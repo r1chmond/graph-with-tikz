@@ -4,7 +4,7 @@ from typing import Dict,List
 
 class TikzCodeGenerator:
     def __init__(self, path: str) -> None:
-        self.path = path
+        self.path = path  #path instead of str might be better
         self.handler = FileHandler()
         self.parsed_data = JSONParser(self.handler.read(self.path)).parse_json_data()
     

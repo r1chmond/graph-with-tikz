@@ -3,13 +3,22 @@
                 "label": "start",
                 "type": "terminator", 
                 "next": {
-                            "id": "idx2"
-                            
+                            "id": "idx2",
+                            "edge": "edge"
                         }
             }, 
     "idx2": {
                 "label":"walk", 
-                "type": "process"
-            }
+                "type": "process",
+                "next": {
+                            "id": "idx3"
+
+                        }
+            },
+    
+    "idx3": {
+        "label":"end", 
+        "type": "terminator"
+    }
 }
 

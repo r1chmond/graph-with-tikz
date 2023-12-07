@@ -1,6 +1,6 @@
 {
     "idx1": {
-                "label": "start",
+                "label": "terminator",
                 "type": "terminator", 
                 "next": {
                             "id": "idx2",
@@ -8,7 +8,7 @@
                         }
             }, 
     "idx2": {
-                "label":"walk", 
+                "label":"process", 
                 "type": "process",
                 "next": {
                             "id": "idx3"
@@ -17,7 +17,15 @@
             },
     
     "idx3": {
-        "label":"end", 
+        "label":"decision", 
+        "type": "decision",
+        "next": {
+            "id": "idx4"
+
+        }
+    },
+    "idx4": {
+        "label":"terminator", 
         "type": "terminator"
     }
 }

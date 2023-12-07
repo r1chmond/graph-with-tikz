@@ -48,5 +48,5 @@ class TikzCodeGenerator:
        
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
-        template = r"[diamond/.style={diamond, draw, very thick},terminator/.style={rectangle,draw, rounded corners=1.5ex},process/.style={rectangle, draw}]"
+        template = r"[decision/.style={diamond, draw, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex},process/.style={rectangle, draw}]"
         return template

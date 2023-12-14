@@ -1,12 +1,9 @@
-from json_parser import JSONParser
-from file_handler import FileHandler
+from app.data import ParsedData
 from typing import Dict,List
 
 class TikzCodeGenerator:
-    def __init__(self, path: str) -> None:
-        self.path = path  #path instead of str might be better
-        self.handler = FileHandler()
-        self.parsed_data = JSONParser(self.handler.read(self.path)).parse_json_data()
+    def __init__(self,path: str) -> None:
+        self._parsed_data = ParsedData(path).get_parsed_data()
         
         
     def generate_tikz_code(self) -> str:
@@ -18,11 +15,11 @@ class TikzCodeGenerator:
         code = code + self.get_shape_template()
         j = 0 # yet to work on positioning
         for id in id_list:
-            code = code + "\n" + template["node"].format(0,j,self.parsed_data[id]["type"],id,self.parsed_data[id]["label"])
+            code = code + "\n" + template["node"].format(0,j,self._parsed_data[id]["type"],id,self._parsed_data[id]["label"])
             j -= 2
         
         for id in id_list:
-            next_node = self.parsed_data[id].get("next")
+            next_node = self._parsed_data[id].get("next")
             if next_node:
                 code = code + "\n" + template["draw"].format(id,\
                                             f'{next_node["edge"]}' if next_node.get("edge") else "",next_node["id"])
@@ -32,7 +29,7 @@ class TikzCodeGenerator:
         return code
     
     def get_nodes(self) -> List[str]:
-        return list(self.parsed_data)
+        return list(self._parsed_data)
         
     def template(self) -> Dict[(str,str)]:
         preamble = r"\documentclass{article} " + "\n"+ r"\usepackage{tikz}" +"\n" +r"\usetikzlibrary{positioning,quotes,shapes.geometric}"

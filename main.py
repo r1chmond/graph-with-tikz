@@ -1,7 +1,7 @@
 
 from app import main_app
 
-code = main_app.MainApp()
+code = main_app.MainApp('tester.json')
 
 code.print_tikz_code()
 

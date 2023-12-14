@@ -2,9 +2,9 @@ from app.data import ParsedData
 from typing import Dict,List
 
 class TikzCodeGenerator:
-    def __init__(self,path: str) -> None:
-        self._parsed_data = ParsedData(path).get_parsed_data()
-        
+    def __init__(self, data: str) -> None:
+        self._parsed_data = data
+
         
     def generate_tikz_code(self) -> str:
         template = self.template()

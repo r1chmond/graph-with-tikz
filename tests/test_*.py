@@ -1,7 +1,7 @@
 import unittest
 import os
-from file_handler import FileHandler
-from json_parser import JSONParser
+from app.file_handler import FileHandler
+from app.json_parser import JSONParser
 
 class TestFileHandler(unittest.TestCase):
     
@@ -67,5 +67,3 @@ class TestJSONParser(unittest.TestCase):
         with open("invalid.json", "w") as file:
             file.write(data)     
             
-if __name__ == '__main__':
-    unittest.main()

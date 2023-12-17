@@ -1,6 +1,6 @@
 
 class FileHandler:
-    
+    #TODO: not ideal to use str as path  check os.path??
     def read(self, path: str) -> str:
         try:
             with open(path, "r") as file:

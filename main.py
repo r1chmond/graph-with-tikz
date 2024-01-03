@@ -1,7 +1,8 @@
 
 from app import main_app
+import os
 
-code = main_app.MainApp('tester.json')
+code = main_app.MainApp(os.path.join('tester.json'))
 
 code.print_tikz_code()
 

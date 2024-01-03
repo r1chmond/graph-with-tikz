@@ -56,9 +56,10 @@ def exit_application():
     root.destroy()
     
 root = tk.Tk()
-root.geometry("700x550")
+root.geometry("700x580")
 root.title("Tikz Code Generator App")
-root.iconbitmap(os.path.join("icons/tex.ico"))
+icon_img = tk.PhotoImage(file=os.path.join("icons/tex.png"))
+root.iconphoto(False,icon_img)
 
 root.tk.call("tk","windowingsystem")
 root.option_add("*tearOff", False) #remove dotted lines before menu options
@@ -131,7 +132,7 @@ visualise_btn.pack(side=tk.RIGHT, padx=(10, 30))
 generate_btn.pack(side=tk.RIGHT)
 
 root.config(menu=menubar)
-root.minsize(450, 500)
-root.maxsize(800, 570)
+root.minsize(500, 600)
+root.maxsize(800, 620)
 root.mainloop()
 

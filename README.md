@@ -25,5 +25,8 @@ $ pip3 install -r requirements.txt
 ```
 
 ## References
+ICON:
+https://icon-icons.com/icon/text-tex/92813
+
 
 CODE:

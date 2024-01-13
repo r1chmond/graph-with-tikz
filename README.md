@@ -25,8 +25,10 @@ $ pip3 install -r requirements.txt
 ```
 
 ## References
-ICON:
-https://icon-icons.com/icon/text-tex/92813
+ICONS:
+https://www.flaticon.com/free-icon/add-file_1091916?term=add+file&page=1&position=7&origin=search&related_id=1091916
+https://www.flaticon.com/free-icon/tex_5105637?term=tex&page=1&position=9&origin=search&related_id=5105637
+https://www.flaticon.com/free-icon/export_8828334?term=export&page=1&position=15&origin=search&related_id=8828334
 
 
 CODE:

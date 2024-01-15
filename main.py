@@ -44,11 +44,12 @@ import tkinter as tk
 # nx.draw_networkx_labels(G, pos, font_size=15)
 # plt.show()
 
-root = tk.Tk()
+root = tk.Tk() 
+app = main_app.TikzCodeGeneratorApp(root)
 root.minsize(500,600)
-root.maxsize(800, 620) 
-app = main_app.App(master=root)
-root.config(menu=app.menubar)
-app.mainloop()
+root.maxsize(800, 620)
+root.mainloop()
+# root.config(menu=app.menubar)
+
 
 

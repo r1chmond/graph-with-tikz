@@ -1,7 +1,9 @@
 from app.tikz_generator import TikzCodeGenerator
 from app.data import ParsedData
 import tkinter as tk
+from tkinter import filedialog as fd
 import os
+
 
 class MainApp:
     def __init__(self,path: str)-> None:
@@ -24,10 +26,14 @@ class TikzCodeGeneratorApp:
         self.root.title("Tikz Code Generator App")
         icon_img = tk.PhotoImage(file=os.path.join("icons/tex.png"))
         self.root.iconphoto(False, icon_img)
+        self.file_list = []
+        self.left_mainframe = tk.Frame(self.root, padx=5, pady=5)
+        self.list_box = tk.Listbox(self.left_mainframe,selectmode=tk.SINGLE, width= 30)
         
         self.create_menubar()
         self.create_left_section()
         self.create_right_section()
+        
     
     def create_menubar(self)-> None:
         self.root.tk.call("tk","windowingsystem")
@@ -37,7 +43,7 @@ class TikzCodeGeneratorApp:
 
         file_menu = tk.Menu(menubar)
         file_menu.add_command(label="New", command=self.file_new_action)
-        file_menu.add_command(label="Open", command=lambda: self.file_open_action("Open!!!"))
+        file_menu.add_command(label="Open", command=self.file_open_action)
         file_menu.add_command(label="Save/Export", command=self.file_save_action)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.exit_application)
@@ -51,12 +57,12 @@ class TikzCodeGeneratorApp:
         self.root.config(menu=menubar)
     
     def create_left_section(self) -> None:
-        left_mainframe = tk.Frame(self.root, padx=5, pady=5)
-        left_mainframe.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        
+        self.left_mainframe.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
 
-        self.create_toolbar(left_mainframe)
-        self.create_listbox(left_mainframe)
-        self.create_status_bar(left_mainframe)
+        self.create_toolbar(self.left_mainframe)
+        self.create_listbox(self.left_mainframe)
+        self.create_status_bar(self.left_mainframe)
     
     def create_toolbar(self, parent_frame: tk.Frame) -> None:
         l_tools_frame = tk.Frame(parent_frame, bg="skyblue")
@@ -71,11 +77,13 @@ class TikzCodeGeneratorApp:
     def create_listbox(self, parent_frame: tk.Frame) -> None:
         l_list_frame = tk.Frame(parent_frame, bg="green")
         l_list_frame.pack(fill=tk.X, pady=10)
-
-        items = ["tester.json", "chart.json"]
-        list_items = tk.Variable(value=items)
-        list_box = tk.Listbox(l_list_frame, listvariable=list_items)
-        list_box.pack()
+        self.list_box.pack()
+    
+    def on_select(self,event):
+        selected_index = self.list_box.curselection()
+        if selected_index:
+            selected_item = self.list_box.get(selected_index)
+            print(selected_item)
     
     def create_status_bar(self, parent_frame: tk.Frame) -> None:
         l_status_frame = tk.Frame(parent_frame, bg="purple")
@@ -121,8 +129,17 @@ class TikzCodeGeneratorApp:
     def file_new_action(self):
         print("New")
     
-    def file_open_action(self,s):
-        print(s)
+    def file_open_action(self) -> None:
+        filetypes = (("json files", "*.json"),("All files", "*,*"))
+        filepath = fd.askopenfilename(title="Open file",
+                                        initialdir=os.path.join("/"),
+                                        filetypes=filetypes
+                                                 )
+        if filepath:
+            # var = tk.StringVar()
+            # var.set("Option 1")
+            self.list_box.insert(tk.END, self.get_filename(filepath))
+        
         
     def file_save_action(self):
         print("Save")
@@ -132,6 +149,12 @@ class TikzCodeGeneratorApp:
 
     def exit_application(self):
         self.root.destroy()
+    
+    def get_filename(self, path: str):
+        i = len(path) - 1
+        while i >= 0 and path[i] != "/" and path[i] != "\\":
+            i -= 1
+        return path[i+1:]
     
 
    

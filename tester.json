@@ -1,32 +1,28 @@
 {
     "idx1": {
-                "label": "terminator",
-                "type": "terminator", 
-                "next": {
-                            "id": "idx2",
-                            "edge": "edge"
-                        }
-            }, 
+        "label": "terminator",
+        "type": "terminator",
+        "next": {
+            "id": "idx2",
+            "edge": "edge"
+        }
+    },
     "idx2": {
-                "label":"process", 
-                "type": "process",
-                "next": {
-                            "id": "idx3"
-
-                        }
-            },
-    
+        "label": "process",
+        "type": "process",
+        "next": {
+            "id": "idx3"
+        }
+    },
     "idx3": {
-        "label":"decision", 
+        "label": "decision",
         "type": "decision",
         "next": {
             "id": "idx4"
-
         }
     },
-    "idx4": {
-        "label":"terminator", 
+    "idx45": {
+        "label": "terminator",
         "type": "terminator"
     }
 }
-

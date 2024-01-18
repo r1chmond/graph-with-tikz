@@ -1,6 +1,8 @@
 
+
 class FileHandler:
-    #TODO: not ideal to use str as path  check os.path??
+    
+    
     def read(self, path: str) -> str:
         try:
             with open(path, "r") as file:
@@ -13,5 +15,11 @@ class FileHandler:
             print(f"An error occurred while reading file!.")
             return None
     
-    def write(self, path: str, filename: str) -> None:
-        pass
+    def write(self, path: str, content: str) -> None:
+        try:
+            with open(path, "w") as file:
+                file.write(content)
+        except PermissionError as e:
+            print(f"Permission error while accessing file: {path} - {e}")
+        except Exception as e:
+            print(f"An error occurred while accessing file {path}: {e}")

@@ -3,21 +3,14 @@ from app.data import ParsedData
 import tkinter as tk
 from tkinter import filedialog as fd
 import os
+from app.file_handler import FileHandler
 
-
-class MainApp:
-    def __init__(self,path: str)-> None:
-        self._parsed_data = ParsedData(path)
-        self.gen = TikzCodeGenerator(self._parsed_data.get_parsed_data())
-        
-    def print_tikz_code(self):
-        code = self.gen.generate_tikz_code()
-        print(code)
 
 # TODO:
 # What if processes have the same?
 #  Consider swapping "id" with "label"
 # eg: "idx2": {"label":"walk", "type": "process"}
+MAX_FILENAME_LENGTH = 20
 
 class TikzCodeGeneratorApp:
     def __init__(self, root: tk.Tk)-> None:
@@ -26,15 +19,17 @@ class TikzCodeGeneratorApp:
         self.root.title("Tikz Code Generator App")
         icon_img = tk.PhotoImage(file=os.path.join("icons/tex.png"))
         self.root.iconphoto(False, icon_img)
+        
         self.left_mainframe = tk.Frame(self.root, padx=5, pady=5)
+        self.right_mainframe = tk.Frame(self.root, padx=5, pady=5)
         self.list_box = tk.Listbox(self.left_mainframe,selectmode=tk.SINGLE, width= 30)
+        self.textbox = tk.Text(self.right_mainframe)
+    
         
         self.radio_count = 0
         self.filepath_list=[]
         self.current_filepath = os.path.join("/")
-        
-        # self._parsed_data = ParsedData(self.current_filepath)
-        # self.gen = TikzCodeGenerator(self._parsed_data.get_parsed_data())
+        self.current_status = "status"
         
         self.create_menubar()
         self.create_left_section()
@@ -90,23 +85,22 @@ class TikzCodeGeneratorApp:
         l_status_frame = tk.Frame(parent_frame, bg="purple")
         l_status_frame.pack(side=tk.BOTTOM)
 
-        status_label = tk.Label(l_status_frame, text="status")
+        status_label = tk.Label(l_status_frame, text=self.current_status)
         status_label.pack(side=tk.LEFT)
         
     def create_right_section(self) -> None:
-        right_mainframe = tk.Frame(self.root, padx=5, pady=5)
-        right_mainframe.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        self.right_mainframe.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        self.create_right_top_frame(right_mainframe)
-        self.create_right_middle_frame(right_mainframe)
-        self.create_right_bottom_frame(right_mainframe)
+        self.create_right_top_frame(self.right_mainframe)
+        self.create_right_middle_frame(self.right_mainframe)
+        self.create_right_bottom_frame(self.right_mainframe)
     
     def create_right_top_frame(self, parent_frame: tk.Frame) -> None:
         r_top_frame = tk.Frame(parent_frame, bg="purple")
         r_top_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
         image = tk.PhotoImage(file=os.path.join("icons/export.png"))
-        export_btn = tk.Button(r_top_frame, image=image)
+        export_btn = tk.Button(r_top_frame, image=image, command=self.file_save_action)
         export_btn.image = image
         export_btn.pack(side=tk.RIGHT, padx=(0, 15))
         
@@ -114,8 +108,7 @@ class TikzCodeGeneratorApp:
         r_middle_frame = tk.Frame(parent_frame, bg="green")
         r_middle_frame.pack(fill=tk.X, pady=10)
 
-        textbox = tk.Text(r_middle_frame)
-        textbox.pack(padx=5, pady=5)
+        self.textbox.pack(padx=5, pady=5)
     
     def create_right_bottom_frame(self, parent_frame: tk.Frame) -> None:
         r_bottom_frame = tk.Frame(parent_frame, bg="purple")
@@ -137,7 +130,6 @@ class TikzCodeGeneratorApp:
                                         filetypes=filetypes
         )
         var = tk.IntVar() 
-        # var.set(1)
         
         def on_select() -> None:
             selection = var.get()
@@ -156,13 +148,31 @@ class TikzCodeGeneratorApp:
                     widget.destroy()
      
             for path, value in self.filepath_list:
-                radio_btn = tk.Radiobutton(self.left_mainframe,text=self.get_filename(path), variable=var, value=value, width=30, command=on_select)
+                filename = self.get_filename(path)
+                radio_txt = filename if len(filename) <= MAX_FILENAME_LENGTH else self.shorten_filename(filename)
+                radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=var, value=value, width=20, command=on_select)
                 radio_btn.pack(pady=5)
         
         #
         
     def file_save_action(self):
-        print("Save")
+        self.current_status = "Saving..."
+        filetypes = (("LaTex files", "*.tex"),
+                     ("Text files", "*.txt"),
+                     ("All files", "*,*"))
+        export_code = self.textbox.get("1.0", tk.END)
+        
+        if len(export_code) > 1:
+            filepath = fd.asksaveasfilename(defaultextension = filetypes[0],
+                                            title="Save/Export",
+                                            initialdir=os.path.join("/"),
+                                            filetypes=filetypes)
+            filehandler = FileHandler()
+            
+            filehandler.write(filepath,export_code)
+            self.current_status = "Saved."
+        else:
+            print("no exportable currently available. Please add a file and generate code to export.")
         
     def about_menu_action(self):
         print("About clicked !!!")
@@ -180,10 +190,20 @@ class TikzCodeGeneratorApp:
         if self.current_filepath != "/":
             parsed_data = ParsedData(self.current_filepath)
             generator = TikzCodeGenerator(parsed_data.get_parsed_data())
-            print(generator.generate_tikz_code())
+            tikz_code = generator.generate_tikz_code()
+            self.textbox.delete("1.0", tk.END) #clear textbox before generation
+            self.textbox.insert(tk.END, tikz_code)
+
         else:
             print("""
                   ++
                   Please select a file
                   ++ 
                   """)
+            
+    def shorten_filename(self, filename: str) -> str:
+        size = len(filename)
+        if size > MAX_FILENAME_LENGTH:
+            end_string = filename[size-7:]
+            start_string = filename[:10]
+            return start_string + "..." + end_string

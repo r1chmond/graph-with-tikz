@@ -26,12 +26,13 @@ class TikzCodeGeneratorApp:
         self.root.title("Tikz Code Generator App")
         icon_img = tk.PhotoImage(file=os.path.join("icons/tex.png"))
         self.root.iconphoto(False, icon_img)
-        self.radio_btns = []
         self.left_mainframe = tk.Frame(self.root, padx=5, pady=5)
         self.list_box = tk.Listbox(self.left_mainframe,selectmode=tk.SINGLE, width= 30)
         
         self.radio_count = 0
         self.filepath_list=[]
+        self.current_filepath = "/"
+        
         self.create_menubar()
         self.create_left_section()
         self.create_right_section()
@@ -81,12 +82,6 @@ class TikzCodeGeneratorApp:
         l_list_frame.pack(fill=tk.X, pady=10)
         self.list_box.pack()
     
-    # def on_select(self,event):
-    #     selected_index = self.list_box.curselection()
-    #     if selected_index:
-    #         selected_item = self.list_box.get(selected_index)
-    #         print(selected_item)
-          
         
     def create_status_bar(self, parent_frame: tk.Frame) -> None:
         l_status_frame = tk.Frame(parent_frame, bg="purple")
@@ -144,23 +139,20 @@ class TikzCodeGeneratorApp:
             selection = var.get()
             print(f"{selection=}")
         
-        self.radio_count += 1
-        if filepath:  
+        pathexist = filepath in [path for path,count in self.filepath_list]
+        if filepath and not pathexist: 
+            self.radio_count += 1 
             self.filepath_list.append((filepath,self.radio_count))
            
-        for widget in self.left_mainframe.winfo_children():
-            if widget.winfo_name() == "!radiobutton":
-                widget.destroy()
+            for widget in self.left_mainframe.winfo_children():
+                if widget.winfo_name() == "!radiobutton":
+                    widget.destroy()
 
+                
+            for path, value in self.filepath_list:
+                radio_btn = tk.Radiobutton(self.left_mainframe,text=self.get_filename(path), variable=var, value=value, width=30, command=on_select)
+                radio_btn.pack(pady=5)
             
-        for path, value in self.filepath_list:
-            radio_btn = tk.Radiobutton(self.left_mainframe,text=self.get_filename(path), variable=var, value=value, width=30, command=on_select)
-            radio_btn.pack(pady=5)
-            
-            # self.radio_btns.append((radio_btn,))
-            # self.list_box.insert(tk.END, self.get_filename(filepath))
-        
-        
         
     def file_save_action(self):
         print("Save")

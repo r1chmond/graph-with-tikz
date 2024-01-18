@@ -31,7 +31,10 @@ class TikzCodeGeneratorApp:
         
         self.radio_count = 0
         self.filepath_list=[]
-        self.current_filepath = "/"
+        self.current_filepath = os.path.join("/")
+        
+        # self._parsed_data = ParsedData(self.current_filepath)
+        # self.gen = TikzCodeGenerator(self._parsed_data.get_parsed_data())
         
         self.create_menubar()
         self.create_left_section()
@@ -72,7 +75,7 @@ class TikzCodeGeneratorApp:
         l_tools_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
         add_image = tk.PhotoImage(file=os.path.join("icons/add-file.png"))
-        addfile_btn = tk.Button(l_tools_frame, text="Add", image=add_image)
+        addfile_btn = tk.Button(l_tools_frame, text="Add", image=add_image, command=self.file_open_action)
         addfile_btn.image = add_image #add reference to image ..ref garbage collection
         addfile_btn.configure(image=add_image)
         addfile_btn.pack(side=tk.RIGHT, padx=(0, 10))  
@@ -119,7 +122,7 @@ class TikzCodeGeneratorApp:
         r_bottom_frame.pack(side=tk.BOTTOM)
 
         visualise_btn = tk.Button(parent_frame, text="Visualise")
-        generate_btn = tk.Button(parent_frame, text="Generate Tikz Code")
+        generate_btn = tk.Button(parent_frame, text="Generate Tikz Code", command=self.generate_code_btn_action)
 
         visualise_btn.pack(side=tk.RIGHT, padx=(10, 30))
         generate_btn.pack(side=tk.RIGHT)
@@ -134,25 +137,29 @@ class TikzCodeGeneratorApp:
                                         filetypes=filetypes
         )
         var = tk.IntVar() 
-        var.set(1)
-        def on_select():
-            selection = var.get()
-            print(f"{selection=}")
+        # var.set(1)
         
-        pathexist = filepath in [path for path,count in self.filepath_list]
-        if filepath and not pathexist: 
+        def on_select() -> None:
+            selection = var.get()
+            self.current_filepath = self.filepath_list[selection-1][0]
+            print(self.current_filepath)
+        
+        path_exist = filepath in [path for path,_ in self.filepath_list]
+        
+        if filepath and not path_exist: 
             self.radio_count += 1 
             self.filepath_list.append((filepath,self.radio_count))
+            
            
             for widget in self.left_mainframe.winfo_children():
-                if widget.winfo_name() == "!radiobutton":
+                if "!radiobutton" in widget.winfo_name(): 
                     widget.destroy()
-
-                
+     
             for path, value in self.filepath_list:
                 radio_btn = tk.Radiobutton(self.left_mainframe,text=self.get_filename(path), variable=var, value=value, width=30, command=on_select)
                 radio_btn.pack(pady=5)
-            
+        
+        #
         
     def file_save_action(self):
         print("Save")
@@ -160,14 +167,23 @@ class TikzCodeGeneratorApp:
     def about_menu_action(self):
         print("About clicked !!!")
 
-    def exit_application(self):
+    def exit_application(self) -> None:
         self.root.destroy()
     
-    def get_filename(self, path: str):
+    def get_filename(self, path: str) -> str:
         i = len(path) - 1
         while i >= 0 and path[i] != "/" and path[i] != "\\":
             i -= 1
         return path[i+1:]
     
-
-   
+    def generate_code_btn_action(self) -> None:
+        if self.current_filepath != "/":
+            parsed_data = ParsedData(self.current_filepath)
+            generator = TikzCodeGenerator(parsed_data.get_parsed_data())
+            print(generator.generate_tikz_code())
+        else:
+            print("""
+                  ++
+                  Please select a file
+                  ++ 
+                  """)

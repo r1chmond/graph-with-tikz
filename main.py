@@ -46,7 +46,7 @@ import tkinter as tk
 
 root = tk.Tk() 
 app = main_app.TikzCodeGeneratorApp(root)
-app.list_box.bind("<<ListboxSelect>>", app.on_select)
+# app.list_box.bind("<<ListboxSelect>>", app.on_select)
 root.minsize(500,600)
 root.maxsize(800, 620)
 root.mainloop()

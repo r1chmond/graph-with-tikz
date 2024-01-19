@@ -1,6 +1,6 @@
 {
     "idx1": {
-        "label": "terminator",
+        "label": "start",
         "type": "terminator",
         "next": {
             "id": "idx2",
@@ -21,8 +21,8 @@
             "id": "idx4"
         }
     },
-    "idx45": {
-        "label": "terminator",
+    "idx4": {
+        "label": "end",
         "type": "terminator"
     }
 }

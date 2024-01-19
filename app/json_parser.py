@@ -1,11 +1,12 @@
 import json
+from typing import Dict
 
 class JSONParser:
     
     def __init__(self, json_data: str) -> None:
         self.json_data = json_data
     
-    def parse_json_data(self) -> str:
+    def parse_json_data(self) -> Dict[str, str]:
         try:
             parsed_json = json.loads(self.json_data)
             return parsed_json

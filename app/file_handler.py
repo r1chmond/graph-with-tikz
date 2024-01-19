@@ -17,7 +17,7 @@ class FileHandler:
     
     def write(self, path: str, content: str) -> None:
         try:
-            with open(path, "a+") as file:
+            with open(path, "w+") as file:
                 file.write(content)
         except PermissionError as e:
             print(f"Permission error while accessing file: {path} - {e}")

@@ -32,10 +32,9 @@ class TestFileHandler(unittest.TestCase):
     
     def test_write_file_successful(self) -> None:    
         code = self.generator.generate_tikz_code()
-        filepath = "exported.tex"
-        self.handler.write(filepath, code)
+        self.handler.write("exported.tex", code)
         
-        with open(filepath, "r") as file:
+        with open("exported.tex", "r") as file:
             file_content = file.read()
         self.assertIsNotNone(file_content)
     

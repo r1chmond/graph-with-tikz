@@ -7,7 +7,7 @@ class TikzCodeGenerator:
 
         
     def generate_tikz_code(self) -> str:
-        print(f'{self._parsed_data=}')
+        # print(f'{self._parsed_data=}')
         template = self.template()
         id_list = self.get_nodes()
         code = template["preamble"]

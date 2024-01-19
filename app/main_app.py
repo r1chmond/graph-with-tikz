@@ -155,7 +155,7 @@ class TikzCodeGeneratorApp:
         
         #
         
-    def file_save_action(self):
+    def file_save_action(self) -> None:
         self.current_status = "Saving..."
         filetypes = (("LaTex files", "*.tex"),
                      ("Text files", "*.txt"),
@@ -174,7 +174,7 @@ class TikzCodeGeneratorApp:
         else:
             print("no exportable currently available. Please add a file and generate code to export.")
         
-    def about_menu_action(self):
+    def about_menu_action(self) -> None:
         print("About clicked !!!")
 
     def exit_application(self) -> None:
@@ -207,3 +207,5 @@ class TikzCodeGeneratorApp:
             end_string = filename[size-7:]
             start_string = filename[:10]
             return start_string + "..." + end_string
+        
+    

@@ -2,24 +2,34 @@
     "idx1": {
         "label": "start",
         "type": "terminator",
-        "next": {
-            "id": "idx2",
-            "edge": "edge"
-        }
+        "next": [
+            {
+                "id": "idx2",
+                "edge": "edge"
+            },
+            {
+                "id": "idx3",
+                "edge": "desc"
+            }
+        ]
     },
     "idx2": {
-        "label": "process",
+        "label": "go",
         "type": "process",
-        "next": {
-            "id": "idx3"
-        }
+        "next": [
+            {
+                "id": "idx3"
+            }
+        ]
     },
     "idx3": {
-        "label": "decision",
+        "label": "check",
         "type": "decision",
-        "next": {
-            "id": "idx4"
-        }
+        "next": [
+            {
+                "id": "idx4"
+            }
+        ]
     },
     "idx4": {
         "label": "end",

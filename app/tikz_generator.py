@@ -1,5 +1,5 @@
 
-from typing import Dict,List
+from typing import Dict,List, OrderedDict
 
 class TikzCodeGenerator:
     def __init__(self, data: Dict[str, str]) -> None:
@@ -7,33 +7,52 @@ class TikzCodeGenerator:
 
         
     def generate_tikz_code(self) -> str:
-        # print(f'{self._parsed_data=}')
+        
         template = self.template()
-        id_list = self.get_nodes()
+        all_nodes = self.create_nodes(self._parsed_data)
+        node_links = self.get_next_nodes_and_edges(self._parsed_data)
+        print(f'{node_links=}')
+        print(f'=============')
+        print(f'{all_nodes=}')
         code = template["preamble"]
         code = code + "\n" + template["start_tikz"] + self.get_shape_template()
         code = code + "\n" + template["start_graph"] + self.get_graph_properties() + "\n" 
         
-        
-        for i in range(len(id_list)):
-            current_node = id_list[i]
-            label = self._parsed_data[current_node].get("label") if self._parsed_data[id_list[i]].get("label") else "   "
-            type = self._parsed_data[current_node].get("type") if self._parsed_data[current_node].get("type") else ""
-            next_node = self._parsed_data[current_node].get("next") 
-            code = code + label + "[" + type + "]"
-            if next_node:
-                #TODO: work on adding labels - refer to latex proj!!
-                code += "--"
-        
+       
+        for id, connected_nodes in node_links.items():
+            for node in connected_nodes:
+                code += all_nodes[id]
+                code = code + " -> " + "[\"" + node[1] + "\"]"+ all_nodes[node[0]] + "," + "\n"
+                
+                                
         
             
         code += template["end"]    
         
         return code
     
-    def get_nodes(self) -> List[str]:
-        return list(self._parsed_data)
+    def create_nodes(self, data: Dict[str,str]) -> OrderedDict[str, str]:
+        nodes = OrderedDict()
+        for id,detail in data.items():
+            label = detail.get("label", "     ")
+            node_type = detail.get("type", "")
+            temp = label + "[" + node_type + "]"
+            nodes[id] = temp
+        return nodes
+
+    def get_next_nodes_and_edges(self, data: Dict[str,str]) -> OrderedDict[str, List[str]]:
+        nodes = OrderedDict()
+        for id, prop in data.items():
+            next_nodes = prop.get("next")
+            if next_nodes:
+                connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
+                nodes[id] = connected_nodes
         
+        return nodes
+                
+            
+        
+
     def template(self) -> Dict[str, str]:
         preamble = r"\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric}" \
                   + "\n" + r"\usegdlibrary{layered}"

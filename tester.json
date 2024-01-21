@@ -1,5 +1,8 @@
 {
-    "orientation": "TB",
+    "orientation": "LR",
+    "g_style": {
+        "fontColor": "red"
+    },
     "idx1": {
         "label": "start",
         "type": "terminator",

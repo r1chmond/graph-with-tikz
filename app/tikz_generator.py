@@ -1,5 +1,5 @@
 
-from typing import Dict,List, OrderedDict
+from typing import Dict,List, OrderedDict, Tuple
 
 class TikzCodeGenerator:
     def __init__(self, data: Dict[str, str]) -> None:
@@ -7,50 +7,58 @@ class TikzCodeGenerator:
 
         
     def generate_tikz_code(self) -> str:
+        """
+        Generates tikz code
+        Returns:
+            str: tikz code to be exported
+        """
         
         template = self.template()
         all_nodes = self.create_nodes(self._parsed_data)
         node_links = self.get_next_nodes_and_edges(self._parsed_data)
-        code = template["preamble"]
-        code = code + "\n" + template["start_tikz"] + self.get_shape_template()
-        code = code + "\n" + template["start_graph"] + self.get_graph_properties(self._parsed_data) + "\n" 
-        
+        code = (
+            template["preamble"] + "\n" +
+            template["start_tikz"] + self.get_shape_template() + "\n" +
+            template["start_graph"] + self.get_graph_properties(self._parsed_data) + "\n"
+        )
+                
        
-        for id, connected_nodes in node_links.items():
+        for node_id, connected_nodes in node_links.items():
             for node in connected_nodes:
-                code += all_nodes[id]
+                code += all_nodes[node_id]
                 edge_label = node[1]
-                end_node = all_nodes.get(node[0]) if all_nodes.get(node[0]) else "default[terminator]"
+                end_node = all_nodes.get(node[0], "default[terminator]")
                 if edge_label:
-                    code = code + " -- " + edge_label + " -> " + end_node + "," + "\n"
+                    code += f" -- {edge_label} -> {end_node},\n"
                 else:
-                    code = code + "->" + end_node + "," + "\n"
-        #TODO: length of edge and label positioning !!! consider using nodes for edge labels to avoid overlapping       
+                    code += f" -> {end_node},\n"
+       
             
         code += template["end"]    
         
         return code
     
     def create_nodes(self, data: Dict[str,str]) -> OrderedDict[str, str]:
+        """Create nodes based on input data"""
         nodes = OrderedDict()
-        for id,detail in data.items():
-            if id == "orientation":
+        for node_id,detail in data.items():
+            if node_id == "orientation":
                 continue
             label = detail.get("label", "     ")
             node_type = detail.get("type", "")
-            temp = label + "[" + node_type + "]"
-            nodes[id] = temp
+            node_representation = f"{label}[{node_type}]"
+            nodes[node_id] = node_representation
         return nodes
 
-    def get_next_nodes_and_edges(self, data: Dict[str,str]) -> OrderedDict[str, List[str]]:
+    def get_next_nodes_and_edges(self, data: Dict[str,str]) -> OrderedDict[str, List[Tuple[str,str]]]:
+        """get information about next nodes and edges from input data"""
         nodes = OrderedDict()
-        for id, prop in data.items():
-            if id == "orientation":
+        for node_id, prop in data.items():
+            if node_id == "orientation":
                 continue
-            next_nodes = prop.get("next")
-            if next_nodes:
-                connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
-                nodes[id] = connected_nodes
+            next_nodes = prop.get("next",[])
+            connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
+            nodes[node_id] = connected_nodes
         
         return nodes
                 
@@ -58,13 +66,16 @@ class TikzCodeGenerator:
         
 
     def template(self) -> Dict[str, str]:
-        preamble = r"\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric}" \
-                  + "\n" + r"\usegdlibrary{layered}"
+        """Generate a template for tikz code"""
+        preamble = (r"\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric}"
+                    "\n" + 
+                    r"\usegdlibrary{layered}"
+        )
         return {
                 "preamble": preamble,
                 "start_tikz": r"\tikz",
                 "start_graph": r"\graph",
-                "end": "\n"+"};"
+                "end": "};"
                 }
        
     def get_shape_template(self)-> str:
@@ -74,10 +85,9 @@ class TikzCodeGenerator:
     
     def get_graph_properties(self, data: Dict[str,str])-> str:
         '''Return the graph properties'''
-        orientation = data.get("orientation") if data.get("orientation") else "tb"
-        direction = "down"
-        if orientation == "lr":
-            direction = "right"
+        orientation = data.get("orientation").lower()
+        direction = "right" if orientation == "lr" else "down"
         properties = r"[layered layout, grow'={}]{{".format(direction)
         return properties
     
+#TODO: g_style first, handle error when json key is not in specification

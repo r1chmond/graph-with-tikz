@@ -11,9 +11,6 @@ class TikzCodeGenerator:
         template = self.template()
         all_nodes = self.create_nodes(self._parsed_data)
         node_links = self.get_next_nodes_and_edges(self._parsed_data)
-        print(f'{node_links=}')
-        print(f'=============')
-        print(f'{all_nodes=}')
         code = template["preamble"]
         code = code + "\n" + template["start_tikz"] + self.get_shape_template()
         code = code + "\n" + template["start_graph"] + self.get_graph_properties() + "\n" 
@@ -22,10 +19,13 @@ class TikzCodeGenerator:
         for id, connected_nodes in node_links.items():
             for node in connected_nodes:
                 code += all_nodes[id]
-                code = code + " -> " + "[\"" + node[1] + "\"]"+ all_nodes[node[0]] + "," + "\n"
-                
-                                
-        
+                edge_label = node[1]
+                end_node = all_nodes.get(node[0]) if all_nodes.get(node[0]) else "default[terminator]"
+                if edge_label:
+                    code = code + " -- " + edge_label + " -> " + end_node + "," + "\n"
+                else:
+                    code = code + "->" + end_node + "," + "\n"
+        #TODO: length of edge and label positioning !!! consider using nodes for edge labels to avoid overlapping       
             
         code += template["end"]    
         
@@ -65,7 +65,7 @@ class TikzCodeGenerator:
        
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
-        template = r"[decision/.style={diamond, draw, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex},process/.style={rectangle, draw}]"
+        template = r"[decision/.style={diamond, draw, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex, thick},process/.style={rectangle, draw, thick}]"
         return template
     
     def get_graph_properties(self)-> str:

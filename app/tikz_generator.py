@@ -13,7 +13,7 @@ class TikzCodeGenerator:
         node_links = self.get_next_nodes_and_edges(self._parsed_data)
         code = template["preamble"]
         code = code + "\n" + template["start_tikz"] + self.get_shape_template()
-        code = code + "\n" + template["start_graph"] + self.get_graph_properties() + "\n" 
+        code = code + "\n" + template["start_graph"] + self.get_graph_properties(self._parsed_data) + "\n" 
         
        
         for id, connected_nodes in node_links.items():
@@ -34,6 +34,8 @@ class TikzCodeGenerator:
     def create_nodes(self, data: Dict[str,str]) -> OrderedDict[str, str]:
         nodes = OrderedDict()
         for id,detail in data.items():
+            if id == "orientation":
+                continue
             label = detail.get("label", "     ")
             node_type = detail.get("type", "")
             temp = label + "[" + node_type + "]"
@@ -43,6 +45,8 @@ class TikzCodeGenerator:
     def get_next_nodes_and_edges(self, data: Dict[str,str]) -> OrderedDict[str, List[str]]:
         nodes = OrderedDict()
         for id, prop in data.items():
+            if id == "orientation":
+                continue
             next_nodes = prop.get("next")
             if next_nodes:
                 connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
@@ -68,8 +72,12 @@ class TikzCodeGenerator:
         template = r"[decision/.style={diamond, draw, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex, thick},process/.style={rectangle, draw, thick}]"
         return template
     
-    def get_graph_properties(self)-> str:
+    def get_graph_properties(self, data: Dict[str,str])-> str:
         '''Return the graph properties'''
-        properties = r"[layered layout]{"
+        orientation = data.get("orientation") if data.get("orientation") else "tb"
+        direction = "down"
+        if orientation == "lr":
+            direction = "right"
+        properties = r"[layered layout, grow'={}]{{".format(direction)
         return properties
     

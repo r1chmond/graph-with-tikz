@@ -4,8 +4,12 @@ from typing import Dict,List, OrderedDict, Tuple
 class TikzCodeGenerator:
     def __init__(self, data: Dict[str, str]) -> None:
         self._parsed_data = data
+        self._data_nodes = {}
+        # self.update_nodes(self._parsed_data)
 
-        
+    def update_nodes(self, data:Dict[str,str]) -> None:
+        self._data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'g_style'}
+    
     def generate_tikz_code(self) -> str:
         """
         Generates tikz code
@@ -14,8 +18,9 @@ class TikzCodeGenerator:
         """
         
         template = self.template()
-        all_nodes = self.create_nodes(self._parsed_data)
-        node_links = self.get_next_nodes_and_edges(self._parsed_data)
+        self.update_nodes(self._parsed_data) #call update again in case data changes
+        all_nodes = self.create_nodes(self._data_nodes)
+        node_links = self.get_next_nodes_and_edges(self._data_nodes)
         code = (
             template["preamble"] + "\n" +
             template["start_tikz"] + self.get_shape_template() + "\n" +
@@ -42,8 +47,6 @@ class TikzCodeGenerator:
         """Create nodes based on input data"""
         nodes = OrderedDict()
         for node_id,detail in data.items():
-            if node_id == "orientation":
-                continue
             label = detail.get("label", "     ")
             node_type = detail.get("type", "")
             node_representation = f"{label}[{node_type}]"
@@ -53,10 +56,8 @@ class TikzCodeGenerator:
     def get_next_nodes_and_edges(self, data: Dict[str,str]) -> OrderedDict[str, List[Tuple[str,str]]]:
         """get information about next nodes and edges from input data"""
         nodes = OrderedDict()
-        for node_id, prop in data.items():
-            if node_id == "orientation":
-                continue
-            next_nodes = prop.get("next",[])
+        for node_id, detail in data.items():
+            next_nodes = detail.get("next",[])
             connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
             nodes[node_id] = connected_nodes
         

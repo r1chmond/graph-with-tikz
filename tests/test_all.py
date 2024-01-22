@@ -40,9 +40,34 @@ class TestFileHandler(unittest.TestCase):
     
     def write_valid_json_file(self) -> None:
         data =""" {
-                        "start": {"id": "idx1","type": "terminator", "next": {"id": "idx2"}}, 
-                        "walk": {"id":"idx2", "type": "process"}
-                    }"""
+    "orientation": "LR",
+    "g_style": {
+        "fontColor": "red"
+    },
+    "idx1": {
+        "label": "start",
+        "type": "terminator",
+        "next": [
+            {
+                "id": "idx2",
+                "edge": "edge"
+            },
+            {
+                "id": "idx3",
+                "edge": "desc"
+            }
+        ]
+    },
+    "idx2": {
+        "label": "go",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx3"
+            }
+            ] 
+            } 
+            }"""
         with open("valid.json", "w") as file:
             file.write(data)
            

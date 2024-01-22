@@ -1,0 +1,10 @@
+
+\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric}
+\usegdlibrary{layered}
+\tikz[nodes=blue, decision/.style={diamond, draw=red, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex, thick},process/.style={rectangle, draw, thick}]
+\graph[layered layout, grow'=down, edges=red,]{start[terminator=red] -- edge -> go[process],
+start[terminator=red] -- desc -> check[decision],
+go[process] -> check[decision],
+check[decision] -> end[terminator],
+
+};

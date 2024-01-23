@@ -61,4 +61,7 @@ it_data = data.get_parsed_data()
 gen = TikzCodeGenerator(it_data)
 code = gen.generate_tikz_code()
 
+with open("tikz.tex","w") as f:
+    f.write(code)
+
 print(code)

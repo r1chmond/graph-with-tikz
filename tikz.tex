@@ -1,12 +1,10 @@
-
 \usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric}
 \usegdlibrary{layered}
-\tikz[nodes=blue, decision/.style={diamond, draw=brown, thick, fill=white!50},terminator/.style={rectangle,draw=brown, rounded corners=1.5ex, thick,fill=green!50},process/.style={rectangle, draw=brown, thick,fill=green!50}]
-\graph[layered layout, grow'=down, edges=red,]{
-start[terminator] -- edge -> go[process],
-start[terminator] -- desc -> check[text=red,decision],
-go[process] -> check[text=red,decision],
-check[text=red, decision] -> end[terminator],
-%check[decision] ->[red] end[terminator], use this to color a single edge
-
+\tikz[nodes=black, decision/.style={diamond, draw=black, thick, fill=yellow!50},terminator/.style={rectangle,draw=black, rounded corners=1.5ex, thick, fill=yellow!50},process/.style={rectangle, draw=black, thick, fill=yellow!50}]
+\graph[layered layout, grow'=right, edges=black]{
+start[text=black,terminator] -- edge -> go[text=black,process],
+start[text=black,terminator] -- desc -> check[text=black,decision],
+go[text=black,process] -> check[text=black,decision],
+check[text=black,decision] -> end[text=black,terminator],
 };
+%check[decision] ->[red] end[terminator], use this to color a single edge

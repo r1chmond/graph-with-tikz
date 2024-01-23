@@ -1,10 +1,6 @@
 {
     "orientation": "LR",
     "chartStyle": {
-        "fontColor": "red",
-        "chartColor": "changes entire graph to a particular color",
-        "edgeColor": "blue",
-        "shapeColor": "brown",
         "shapeFill": "yellow"
     },
     "idx1": {
@@ -19,7 +15,12 @@
                 "id": "idx3",
                 "edge": "desc"
             }
-        ]
+        ],
+        "nodeStyle": {
+            "fontColor": "red",
+            "shapeColor": "blue",
+            "shapeFill": "green"
+        }
     },
     "idx2": {
         "label": "go",

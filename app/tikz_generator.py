@@ -49,7 +49,10 @@ class TikzCodeGenerator:
         for node_id,detail in data.items():
             label = detail.get("label", "     ")
             node_type = detail.get("type", "")
-            node_representation = f"{label}[{node_type}]"
+            node_style = detail.get("nodeStyle",{})
+            text_color = node_style.get("fontColor","black")#if this color is not set but chartStyle is, the it will still be black - change!!
+            # maybe remove nodes= and do chartstyle(fontcolor) or textcolor('somecolor','black') for each text
+            node_representation = f"{label}[text={text_color},{node_type}]"
             nodes[node_id] = node_representation
         return nodes
 
@@ -81,15 +84,18 @@ class TikzCodeGenerator:
        
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
-        #TODO: start from here chartStyle... 
-        template = r"[decision/.style={diamond, draw, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex, thick},process/.style={rectangle, draw, thick}]"
+        style = self._parsed_data.get("chartStyle",{})
+        template = (r"[nodes={}, decision/.style={{diamond, draw={}, thick, fill={}!50}},terminator/.style={{rectangle,draw={}, rounded corners=1.5ex, thick, fill={}!50}},process/.style={{rectangle, draw={}, thick, fill={}!50}}]"
+                    .format(style.get("fontColor", "black"),style.get("shapeColor","black"),style.get("shapeFill", "white"),style.get("shapeColor","black"),style.get("shapeFill", "white"),style.get("shapeColor","black"),style.get("shapeFill", "white"))
+                    )
         return template
     
     def get_graph_properties(self, data: Dict[str,str])-> str:
         '''Return the graph properties'''
         orientation = data.get("orientation").lower()
         direction = "right" if orientation == "lr" else "down"
-        properties = r"[layered layout, grow'={}]{{".format(direction)
+        edge_color = self._parsed_data.get("chartStyle",{})
+        properties = r"[layered layout, grow'={}, edges={}]{{".format(direction, edge_color.get("edgeColor", "black"))
         return properties
     
 #TODO: chartStyle first, handle error when json key is not in specification

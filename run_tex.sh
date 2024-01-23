@@ -1,6 +1,6 @@
 #!/bin/bash
 
 lualatex tester.tex
-py run_tex.py
+python3 run_tex.py
 
 

@@ -41,7 +41,7 @@ class TestFileHandler(unittest.TestCase):
     def write_valid_json_file(self) -> None:
         data =""" {
     "orientation": "LR",
-    "g_style": {
+    "chartStyle": {
         "fontColor": "red"
     },
     "idx1": {

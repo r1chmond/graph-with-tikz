@@ -1,7 +1,11 @@
 {
     "orientation": "LR",
-    "g_style": {
-        "fontColor": "red"
+    "chartStyle": {
+        "fontColor": "red",
+        "chartColor": "changes entire graph to a particular color",
+        "edgeColor": "blue",
+        "shapeColor": "brown",
+        "shapeFill": "yellow"
     },
     "idx1": {
         "label": "start",

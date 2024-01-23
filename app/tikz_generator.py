@@ -8,7 +8,7 @@ class TikzCodeGenerator:
         # self.update_nodes(self._parsed_data)
 
     def update_nodes(self, data:Dict[str,str]) -> None:
-        self._data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'g_style'}
+        self._data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
     
     def generate_tikz_code(self) -> str:
         """
@@ -81,6 +81,7 @@ class TikzCodeGenerator:
        
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
+        #TODO: start from here chartStyle... 
         template = r"[decision/.style={diamond, draw, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex, thick},process/.style={rectangle, draw, thick}]"
         return template
     
@@ -91,4 +92,4 @@ class TikzCodeGenerator:
         properties = r"[layered layout, grow'={}]{{".format(direction)
         return properties
     
-#TODO: g_style first, handle error when json key is not in specification
+#TODO: chartStyle first, handle error when json key is not in specification

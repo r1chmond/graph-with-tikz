@@ -15,7 +15,12 @@
                 "id": "idx3",
                 "edge": "desc"
             }
-        ]
+        ],
+        "nodeStyle": {
+            "fontColor": "red",
+            "shapeColor": "blue",
+            "shapeFill": "green"
+        }
     },
     "idx2": {
         "label": "go",

@@ -49,7 +49,10 @@ class TikzCodeGenerator:
         for node_id,detail in data.items():
             label = detail.get("label", "     ")
             node_type = detail.get("type", "")
-            node_representation = f"{label}[{node_type}]"
+            node_style = detail.get("nodeStyle",{})
+            text_color = node_style.get("fontColor","black")#if this color is not set but chartStyle is, the it will still be black - change!!
+            # maybe remove nodes= and do chartstyle(fontcolor) or textcolor('somecolor','black') for each text
+            node_representation = f"{label}[text={text_color},{node_type}]"
             nodes[node_id] = node_representation
         return nodes
 

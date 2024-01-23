@@ -1,7 +1,7 @@
 {
     "orientation": "LR",
-    "g_style": {
-        "fontColor": "red"
+    "chartStyle": {
+        "shapeFill": "yellow"
     },
     "idx1": {
         "label": "start",

@@ -8,7 +8,7 @@ class TikzCodeGenerator:
         # self.update_nodes(self._parsed_data)
 
     def update_nodes(self, data:Dict[str,str]) -> None:
-        self._data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'g_style'}
+        self._data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
     
     def generate_tikz_code(self) -> str:
         """
@@ -81,14 +81,18 @@ class TikzCodeGenerator:
        
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
-        template = r"[decision/.style={diamond, draw, thick},terminator/.style={rectangle,draw, rounded corners=1.5ex, thick},process/.style={rectangle, draw, thick}]"
+        style = self._parsed_data.get("chartStyle",{})
+        template = (r"[nodes={}, decision/.style={{diamond, draw={}, thick, fill={}!50}},terminator/.style={{rectangle,draw={}, rounded corners=1.5ex, thick, fill={}!50}},process/.style={{rectangle, draw={}, thick, fill={}!50}}]"
+                    .format(style.get("fontColor", "black"),style.get("shapeColor","black"),style.get("shapeFill", "white"),style.get("shapeColor","black"),style.get("shapeFill", "white"),style.get("shapeColor","black"),style.get("shapeFill", "white"))
+                    )
         return template
     
     def get_graph_properties(self, data: Dict[str,str])-> str:
         '''Return the graph properties'''
         orientation = data.get("orientation").lower()
         direction = "right" if orientation == "lr" else "down"
-        properties = r"[layered layout, grow'={}]{{".format(direction)
+        edge_color = self._parsed_data.get("chartStyle",{})
+        properties = r"[layered layout, grow'={}, edges={}]{{".format(direction, edge_color.get("edgeColor", "black"))
         return properties
     
 #TODO: g_style first, handle error when json key is not in specification

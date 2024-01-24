@@ -100,4 +100,11 @@ class TikzCodeGenerator:
         properties = r"[layered layout, grow'={}, edges={}]{{".format(direction, edge_color.get("edgeColor", "black"))
         return properties
     
-#TODO: chartStyle first, handle error when json key is not in specification
+
+# MAJOR 
+#TODO: work on subgraphs
+#TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key
+
+
+# MINOR
+#TODO: edges style: arrow type, a edge can have its own color {a -> [red] b}

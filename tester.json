@@ -1,7 +1,10 @@
 {
     "orientation": "LR",
     "chartStyle": {
-        "shapeFill": "yellow"
+        "shapeFill": "yellow",
+        "fontColor": "red",
+        "edgeColor": "blue",
+        "shapeColor": "brown"
     },
     "idx1": {
         "label": "start",
@@ -16,11 +19,9 @@
                 "edge": "desc"
             }
         ],
-        "nodeStyle": {
-            "fontColor": "red",
-            "shapeColor": "blue",
-            "shapeFill": "green"
-        }
+        "shapeFill": "black",
+        "fontColor": "white",
+        "shapeColor": "green"
     },
     "idx2": {
         "label": "go",

@@ -33,6 +33,7 @@ class TikzCodeGenerator:
                 code += all_nodes[node_id]
                 edge_label = node[1]
                 end_node = all_nodes.get(node[0], "default[terminator]")
+                green = "green"
                 if edge_label:
                     code += f" -- {edge_label} -> {end_node},\n"
                 else:
@@ -49,10 +50,11 @@ class TikzCodeGenerator:
         for node_id,detail in data.items():
             label = detail.get("label", "     ")
             node_type = detail.get("type", "")
-            node_style = detail.get("nodeStyle",{})
-            text_color = node_style.get("fontColor","black")#if this color is not set but chartStyle is, the it will still be black - change!!
-            # maybe remove nodes= and do chartstyle(fontcolor) or textcolor('somecolor','black') for each text
-            node_representation = f"{label}[text={text_color},{node_type}]"
+            style = self._parsed_data.get("chartStyle",{})
+            text_color = detail.get("fontColor",style.get("fontColor", "black"))
+            fill_color = detail.get("shapeFill",style.get("shapeFill", "white"))
+            shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
+            node_representation = f"{label}[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]"
             nodes[node_id] = node_representation
         return nodes
 
@@ -85,8 +87,8 @@ class TikzCodeGenerator:
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
         style = self._parsed_data.get("chartStyle",{})
-        template = (r"[nodes={}, decision/.style={{diamond, draw={}, thick, fill={}!50}},terminator/.style={{rectangle,draw={}, rounded corners=1.5ex, thick, fill={}!50}},process/.style={{rectangle, draw={}, thick, fill={}!50}}]"
-                    .format(style.get("fontColor", "black"),style.get("shapeColor","black"),style.get("shapeFill", "white"),style.get("shapeColor","black"),style.get("shapeFill", "white"),style.get("shapeColor","black"),style.get("shapeFill", "white"))
+        template = (r"[nodes={},decision/.style={{diamond, thick}},terminator/.style={{rectangle, rounded corners=1.5ex, thick}},process/.style={{rectangle, thick}}]"
+                    .format(style.get("fontColor","black"))
                     )
         return template
     

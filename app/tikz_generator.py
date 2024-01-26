@@ -49,12 +49,12 @@ class TikzCodeGenerator:
         nodes = OrderedDict()
         for node_id,detail in data.items():
             label = detail.get("label", "     ")
-            node_type = detail.get("type", "")
+            node_type = detail.get("type", "process")
             style = self._parsed_data.get("chartStyle",{})
             text_color = detail.get("fontColor",style.get("fontColor", "black"))
             fill_color = detail.get("shapeFill",style.get("shapeFill", "white"))
             shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
-            node_representation = f"{label}[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]"
+            node_representation = f"{node_id}[as={label},{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]"
             nodes[node_id] = node_representation
         return nodes
 
@@ -68,12 +68,12 @@ class TikzCodeGenerator:
         
         return nodes
                 
-            
+    # node [draw,terminator] // [layered layout] {idx1[draw,text=blue,as=a, terminator] -> idx2[as=a]}  
         
 
     def template(self) -> Dict[str, str]:
         """Generate a template for tikz code"""
-        preamble = (r"\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric}"
+        preamble = (r"\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric,arrows.meta}"
                     "\n" + 
                     r"\usegdlibrary{layered}"
         )
@@ -87,7 +87,7 @@ class TikzCodeGenerator:
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
         style = self._parsed_data.get("chartStyle",{})
-        template = (r"[nodes={},decision/.style={{diamond, thick}},terminator/.style={{rectangle, rounded corners=1.5ex, thick}},process/.style={{rectangle, thick}}]"
+        template = (r"[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
                     .format(style.get("fontColor","black"))
                     )
         return template
@@ -97,14 +97,14 @@ class TikzCodeGenerator:
         orientation = data.get("orientation").lower()
         direction = "right" if orientation == "lr" else "down"
         edge_color = self._parsed_data.get("chartStyle",{})
-        properties = r"[layered layout, grow'={}, edges={}]{{".format(direction, edge_color.get("edgeColor", "black"))
+        properties = r"[layered layout, grow'={}, edges={{{},-latex,thick}}]{{".format(direction, edge_color.get("edgeColor", "black"))
         return properties
     
 
 # MAJOR 
 #TODO: work on subgraphs
 #TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key
-
+#TODO: node cannot have same labels
 
 # MINOR
 #TODO: edges style: arrow type, a edge can have its own color {a -> [red] b}

@@ -1,9 +1,12 @@
-\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric}
+\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric,arrows.meta}
 \usegdlibrary{layered}
-\tikz[nodes=red,decision/.style={diamond, thick},terminator/.style={rectangle, rounded corners=1.5ex, thick},process/.style={rectangle, thick}]
-\graph[layered layout, grow'=right, edges=blue]{
-start[terminator,draw=green,text=white,fill=black!50] -- edge -> go[process,draw=brown,text=red,fill=yellow!50],
-start[terminator,draw=green,text=white,fill=black!50] -- desc -> check[decision,draw=brown,text=red,fill=yellow!50],
-go[process,draw=brown,text=red,fill=yellow!50] -> check[decision,draw=brown,text=red,fill=yellow!50],
-check[decision,draw=brown,text=red,fill=yellow!50] -> end[terminator,draw=brown,text=red,fill=yellow!50],
+\tikz[nodes=black, io/.style={trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}, decision/.style={diamond, thick,minimum width=3cm, minimum height=1cm}, terminator/.style={rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}, process/.style={rectangle, thick, minimum width=3cm, minimum height=1cm}]
+\graph[layered layout, grow'=down, edges={black,-latex,thick}]{
+idx1[as=Start,terminator,draw=black,text=black,fill=white!50] -> idx2[as=Input,io,draw=black,text=black,fill=white!50],
+idx2[as=Input,io,draw=black,text=black,fill=white!50] -> idx3[as=Process 1,process,draw=black,text=black,fill=white!50],
+idx3[as=Process 1,process,draw=black,text=black,fill=white!50] -> idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50],
+idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50] -> idx5[as=Process 2a,process,draw=black,text=black,fill=white!50],
+idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50] -> idx6[as=Process 2b,process,draw=black,text=black,fill=white!50],
+idx5[as=Process 2a,process,draw=black,text=black,fill=white!50] -> idx7[as=Output,io,draw=black,text=black,fill=white!50],
+idx7[as=Output,io,draw=black,text=black,fill=white!50] -> idx8[as=Stop,terminator,draw=black,text=black,fill=white!50],
 };

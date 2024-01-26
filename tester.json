@@ -1,31 +1,17 @@
 {
-    "orientation": "LR",
-    "chartStyle": {
-        "shapeFill": "yellow",
-        "fontColor": "red",
-        "edgeColor": "blue",
-        "shapeColor": "brown"
-    },
+    "orientation": "td",
     "idx1": {
-        "label": "start",
+        "label": "Start",
         "type": "terminator",
         "next": [
             {
-                "id": "idx2",
-                "edge": "edge"
-            },
-            {
-                "id": "idx3",
-                "edge": "desc"
+                "id": "idx2"
             }
-        ],
-        "shapeFill": "black",
-        "fontColor": "white",
-        "shapeColor": "green"
+        ]
     },
     "idx2": {
-        "label": "go",
-        "type": "process",
+        "label": "Input",
+        "type": "io",
         "next": [
             {
                 "id": "idx3"
@@ -33,8 +19,8 @@
         ]
     },
     "idx3": {
-        "label": "check",
-        "type": "decision",
+        "label": "Process 1",
+        "type": "process",
         "next": [
             {
                 "id": "idx4"
@@ -42,7 +28,41 @@
         ]
     },
     "idx4": {
-        "label": "end",
+        "label": "Decision 1",
+        "type": "decision",
+        "next": [
+            {
+                "id": "idx5"
+            },
+            {
+                "id": "idx6"
+            }
+        ]
+    },
+    "idx5": {
+        "label": "Process 2a",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx7"
+            }
+        ]
+    },
+    "idx6": {
+        "label": "Process 2b",
+        "type": "process"
+    },
+    "idx7": {
+        "label": "Output",
+        "type": "io",
+        "next": [
+            {
+                "id": "idx8"
+            }
+        ]
+    },
+    "idx8": {
+        "label": "Stop",
         "type": "terminator"
     }
 }

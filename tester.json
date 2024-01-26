@@ -14,7 +14,8 @@
         "type": "io",
         "next": [
             {
-                "id": "idx3"
+                "id": "idx3",
+                "edge": "begin process"
             }
         ]
     },

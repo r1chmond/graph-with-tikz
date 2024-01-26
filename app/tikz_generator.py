@@ -33,11 +33,11 @@ class TikzCodeGenerator:
                 code += all_nodes[node_id]
                 edge_label = node[1]
                 end_node = all_nodes.get(node[0], "default[terminator]")
-                green = "green"
+                # green = "green"
                 if edge_label:
-                    code += f" -- {edge_label} -> {end_node},\n"
+                    code += f" -- {edge_label} -> [-Latex]{end_node},\n"
                 else:
-                    code += f" -> {end_node},\n"
+                    code += f" -> [-Latex]{end_node},\n"
        
             
         code += template["end"]    
@@ -87,7 +87,7 @@ class TikzCodeGenerator:
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
         style = self._parsed_data.get("chartStyle",{})
-        template = (r"[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
+        template = (r"[level sep= 15pt, nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
                     .format(style.get("fontColor","black"))
                     )
         return template
@@ -97,14 +97,13 @@ class TikzCodeGenerator:
         orientation = data.get("orientation").lower()
         direction = "right" if orientation == "lr" else "down"
         edge_color = self._parsed_data.get("chartStyle",{})
-        properties = r"[layered layout, grow'={}, edges={{{},-latex,thick}}]{{".format(direction, edge_color.get("edgeColor", "black"))
+        properties = r"[layered layout, grow'={}, edges={{{},thick}}]{{".format(direction, edge_color.get("edgeColor", "black"))
         return properties
     
 
 # MAJOR 
 #TODO: work on subgraphs
 #TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key
-#TODO: node cannot have same labels
 
 # MINOR
 #TODO: edges style: arrow type, a edge can have its own color {a -> [red] b}

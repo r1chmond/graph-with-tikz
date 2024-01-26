@@ -7,7 +7,8 @@
             {
                 "id": "idx2"
             }
-        ]
+        ],
+        "shapeFill": "yellow"
     },
     "idx2": {
         "label": "Input",

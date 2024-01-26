@@ -9,4 +9,9 @@ idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50] -> [-Latex]idx5
 idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50] -> [-Latex]idx6[as=Process 2b,process,draw=black,text=black,fill=white!50],
 idx5[as=Process 2a,process,draw=black,text=black,fill=white!50] -> [-Latex]idx7[as=Output,io,draw=black,text=black,fill=white!50],
 idx7[as=Output,io,draw=black,text=black,fill=white!50] -> [-Latex]idx8[as=Stop,terminator,draw=black,text=black,fill=white!50],
+
+idx9[draw,process] // [layered layout]{
+idx10[as=Start,terminator,draw=black,text=black,fill=yellow!50] -> [-Latex]idx11[as=Input,io,draw=black,text=black,fill=white!50],
+idx11[as=Input,io,draw=black,text=black,fill=white!50] -- in begin process -> [-Latex]idx12[as=Process 1,process,draw=black,text=black,fill=white!50];
+}
 };

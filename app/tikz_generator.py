@@ -106,4 +106,5 @@ class TikzCodeGenerator:
 #TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key
 
 # MINOR
+# TODO: check edge label id to be able to repeat edge labels
 #TODO: edges style: arrow type, a edge can have its own color {a -> [red] b}

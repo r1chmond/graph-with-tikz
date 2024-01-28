@@ -46,22 +46,22 @@ import tkinter as tk
 # nx.draw_networkx_labels(G, pos, font_size=15)
 # plt.show()
 
-# root = tk.Tk() 
-# app = main_app.TikzCodeGeneratorApp(root)
-# # app.list_box.bind("<<ListboxSelect>>", app.on_select)
-# root.minsize(500,600)
-# root.maxsize(800, 620)
-# root.mainloop()
+root = tk.Tk() 
+app = main_app.TikzCodeGeneratorApp(root)
+# app.list_box.bind("<<ListboxSelect>>", app.on_select)
+root.minsize(500,600)
+root.maxsize(800, 620)
+root.mainloop()
 
 
 
     
-data = ParsedData("tester.json")
-it_data = data.get_parsed_data()
-gen = TikzCodeGenerator(it_data)
-code = gen.generate_tikz_code()
+# data = ParsedData("tester.json")
+# it_data = data.get_parsed_data()
+# gen = TikzCodeGenerator(it_data)
+# code = gen.generate_tikz_code()
 
-with open("tikz.tex","w") as f:
-    f.write(code)
+# with open("tikz.tex","w") as f:
+#     f.write(code)
 
-print(code)
+# print(code)

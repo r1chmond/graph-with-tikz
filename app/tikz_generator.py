@@ -1,5 +1,6 @@
 
 from typing import Dict,List, OrderedDict, Tuple
+import random
 
 class TikzCodeGenerator:
     def __init__(self, data: Dict[str, str]) -> None:
@@ -41,8 +42,9 @@ class TikzCodeGenerator:
                 code += f"{node_id}"
                 edge_label = node[1]
                 end_node = node[0] if all_nodes.get(node[0]) else "default[as=Default End, terminator]"
+                edge_id = "E" + str(random.randint(0,1000)) 
                 if edge_label:
-                    code += f" -- {edge_label} -> [-Latex]{end_node},\n"
+                    code += f" -- {edge_id}[as={edge_label}] -> [-Latex]{end_node},\n"
                 else:
                     code += f" -> [-Latex]{end_node},\n"
        
@@ -85,8 +87,9 @@ class TikzCodeGenerator:
                 for inner_node_id,attached_nodes in node_links.items():
                     for node in attached_nodes:
                         edge_label = node[1]
+                        edge_id = "E"+str(random.randint(1,10000))
                         if edge_label:
-                            connections += f"{inner_node_id} -- {edge_label} -> [-Latex]{node[0]}, \n" 
+                            connections += f"{inner_node_id} -- {edge_id}[as={edge_label}] -> [-Latex]{node[0]}, \n" 
                         else:
                             connections += f"{inner_node_id} -> [-Latex]{node[0]}, \n"
                 graph = (f"[layered layout, grow'={self.get_graph_orientation(subgraph)}]"
@@ -148,7 +151,8 @@ class TikzCodeGenerator:
     
 
 # MAJOR 
-#TODO: Give a edge a random id, so that it can be reused
+#TODO: Give a edge a random id, so that it can be reused --DONE
+#TODO: fit picture on page and centre
 #TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key
 
 # MINOR

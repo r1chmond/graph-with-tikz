@@ -27,43 +27,7 @@
             {
                 "id": "idx4"
             }
-        ],
-        "subgraph": {
-            "orientation": "td",
-            "idx11": {
-                "label": "Begin",
-                "type": "terminator",
-                "next": [
-                    {
-                        "id": "idx12"
-                    }
-                ]
-            },
-            "idx12": {
-                "label": "Input",
-                "type": "io",
-                "next": [
-                    {
-                        "id": "idx13",
-                        "edge": "begin process"
-                    }
-                ]
-            },
-            "idx13": {
-                "label": "Process 2a",
-                "type": "process",
-                "next": [
-                    {
-                        "id": "idx14",
-                        "edge": "exit"
-                    }
-                ]
-            },
-            "idx14": {
-                "label": "End",
-                "type": "terminator"
-            }
-        }
+        ]
     },
     "idx4": {
         "label": "Decision 1",

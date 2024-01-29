@@ -3,15 +3,15 @@
 \tikz[level sep= 15pt, nodes=black, io/.style={trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}, decision/.style={diamond, thick,minimum width=3cm, minimum height=1cm}, terminator/.style={rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}, process/.style={rectangle, thick, minimum width=3cm, minimum height=1cm}]
 \graph[layered layout, grow'=down, edges={black,thick}]{
 idx1[as=Start,terminator,draw=black,text=black,fill=yellow!50] -> [-Latex]idx2[as=Input,io,draw=black,text=black,fill=white!50],
-idx2[as=Input,io,draw=black,text=black,fill=white!50] -- begin process -> [-Latex]idx3[as=Process 1,process,draw=black,text=black,fill=white!50],
-idx3[as=Process 1,process,draw=black,text=black,fill=white!50] -> [-Latex]idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50],
+idx2[as=Input,io,draw=black,text=black,fill=white!50] -- begin process -> [-Latex]idx3[as=Process 1,process,draw=black,text=black,fill=white!50] // [layered layout]{
+idx10[as=Start,terminator,draw=black,text=black,fill=yellow!50] -> [-Latex]idx11[as=Input,io,draw=black,text=black,fill=white!50],
+idx11[as=Input,io,draw=black,text=black,fill=white!50] -- in begin process -> [-Latex]idx12[as=Process 1,process,draw=black,text=black,fill=white!50];
+},
+idx3[draw] -> [-Latex]idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50],
 idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50] -> [-Latex]idx5[as=Process 2a,process,draw=black,text=black,fill=white!50],
 idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50] -> [-Latex]idx6[as=Process 2b,process,draw=black,text=black,fill=white!50],
 idx5[as=Process 2a,process,draw=black,text=black,fill=white!50] -> [-Latex]idx7[as=Output,io,draw=black,text=black,fill=white!50],
 idx7[as=Output,io,draw=black,text=black,fill=white!50] -> [-Latex]idx8[as=Stop,terminator,draw=black,text=black,fill=white!50],
 
-idx9[draw,process] // [layered layout]{
-idx10[as=Start,terminator,draw=black,text=black,fill=yellow!50] -> [-Latex]idx11[as=Input,io,draw=black,text=black,fill=white!50],
-idx11[as=Input,io,draw=black,text=black,fill=white!50] -- in begin process -> [-Latex]idx12[as=Process 1,process,draw=black,text=black,fill=white!50];
-}
+
 };

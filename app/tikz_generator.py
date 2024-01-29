@@ -1,5 +1,6 @@
 
 from typing import Dict,List, OrderedDict, Tuple
+import random
 
 class TikzCodeGenerator:
     def __init__(self, data: Dict[str, str]) -> None:
@@ -16,26 +17,34 @@ class TikzCodeGenerator:
         Returns:
             str: tikz code to be exported
         """
-        
         template = self.template()
         self.update_nodes(self._parsed_data) #call update again in case data changes
         all_nodes = self.create_nodes(self._data_nodes)
         node_links = self.get_next_nodes_and_edges(self._data_nodes)
+        subgraphs = self.create_subgraphs(self._data_nodes)
         code = (
             template["preamble"] + "\n" +
             template["start_tikz"] + self.get_shape_template() + "\n" +
             template["start_graph"] + self.get_graph_properties(self._parsed_data) + "\n"
         )
-                
+        code += f"% Create nodes \n"
+        for main_node_id, representation in all_nodes.items():
+            subgraph = subgraphs.get(main_node_id)
+            if subgraph:
+                code += f"{representation} // {subgraph}, \n"  
+            else:
+                code += f"{representation}, \n"
+            
+        code += f"% Connect nodes \n"     
        
         for node_id, connected_nodes in node_links.items():
             for node in connected_nodes:
-                code += all_nodes[node_id]
+                code += f"{node_id}"
                 edge_label = node[1]
-                end_node = all_nodes.get(node[0], "default[terminator]")
-                # green = "green"
+                end_node = node[0] if all_nodes.get(node[0]) else "default[as=Default End, terminator]"
+                edge_id = "E" + str(random.randint(0,1000)) 
                 if edge_label:
-                    code += f" -- {edge_label} -> [-Latex]{end_node},\n"
+                    code += f" -- {edge_id}[as={edge_label}] -> [-Latex]{end_node},\n"
                 else:
                     code += f" -> [-Latex]{end_node},\n"
        
@@ -52,12 +61,48 @@ class TikzCodeGenerator:
             node_type = detail.get("type", "process")
             style = self._parsed_data.get("chartStyle",{})
             text_color = detail.get("fontColor",style.get("fontColor", "black"))
-            fill_color = detail.get("shapeFill",style.get("shapeFill", "white"))
+            subgraph = detail.get("subgraph")
+            fill_color = detail.get("shapeFill",style.get("shapeFill", "white")) 
             shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
-            node_representation = f"{node_id}[as={label},{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]"
+            if not subgraph:
+                node_representation = f"{node_id}[as={label},{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]"
+            else:
+                node_representation = f"{node_id}[{node_type},draw={shape_color}]"
             nodes[node_id] = node_representation
         return nodes
+    
+    def create_subgraphs(self, data: Dict[str,str]):
+        inner_graphs = OrderedDict()
+        for node_id, detail in data.items():
+            subgraph = detail.get("subgraph")   
+            if subgraph:
+                data_nodes = {key: value for key, value in subgraph.items() if key != "orientation" and key != "chartStyle"} 
+                all_nodes = self.create_nodes(data_nodes)
+                temp = ""
+                for node_representation in all_nodes.values():
+                    temp += f"{node_representation},\n"
+                node_links = self.get_next_nodes_and_edges(data_nodes)
+                
+                connections = ""
+                for inner_node_id,attached_nodes in node_links.items():
+                    for node in attached_nodes:
+                        edge_label = node[1]
+                        edge_id = "E"+str(random.randint(1,10000))
+                        if edge_label:
+                            connections += f"{inner_node_id} -- {edge_id}[as={edge_label}] -> [-Latex]{node[0]}, \n" 
+                        else:
+                            connections += f"{inner_node_id} -> [-Latex]{node[0]}, \n"
+                graph = (f"[layered layout, grow'={self.get_graph_orientation(subgraph)}]"
+                         f"{{\n"
+                             f"{temp}"
+                             f"{connections};"
+                             f"}}"
+                         )
+                inner_graphs[node_id] = graph
+        return inner_graphs 
 
+                
+            
     def get_next_nodes_and_edges(self, data: Dict[str,str]) -> OrderedDict[str, List[Tuple[str,str]]]:
         """get information about next nodes and edges from input data"""
         nodes = OrderedDict()
@@ -87,22 +132,27 @@ class TikzCodeGenerator:
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
         style = self._parsed_data.get("chartStyle",{})
-        template = (r"[level sep= 15pt, nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
+        template = (r"[subgraph text none, level sep= 15pt, nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
                     .format(style.get("fontColor","black"))
                     )
         return template
     
     def get_graph_properties(self, data: Dict[str,str])-> str:
         '''Return the graph properties'''
-        orientation = data.get("orientation").lower()
-        direction = "right" if orientation == "lr" else "down"
+        direction = self.get_graph_orientation(data)
         edge_color = self._parsed_data.get("chartStyle",{})
         properties = r"[layered layout, grow'={}, edges={{{},thick}}]{{".format(direction, edge_color.get("edgeColor", "black"))
         return properties
     
+    def get_graph_orientation(self, data: Dict[str,str]) -> str:
+        orientation = data.get("orientation").lower()
+        direction = "right" if orientation == "lr" else "down"
+        return direction
+    
 
 # MAJOR 
-#TODO: work on subgraphs
+#TODO: Give a edge a random id, so that it can be reused --DONE
+#TODO: fit picture on page and centre
 #TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key
 
 # MINOR

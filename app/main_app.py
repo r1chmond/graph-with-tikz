@@ -4,12 +4,10 @@ import tkinter as tk
 from tkinter import filedialog as fd
 import os
 from app.file_handler import FileHandler
+import webbrowser
+import subprocess
 
 
-# TODO:
-# What if processes have the same?
-#  Consider swapping "id" with "label"
-# eg: "idx2": {"label":"walk", "type": "process"}
 MAX_FILENAME_LENGTH = 20
 
 class TikzCodeGeneratorApp:
@@ -66,7 +64,7 @@ class TikzCodeGeneratorApp:
         self.create_status_bar(self.left_mainframe)
     
     def create_toolbar(self, parent_frame: tk.Frame) -> None:
-        l_tools_frame = tk.Frame(parent_frame, bg="skyblue")
+        l_tools_frame = tk.Frame(parent_frame)
         l_tools_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
         add_image = tk.PhotoImage(file=os.path.join("icons/add-file.png"))
@@ -76,13 +74,13 @@ class TikzCodeGeneratorApp:
         addfile_btn.pack(side=tk.RIGHT, padx=(0, 10))  
 
     def create_listbox(self, parent_frame: tk.Frame) -> None:
-        l_list_frame = tk.Frame(parent_frame, bg="green")
+        l_list_frame = tk.Frame(parent_frame)
         l_list_frame.pack(fill=tk.X, pady=10)
         self.list_box.pack()
     
         
     def create_status_bar(self, parent_frame: tk.Frame) -> None:
-        l_status_frame = tk.Frame(parent_frame, bg="purple")
+        l_status_frame = tk.Frame(parent_frame)
         l_status_frame.pack(side=tk.BOTTOM)
 
         status_label = tk.Label(l_status_frame, text=self.current_status)
@@ -96,7 +94,7 @@ class TikzCodeGeneratorApp:
         self.create_right_bottom_frame(self.right_mainframe)
     
     def create_right_top_frame(self, parent_frame: tk.Frame) -> None:
-        r_top_frame = tk.Frame(parent_frame, bg="purple")
+        r_top_frame = tk.Frame(parent_frame)
         r_top_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
         image = tk.PhotoImage(file=os.path.join("icons/export.png"))
@@ -105,16 +103,16 @@ class TikzCodeGeneratorApp:
         export_btn.pack(side=tk.RIGHT, padx=(0, 15))
         
     def create_right_middle_frame(self, parent_frame: tk.Frame) -> None:
-        r_middle_frame = tk.Frame(parent_frame, bg="green")
+        r_middle_frame = tk.Frame(parent_frame)
         r_middle_frame.pack(fill=tk.X, pady=10)
 
         self.textbox.pack(padx=5, pady=5)
     
     def create_right_bottom_frame(self, parent_frame: tk.Frame) -> None:
-        r_bottom_frame = tk.Frame(parent_frame, bg="purple")
+        r_bottom_frame = tk.Frame(parent_frame)
         r_bottom_frame.pack(side=tk.BOTTOM)
 
-        visualise_btn = tk.Button(parent_frame, text="Visualise")
+        visualise_btn = tk.Button(parent_frame, text="Visualise", command=self.visualise_btn_action)
         generate_btn = tk.Button(parent_frame, text="Generate Tikz Code", command=self.generate_code_btn_action)
 
         visualise_btn.pack(side=tk.RIGHT, padx=(10, 30))
@@ -200,6 +198,13 @@ class TikzCodeGeneratorApp:
                   Please select a file
                   ++ 
                   """)
+            
+    def visualise_btn_action(self) -> None:
+        command = "sh run_tex.sh"
+        subprocess.run(command, shell=True)
+        
+        file = os.path.join("tester.pdf")
+        webbrowser.open_new(file)
             
     def shorten_filename(self, filename: str) -> str:
         size = len(filename)

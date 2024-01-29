@@ -1,0 +1,106 @@
+{
+    "orientation": "td",
+    "idx1": {
+        "label": "Start",
+        "type": "terminator",
+        "next": [
+            {
+                "id": "idx2"
+            }
+        ],
+        "shapeFill": "yellow"
+    },
+    "idx2": {
+        "label": "Input",
+        "type": "io",
+        "next": [
+            {
+                "id": "idx3",
+                "edge": "begin process"
+            }
+        ]
+    },
+    "idx3": {
+        "label": "Process 1",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx4"
+            }
+        ],
+        "subgraph": {
+            "orientation": "td",
+            "idx11": {
+                "label": "Begin",
+                "type": "terminator",
+                "next": [
+                    {
+                        "id": "idx12"
+                    }
+                ]
+            },
+            "idx12": {
+                "label": "Input",
+                "type": "io",
+                "next": [
+                    {
+                        "id": "idx13",
+                        "edge": "begin process"
+                    }
+                ]
+            },
+            "idx13": {
+                "label": "Process 2a",
+                "type": "process",
+                "next": [
+                    {
+                        "id": "idx14",
+                        "edge": "exit"
+                    }
+                ]
+            },
+            "idx14": {
+                "label": "End",
+                "type": "terminator"
+            }
+        }
+    },
+    "idx4": {
+        "label": "Decision 1",
+        "type": "decision",
+        "next": [
+            {
+                "id": "idx5"
+            },
+            {
+                "id": "idx6"
+            }
+        ]
+    },
+    "idx5": {
+        "label": "Process 2a",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx7"
+            }
+        ]
+    },
+    "idx6": {
+        "label": "Process 2b",
+        "type": "process"
+    },
+    "idx7": {
+        "label": "Output",
+        "type": "io",
+        "next": [
+            {
+                "id": "idx8"
+            }
+        ]
+    },
+    "idx8": {
+        "label": "Stop",
+        "type": "terminator"
+    }
+}

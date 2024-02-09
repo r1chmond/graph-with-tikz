@@ -2,6 +2,8 @@
 from app import main_app
 from app.data import ParsedData
 from app.tikz_generator import TikzCodeGenerator
+from app.visualisation import Graph, Edge
+import app.visualisation
 import os
 import tkinter as tk
 
@@ -10,7 +12,7 @@ import tkinter as tk
 # code.print_tikz_code()
 
 
-# import networkx as nx
+import networkx as nx
 # import matplotlib.pyplot as plt
 
 # # Generate a random tree with its node positions
@@ -46,12 +48,14 @@ import tkinter as tk
 # nx.draw_networkx_labels(G, pos, font_size=15)
 # plt.show()
 
-root = tk.Tk() 
-app = main_app.TikzCodeGeneratorApp(root)
-# app.list_box.bind("<<ListboxSelect>>", app.on_select)
-root.minsize(500,600)
-root.maxsize(800, 620)
-root.mainloop()
+
+"""Start GUI"""
+# root = tk.Tk() 
+# app = main_app.TikzCodeGeneratorApp(root)
+# # app.list_box.bind("<<ListboxSelect>>", app.on_select)
+# root.minsize(500,600)
+# root.maxsize(800, 620)
+# root.mainloop()
 
 
 
@@ -65,3 +69,26 @@ root.mainloop()
 #     f.write(code)
 
 # print(code)
+
+# di = DirectedGraph()
+# di.visualise()
+
+e1 = Edge("a", "b", 0)
+e2 = Edge("a", "c", 1)
+e3 = Edge("b", "a", 0)
+e4 = Edge("b", "d", 1)
+e5 = Edge("d", "b", 0)
+e6 = Edge("d", "c", 1)
+e7 = Edge("c", "c", 1)
+
+edges = {e1,e3,e6,e7,e2,e5,e4}
+
+G = Graph(edges)
+
+G.print_graph()
+
+print("====================================\n")
+
+G_no_cycle = app.visualisation.dfs_cycle_removal(G)
+
+G_no_cycle.print_graph()

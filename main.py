@@ -92,3 +92,8 @@ print("====================================\n")
 G_no_cycle = app.visualisation.dfs_cycle_removal(G)
 
 G_no_cycle.print_graph()
+print("====================================\n")
+
+layers = app.visualisation.init_rank(G_no_cycle)
+
+print(f"layers = {layers}")

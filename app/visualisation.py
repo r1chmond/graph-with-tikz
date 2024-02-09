@@ -70,7 +70,7 @@ class Edge:
         return hash((self.head, self.tail, self.weight))
         
     def __repr__(self) -> str:
-        return f"Edge({self.head} -- {self.weight} -> {self.tail} [is back edge = {self.reversed}])"
+        return f"Edge({self.head} --{self.weight}-> {self.tail}) [is_back_edge = {self.reversed}]"
         
 class Graph:
     def __init__(self, edges):
@@ -89,6 +89,7 @@ class Graph:
     def add_edge(self,head,tail,weight):
         new_edge = Edge(head,tail,weight)
         self.edges.add(new_edge)
+        self.update_vertices()
     
     def outgoing_edges(self, vertex):
         edges = set()
@@ -105,6 +106,12 @@ class Graph:
                 edges.add(edge)
             
         return edges
+    
+    def is_source(self, vertex):
+        return len(self.incoming_edges(vertex)) == 0
+    
+    def is_sink(self, vertex):
+        return len(self.outgoing_edges(vertex)) == 0
     
     def print_graph(self):
         for edge in self.edges:
@@ -139,6 +146,21 @@ def dfs_cycle_removal(graph):
             new_graph.add_edge(e.head, e.tail, e.weight)
             
     return new_graph  
+
+def init_rank(graph):
+    scanned = []
+    edges = graph.edges
+    vertices = graph.vertices
+    source_vertices = [v for v in vertices if graph.is_source(v)]
+    while source_vertices:
+        scanned.append(source_vertices)
+        edges = {e for e in edges if e.head not in source_vertices}
+        vertices = {v for v in vertices if v not in source_vertices}
+        graph.edges = edges
+        graph.vertices = vertices
+        source_vertices = [v for v in vertices if graph.is_source(v)]
+    
+    return scanned
         
 
 

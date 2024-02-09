@@ -33,3 +33,6 @@ https://www.flaticon.com/free-icon/export_8828334?term=export&page=1&position=15
 
 CODE:
 https://docs.python.org/3/library/tk.html
+
+LITERATURE:
+http://www.tcs.uni-luebeck.de/downloads/papers/2011/2011-10-14-configurable-graph-drawing-algorithms-jannis-pohlmann.pdf

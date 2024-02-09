@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from collections import OrderedDict
+from collections import deque
 
 class DirectedGraph:
     def __init__(self):
@@ -163,4 +164,35 @@ def init_rank(graph):
     return scanned
         
 
+
+
+# def topological_ordering(graph):
+#     # Step 1: Initialize an empty list to store the topological ordering.
+#     ordering = []
+
+#     # Step 2: Create a queue and add all vertices of G that have no incoming edges to the queue.
+#     queue = deque([u for u in graph if graph[u] == 0])
+
+#     # Step 3: While the queue is not empty, perform the following steps.
+#     while queue:
+#         # Dequeue a vertex v from the queue.
+#         v = queue.popleft()
+
+#         # Add v to the topological ordering list.
+#         ordering.append(v)
+
+#         # For each neighbor u of v, remove the edge (v, u) from the graph and decrease the in-degree of u by 1.
+#         for u in graph[v]:
+#             graph[u].remove(v)
+
+#         # If the in-degree of u becomes 0, add u to the queue.
+#         for u in graph[v]:
+#             if len(graph[u]) == 0:
+#                 queue.append(u)
+
+#     # Step 4: If the graph G still has edges after removing all the vertices from the queue, then the graph has a cycle and no topological ordering exists.
+#     if any(len(edges) != 0 for edges in graph.values()):
+#         return None
+
+#     return ordering
 

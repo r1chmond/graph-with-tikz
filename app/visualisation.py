@@ -1,65 +1,89 @@
-import networkx as nx
-import matplotlib.pyplot as plt
+# import networkx as nx
+# import matplotlib.pyplot as plt
 from collections import OrderedDict
 from collections import deque
 
-class DirectedGraph:
-    def __init__(self):
-        # Create a directed graph
-        G = nx.DiGraph()
+# class DirectedGraph:
+#     def __init__(self):
+#         # Create a directed graph
+#         G = nx.DiGraph()
 
-        # Add nodes
-        G.add_node("A",node_color="yellow", node_shape="^",node_size=600)
-        G.add_nodes_from([("B",{"node_color": "red","node_shape":"v", "label": "process"}),("C",{"node_color": "green", "node_shape":"8", "label": "end"})])
+#         # Add nodes
+#         G.add_node("A",node_color="yellow", node_shape="^",node_size=600)
+#         G.add_nodes_from([("B",{"node_color": "red","node_shape":"v", "label": "process"}),("C",{"node_color": "green", "node_shape":"8", "label": "end"})])
 
-        # Add edges
-        G.add_edge("A", "B")
-        G.add_edge("B", "C")
-        G.add_edge("C", "A")
+#         # Add edges
+#         G.add_edge("A", "B")
+#         G.add_edge("B", "C")
+#         G.add_edge("C", "A")
 
-        node_color_map=["red", "yellow", "green"]
-        node_shapes=["^","o","D"]
+#         node_color_map=["red", "yellow", "green"]
+#         node_shapes=["^","o","D"]
 
-        # G.nodes[0]["style"] = "blue"
-        # Display the graph
-        # custom_pos = {"A": (0, 0), "B": (1, 1), "C": (2, 0)} # Define the layout for better visualization
-        custom_colors = {"A": "red", "B": "green"}
-        pos = nx.spring_layout(G)
-        # pos = nx.spring_layout(G)
-        nodes_attr = {n: G.nodes[n] for n in G.nodes}
-        print(f"{nodes_attr=}")
+#         # G.nodes[0]["style"] = "blue"
+#         # Display the graph
+#         # custom_pos = {"A": (0, 0), "B": (1, 1), "C": (2, 0)} # Define the layout for better visualization
+#         custom_colors = {"A": "red", "B": "green"}
+#         pos = nx.spring_layout(G)
+#         # pos = nx.spring_layout(G)
+#         nodes_attr = {n: G.nodes[n] for n in G.nodes}
+#         print(f"{nodes_attr=}")
 
-        num_of_nodes = len(G.nodes)
-        nodes = OrderedDict()
-        for n in G.nodes:
-            nodes[n] = G.nodes[n]
+#         num_of_nodes = len(G.nodes)
+#         nodes = OrderedDict()
+#         for n in G.nodes:
+#             nodes[n] = G.nodes[n]
 
-        bbox=dict(facecolor="skyblue", boxstyle="round", pad=0.3)
-        for node in nodes:
-            nx.draw_networkx_nodes(node,pos,node_color=nodes[node]["node_color"])
+#         bbox=dict(facecolor="skyblue", boxstyle="round", pad=0.3)
+#         for node in nodes:
+#             nx.draw_networkx_nodes(node,pos,node_color=nodes[node]["node_color"])
 
-        labels = {}
-        for n in nodes:
-            labels[n] = nodes[n]["label"] if "label" in nodes[n] else ""
+#         labels = {}
+#         for n in nodes:
+#             labels[n] = nodes[n]["label"] if "label" in nodes[n] else ""
             
-        # nx.draw_networkx(G,pos,labels=labels,bbox=dict(facecolor="skyblue", boxstyle="round", pad=0.3))
-        nx.draw_networkx_edges(G,pos)
-        nx.draw_networkx_labels(G, pos, labels=labels)
+#         # nx.draw_networkx(G,pos,labels=labels,bbox=dict(facecolor="skyblue", boxstyle="round", pad=0.3))
+#         nx.draw_networkx_edges(G,pos)
+#         nx.draw_networkx_labels(G, pos, labels=labels)
 
 
-    def visualise(self): 
-        # Show the plot
-       plt.show()
-
+#     def visualise(self): 
+#         # Show the plot
+#        plt.show()
+class Vertex:
+    def __init__(self, label: str) -> None:
+        self.label = label
+        self.layer = 0
+        self.is_source = False
+        self.is_sink = False
+    
+    def __eq__(self, other: object) -> bool:
+        return (self.label == other.label and 
+                self.layer == other.layer and 
+                self.is_sink == other.is_sink and 
+                self.is_source == other.is_source)
+    
+    def __hash__(self) -> int:
+        return hash((self.label, self.layer, self.is_source, self.is_sink))
+    
+    def __repr__(self) -> str:
+        symbol = ""
+        if self.is_source:
+            symbol = "+"
+        elif self.is_sink:
+            symbol = "-"
+        return f"{symbol}{self.label}"
+    
+    
 class Edge:
-    def __init__(self,head,tail,weight):
+    def __init__(self, head: Vertex, tail: Vertex, weight: int) -> None:
         self.head = head
         self.tail = tail
         self.weight = weight
         self.reversed = False 
         
     
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Edge):
             return self.head == other.head and \
                     self.tail == other.tail and \
@@ -67,32 +91,32 @@ class Edge:
                     self.reversed == other.reversed
         return False
           
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.head, self.tail, self.weight))
         
     def __repr__(self) -> str:
         return f"Edge({self.head} --{self.weight}-> {self.tail}) [is_back_edge = {self.reversed}]"
         
 class Graph:
-    def __init__(self, edges):
+    def __init__(self, edges: set[Edge]) -> None:
         self.edges = edges
         self.vertices = set()
         self.update_vertices()
        
-    def update_vertices(self):
+    def update_vertices(self) -> None:
         for edge in self.edges:
              self.vertices.add(edge.head)
              self.vertices.add(edge.tail)
     
-    def get_num_of_vertices(self):
+    def get_num_of_vertices(self) -> int:
         return len(self.vertices)
     
-    def add_edge(self,head,tail,weight):
+    def add_edge(self,head: Vertex, tail: Vertex, weight: int) -> None:
         new_edge = Edge(head,tail,weight)
         self.edges.add(new_edge)
         self.update_vertices()
     
-    def outgoing_edges(self, vertex):
+    def outgoing_edges(self, vertex: Vertex) -> set[Edge]:
         edges = set()
         for edge in self.edges:
             if edge.head == vertex:
@@ -100,7 +124,7 @@ class Graph:
         
         return edges
     
-    def incoming_edges(self, vertex):
+    def incoming_edges(self, vertex: Vertex) -> set[Edge]:
         edges = set()
         for edge in self.edges:
             if edge.tail == vertex:
@@ -120,7 +144,7 @@ class Graph:
     
 
     
-def dfs_visit(graph, vertex, visited, stacked):
+def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> FileNotFoundError:
     if vertex not in visited:
         visited.add(vertex)
         stacked.add(vertex)
@@ -134,7 +158,7 @@ def dfs_visit(graph, vertex, visited, stacked):
         
         stacked.remove(vertex)
                 
-def dfs_cycle_removal(graph):
+def dfs_cycle_removal(graph: Graph) -> Graph:
     new_graph = Graph(set())
     visited = set()
     stacked = set()
@@ -145,23 +169,41 @@ def dfs_cycle_removal(graph):
     for e in graph.edges:
         if not e.reversed:
             new_graph.add_edge(e.head, e.tail, e.weight)
+    
+    # toggle source and sink vertices        
+    for v in new_graph.vertices:
+        incoming_edges = new_graph.incoming_edges(v)
+        if len(incoming_edges) == 0:
+            v.is_source = True
+    
+    for v in new_graph.vertices:
+        outgoing_edges = new_graph.outgoing_edges(v)
+        v.is_sink = len(outgoing_edges) == 0
             
     return new_graph  
 
-def init_rank(graph):
-    scanned = []
+def init_rank(graph) -> None:
+    # ranking = []
+    scanned = [] #scanned contains a topological sort of vertices
+    graph_copy = Graph(graph.edges)
     edges = graph.edges
     vertices = graph.vertices
     source_vertices = [v for v in vertices if graph.is_source(v)]
     while source_vertices:
-        scanned.append(source_vertices)
+        scanned.extend(source_vertices)
         edges = {e for e in edges if e.head not in source_vertices}
         vertices = {v for v in vertices if v not in source_vertices}
         graph.edges = edges
         graph.vertices = vertices
         source_vertices = [v for v in vertices if graph.is_source(v)]
     
-    return scanned
+    for v in scanned:
+        v.layer = 1
+        
+        for e in graph_copy.incoming_edges(v):
+            v.layer = max(v.layer, e.tail.layer+1)
+            
+    return graph_copy
         
 
 

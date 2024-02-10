@@ -72,7 +72,7 @@ class Vertex:
             symbol = "+"
         elif self.is_sink:
             symbol = "-"
-        return f"{symbol}{self.label}"
+        return f"{symbol}{self.label}{self.layer}"
     
     
 class Edge:
@@ -132,6 +132,12 @@ class Graph:
             
         return edges
     
+    def get_vertex(self, label: str) -> Vertex:
+        for v in self.vertices:
+            if label == v.label:
+                return v
+        return None
+    
     def is_source(self, vertex):
         return len(self.incoming_edges(vertex)) == 0
     
@@ -182,32 +188,82 @@ def dfs_cycle_removal(graph: Graph) -> Graph:
             
     return new_graph  
 
-def init_rank(graph) -> None:
-    # ranking = []
-    scanned = [] #scanned contains a topological sort of vertices
-    graph_copy = Graph(graph.edges)
-    edges = graph.edges
-    vertices = graph.vertices
-    source_vertices = [v for v in vertices if graph.is_source(v)]
-    while source_vertices:
-        scanned.extend(source_vertices)
-        edges = {e for e in edges if e.head not in source_vertices}
-        vertices = {v for v in vertices if v not in source_vertices}
-        graph.edges = edges
-        graph.vertices = vertices
-        source_vertices = [v for v in vertices if graph.is_source(v)]
+# def init_rank(graph) -> None:
+#     # ranking = []
+#     scanned = [] #scanned contains a topological sort of vertices
+#     graph_copy = Graph(graph.edges)
+#     edges = graph.edges
+#     vertices = graph.vertices
+#     source_vertices = [v for v in vertices if graph.is_source(v)]
+#     while source_vertices:
+#         scanned.extend(source_vertices)
+#         edges = {e for e in edges if e.head not in source_vertices}
+#         vertices = {v for v in vertices if v not in source_vertices}
+#         graph.edges = edges
+#         graph.vertices = vertices
+#         source_vertices = [v for v in vertices if graph.is_source(v)]
     
-    for v in scanned:
-        v.layer = 1
+#     for v in scanned:
+#         v.layer = 1
         
-        for e in graph_copy.incoming_edges(v):
-            v.layer = max(v.layer, e.tail.layer+1)
+#         for e in graph_copy.incoming_edges(v):
+#             v.layer = max(v.layer, e.tail.layer+1)
             
-    return graph_copy
+#     return graph_copy
+
+def longest_path_layer_assigment(graph: Graph):
+    U = set() #track of vertices that have been assigned to a layer
+    Z = set() #track of vertices whose outgoing neighbors have already been considered
+    
+    current_layer = 1
+    
+    while len(U) != len(graph.vertices):
+        selected_vertex = None
+        for v in graph.vertices:
+            if v not in U and all(edge.tail in Z for edge in graph.outgoing_edges(v)):
+                selected_vertex = v
+                break
+        
+        if selected_vertex:
+            selected_vertex.layer = current_layer
+            U.add(selected_vertex)
+        else:
+            current_layer += 1
+            Z.update(U)
+    
+    # here 
+    return graph
+
+# TODO: create add dummies function
+    
         
 
+def promote_vertex(graph: Graph, v: Vertex) -> int:
+    dummydiff = 0
+    for edge in graph.incoming_edges(v):
+        if edge.head.layer == v.layer + 1:
+            dummydiff += promote_vertex(graph, edge.head)
+            
+    v.layer += 1
+    dummydiff = dummydiff - len(graph.incoming_edges(v)) + len(graph.outgoing_edges(v))
+    return dummydiff
 
-
+def vertex_promotion_heuristic(graph: Graph) -> None:
+    graph_copy = Graph(graph.edges)
+    while True:
+        promotion = 0
+        for v in graph.vertices:
+            if len(graph.incoming_edges(v)) > 0:
+                if promote_vertex(graph,v) < 0:
+                    promotion += 1
+                    graph_copy = Graph(graph.edges)
+                else:
+                    graph = graph_copy
+        
+        if promotion == 0:
+            break
+    
+    return graph
 # def topological_ordering(graph):
 #     # Step 1: Initialize an empty list to store the topological ordering.
 #     ordering = []

@@ -98,7 +98,12 @@ G_no_cycle = app.visualisation.dfs_cycle_removal(G)
 G_no_cycle.print_graph()
 print("====================================\n")
 
-layered_G = app.visualisation.init_rank(G_no_cycle)
+layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
 
-for v in layered_G.vertices:
-    print(f"{v} layer: {v.layer}")
+layered_G.print_graph()
+
+# v_promo = app.visualisation.vertex_promotion_heuristic(layered_G)
+# print("====================================\n")
+# for v in v_promo.vertices:
+#     print(f"{v} layer: {v.layer}")
+    

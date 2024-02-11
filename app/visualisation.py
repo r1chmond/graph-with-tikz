@@ -51,9 +51,9 @@ from collections import deque
 #         # Show the plot
 #        plt.show()
 class Vertex:
-    def __init__(self, label: str) -> None:
+    def __init__(self, label: str, layer: int = 0) -> None:
         self.label = label
-        self.layer = 0
+        self.layer = layer
         self.is_source = False
         self.is_sink = False
     
@@ -76,7 +76,7 @@ class Vertex:
     
     
 class Edge:
-    def __init__(self, head: Vertex, tail: Vertex, weight: int) -> None:
+    def __init__(self, head: Vertex, tail: Vertex, weight: int = 1) -> None:
         self.head = head
         self.tail = tail
         self.weight = weight
@@ -111,10 +111,14 @@ class Graph:
     def get_num_of_vertices(self) -> int:
         return len(self.vertices)
     
-    def add_edge(self,head: Vertex, tail: Vertex, weight: int) -> None:
+    def add_edge(self,head: Vertex, tail: Vertex, weight: int = 1) -> None:
         new_edge = Edge(head,tail,weight)
         self.edges.add(new_edge)
         self.update_vertices()
+        
+    def add_vertex(self,label: str, layer: int) -> None:
+        vertex = Vertex(label,layer)
+        return vertex
     
     def outgoing_edges(self, vertex: Vertex) -> set[Edge]:
         edges = set()
@@ -138,11 +142,11 @@ class Graph:
                 return v
         return None
     
-    def is_source(self, vertex):
-        return len(self.incoming_edges(vertex)) == 0
+    # def is_source(self, vertex):
+    #     return len(self.incoming_edges(vertex)) == 0
     
-    def is_sink(self, vertex):
-        return len(self.outgoing_edges(vertex)) == 0
+    # def is_sink(self, vertex):
+    #     return len(self.outgoing_edges(vertex)) == 0
     
     def print_graph(self):
         for edge in self.edges:
@@ -231,12 +235,35 @@ def longest_path_layer_assigment(graph: Graph):
             current_layer += 1
             Z.update(U)
     
-    # here 
+    add_dummy_vertices(graph)
     return graph
 
-# TODO: create add dummies function
     
+def add_dummy_vertices(graph: Graph) -> None:
+    '''add dummies to achieve proper layering i.e 
+    when all edges are tight(a span of 1)'''
+    dummies = []
+    for edge in graph.edges:
+        layer_diff = edge.head.layer - edge.tail.layer
         
+        if layer_diff > 1:
+            start_vertex = edge.head
+            edge.head = graph.add_vertex("*1" ,edge.tail.layer+1)
+            end_vertex = edge.head
+            dummies_on_edge = [end_vertex]
+            
+            for label_id in range(2,layer_diff):
+                new_vertex = graph.add_vertex("*"+str(label_id),end_vertex.layer+1)
+                dummies_on_edge.append(new_vertex)
+                end_vertex = new_vertex 
+            dummies_on_edge.append(start_vertex)
+            dummies.append(dummies_on_edge)
+    
+    for vertices in dummies:
+        for i in range(1,len(vertices)):
+                graph.add_edge(vertices[i], vertices[i-1])
+        
+
 
 def promote_vertex(graph: Graph, v: Vertex) -> int:
     dummydiff = 0

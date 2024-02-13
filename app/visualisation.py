@@ -234,7 +234,7 @@ def longest_path_layer_assigment(graph: Graph):
         else:
             current_layer += 1
             Z.update(U)
-    
+    #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
     add_dummy_vertices(graph)
     return graph
 

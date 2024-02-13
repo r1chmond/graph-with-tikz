@@ -1,11 +1,19 @@
 \usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric,arrows.meta}
 \usegdlibrary{layered}
 \tikz[subgraph text none, level sep= 15pt, nodes=black, io/.style={trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}, decision/.style={diamond, thick,minimum width=3cm, minimum height=1cm}, terminator/.style={rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}, process/.style={rectangle, thick, minimum width=3cm, minimum height=1cm}]
-\graph[layered layout, grow'=down, edges={black,thick}]{
+\graph[layered layout, grow'=right, edges={black,thick}]{
 % Create nodes 
 idx1[as=Start,terminator,draw=black,text=black,fill=yellow!50], 
 idx2[as=Input,io,draw=black,text=black,fill=white!50], 
-idx3[as=Process 1,process,draw=black,text=black,fill=white!50], 
+idx3[process,draw=black] // [layered layout, grow'=down]{
+idx11[as=Begin,terminator,draw=black,text=black,fill=white!50],
+idx12[as=Input,io,draw=black,text=black,fill=white!50],
+idx13[as=Process 2a,process,draw=black,text=black,fill=white!50],
+idx14[as=End,terminator,draw=black,text=black,fill=white!50],
+idx11 -> [-Latex]idx12, 
+idx12 -- E8091[as=begin process] -> [-Latex]idx13, 
+idx13 -- E2578[as=exit] -> [-Latex]idx14, 
+;}, 
 idx4[as=Decision 1,decision,draw=black,text=black,fill=white!50], 
 idx5[as=Process 2a,process,draw=black,text=black,fill=white!50], 
 idx6[as=Process 2b,process,draw=black,text=black,fill=white!50], 
@@ -13,7 +21,7 @@ idx7[as=Output,io,draw=black,text=black,fill=white!50],
 idx8[as=Stop,terminator,draw=black,text=black,fill=white!50], 
 % Connect nodes 
 idx1 -> [-Latex]idx2,
-idx2 -- E451[as=begin process] -> [-Latex]idx3,
+idx2 -- E978[as=begin process] -> [-Latex]idx3,
 idx3 -> [-Latex]idx4,
 idx4 -> [-Latex]idx5,
 idx4 -> [-Latex]idx6,

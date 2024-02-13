@@ -1,19 +1,25 @@
 \documentclass{article}
 \usepackage{standalone} % indicate standalone
-
+\usepackage{graphicx}
 \usepackage{tikz}
-
 % include all the libraries in subfile
-
 \usetikzlibrary{graphs}
-
 \usetikzlibrary{shapes.geometric}
-
 \begin{document}
-\begin{figure}
-\resizebox{\textwidth}{!}{%
-\input{tikz.tex}%
-}%
-\end{figure}
-
+Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer 
+adipiscing elit. Duis fringilla tristique neque. Sed interdum 
+libero ut metus. Pellentesque placerat. Nam rutrum augue a leo.
+Morbi sed elit sit amet ante lobortis sollicitudin.
+\begin{figure}[!h]
+\centering
+\fbox{\resizebox{\linewidth}{!}{\input{tikz.tex}}}%
+\end{figure}%
+Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer 
+adipiscing elit. Duis fringilla tristique neque. Sed interdum 
+libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. 
+Morbi sed elit sit amet ante lobortis sollicitudin.
+Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer 
+adipiscing elit. Duis fringilla tristique neque. Sed interdum 
+libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. 
+Morbi sed elit sit amet ante lobortis sollicitudin.
 \end{document}

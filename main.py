@@ -16,10 +16,10 @@ import tkinter as tk
 # root.mainloop()
 
 
-a = Vertex("a")
-b = Vertex("b")
-c = Vertex("c")
-d = Vertex("d")
+a = Vertex("id1","a")
+b = Vertex("id2","b")
+c = Vertex("id3","c")
+d = Vertex("id4","d")
 
 e1 = Edge(a, b, 1)
 e2 = Edge(a, c, 1)

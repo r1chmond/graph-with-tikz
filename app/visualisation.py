@@ -51,20 +51,22 @@ from collections import deque
 #         # Show the plot
 #        plt.show()
 class Vertex:
-    def __init__(self, label: str, layer: int = 0) -> None:
+    def __init__(self, vertex_id: str,label: str, layer: int = 0) -> None:
+        self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
         self.is_source = False
         self.is_sink = False
     
     def __eq__(self, other: object) -> bool:
-        return (self.label == other.label and 
+        return (self.vertex_id == other.vertex_id and
+                self.label == other.label and 
                 self.layer == other.layer and 
                 self.is_sink == other.is_sink and 
                 self.is_source == other.is_source)
     
     def __hash__(self) -> int:
-        return hash((self.label, self.layer, self.is_source, self.is_sink))
+        return hash((self.vertex_id,self.label, self.layer, self.is_source, self.is_sink))
     
     def __repr__(self) -> str:
         symbol = ""
@@ -72,7 +74,7 @@ class Vertex:
             symbol = "+"
         elif self.is_sink:
             symbol = "-"
-        return f"{symbol}{self.label}{self.layer}"
+        return f"{symbol}{self.label}_{self.layer}"
     
     
 class Edge:
@@ -116,8 +118,8 @@ class Graph:
         self.edges.add(new_edge)
         self.update_vertices()
         
-    def add_vertex(self,label: str, layer: int) -> None:
-        vertex = Vertex(label,layer)
+    def add_vertex(self,vertex_id: str, label: str, layer: int) -> None:
+        vertex = Vertex(vertex_id,label,layer)
         return vertex
     
     def outgoing_edges(self, vertex: Vertex) -> set[Edge]:
@@ -136,9 +138,9 @@ class Graph:
             
         return edges
     
-    def get_vertex(self, label: str) -> Vertex:
+    def get_vertex(self, vertex_id: str) -> Vertex:
         for v in self.vertices:
-            if label == v.label:
+            if vertex_id == v.vertex_id:
                 return v
         return None
     
@@ -248,12 +250,12 @@ def add_dummy_vertices(graph: Graph) -> None:
         
         if layer_diff > 1:
             start_vertex = edge.head
-            edge.head = graph.add_vertex("*1" ,edge.tail.layer+1)
+            edge.head = graph.add_vertex("*1","dummy",edge.tail.layer+1)
             end_vertex = edge.head
             dummies_on_edge = [end_vertex]
             
-            for label_id in range(2,layer_diff):
-                new_vertex = graph.add_vertex("*"+str(label_id),end_vertex.layer+1)
+            for vertex_id in range(2,layer_diff):
+                new_vertex = graph.add_vertex("*"+str(vertex_id),"dummy",end_vertex.layer+1)
                 dummies_on_edge.append(new_vertex)
                 end_vertex = new_vertex 
             dummies_on_edge.append(start_vertex)

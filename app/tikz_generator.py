@@ -24,16 +24,16 @@ class TikzCodeGenerator:
         subgraphs = self.create_subgraphs(self._data_nodes)
         code = (
             template["preamble"] + "\n" +
-            template["start_tikz"] + self.get_shape_template() + "\n" +
-            template["start_graph"] + self.get_graph_properties(self._parsed_data) + "\n"
+            template["start_tikz"] + self.get_shape_template() + "\n" #+
+            # template["start_graph"] + self.get_graph_properties(self._parsed_data) + "\n"
         )
         code += f"% Create nodes \n"
         for main_node_id, representation in all_nodes.items():
             subgraph = subgraphs.get(main_node_id)
             if subgraph:
-                code += f"{representation} // {subgraph}, \n"  
+                code += f"{representation} // {subgraph}; \n"  
             else:
-                code += f"{representation}, \n"
+                code += f"{representation}; \n"
             
         code += f"% Connect nodes \n"     
        
@@ -65,7 +65,7 @@ class TikzCodeGenerator:
             fill_color = detail.get("shapeFill",style.get("shapeFill", "white")) 
             shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
             if not subgraph:
-                node_representation = f"{node_id}[as={label},{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]"
+                node_representation = f"\\node[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]({node_id}) {{{label}}}"
             else:
                 node_representation = f"{node_id}[{node_type},draw={shape_color}]"
             nodes[node_id] = node_representation
@@ -118,21 +118,19 @@ class TikzCodeGenerator:
 
     def template(self) -> Dict[str, str]:
         """Generate a template for tikz code"""
-        preamble = (r"\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric,arrows.meta}"
-                    "\n" + 
-                    r"\usegdlibrary{layered}"
+        preamble = (r"\usetikzlibrary{graphs,positioning,quotes,shapes.geometric,arrows.meta}"
+                    "\n" 
         )
         return {
                 "preamble": preamble,
-                "start_tikz": r"\tikz",
-                "start_graph": r"\graph",
-                "end": "};"
+                "start_tikz": r"\begin{tikzpicture}",
+                "end": r"\end{tikzpicture}"
                 }
        
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
         style = self._parsed_data.get("chartStyle",{})
-        template = (r"[subgraph text none, level sep= 15pt, nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
+        template = (r"[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
                     .format(style.get("fontColor","black"))
                     )
         return template

@@ -51,7 +51,7 @@ from collections import deque
 #         # Show the plot
 #        plt.show()
 class Vertex:
-    def __init__(self, vertex_id: str,label: str, layer: int = 0) -> None:
+    def __init__(self, vertex_id: str,label: str="", layer: int = 0) -> None:
         self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
@@ -121,6 +121,25 @@ class Graph:
     def add_vertex(self,vertex_id: str, label: str, layer: int) -> None:
         vertex = Vertex(vertex_id,label,layer)
         return vertex
+    
+    def create_edges(self, data: dict[str,str]) -> None:
+        data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+        vertex_mapping = self.create_vertices(data)
+        for node_id, detail in data_nodes.items():
+            next_nodes = detail.get("next",[])                                                    
+            connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
+            head = vertex_mapping[node_id]
+            self.edges.update({Edge(head,vertex_mapping[next_id]) for next_id,_ in connected_nodes})
+    
+    def create_vertices(self, data: dict[str,str]) -> set[Vertex]:
+        data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+        vertex_mapping = {}
+        for vertex_id,detail in data_nodes.items():
+            label = detail.get("label", "")
+            vertex = Vertex(vertex_id,label)
+            vertex_mapping[vertex_id] = vertex
+            self.vertices.add(vertex)
+        return vertex_mapping
     
     def outgoing_edges(self, vertex: Vertex) -> set[Edge]:
         edges = set()
@@ -293,33 +312,8 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
             break
     
     return graph
-# def topological_ordering(graph):
-#     # Step 1: Initialize an empty list to store the topological ordering.
-#     ordering = []
 
-#     # Step 2: Create a queue and add all vertices of G that have no incoming edges to the queue.
-#     queue = deque([u for u in graph if graph[u] == 0])
 
-#     # Step 3: While the queue is not empty, perform the following steps.
-#     while queue:
-#         # Dequeue a vertex v from the queue.
-#         v = queue.popleft()
 
-#         # Add v to the topological ordering list.
-#         ordering.append(v)
 
-#         # For each neighbor u of v, remove the edge (v, u) from the graph and decrease the in-degree of u by 1.
-#         for u in graph[v]:
-#             graph[u].remove(v)
-
-#         # If the in-degree of u becomes 0, add u to the queue.
-#         for u in graph[v]:
-#             if len(graph[u]) == 0:
-#                 queue.append(u)
-
-#     # Step 4: If the graph G still has edges after removing all the vertices from the queue, then the graph has a cycle and no topological ordering exists.
-#     if any(len(edges) != 0 for edges in graph.values()):
-#         return None
-
-#     return ordering
 

@@ -8,16 +8,12 @@ import os
 import tkinter as tk
 
 d = ParsedData("tester.json")
-tkgen = TikzCodeGenerator(d.get_parsed_data())
 
-code = tkgen.generate_tikz_code()
 
-print(code)
 
 
 print("================== Original Graph ==================\n")
-G = Graph(set())
-G.create_edges(d.get_parsed_data())
+G = Graph(d.get_parsed_data())
 G.print_graph()
 
 print("\n=============== Cycles removed =====================\n")

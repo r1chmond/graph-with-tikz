@@ -2,7 +2,7 @@
 # import matplotlib.pyplot as plt
 from collections import OrderedDict
 from collections import deque
-
+from typing import Dict,List, OrderedDict, Tuple
 # class DirectedGraph:
 #     def __init__(self):
 #         # Create a directed graph
@@ -51,10 +51,18 @@ from collections import deque
 #         # Show the plot
 #        plt.show()
 class Vertex:
-    def __init__(self, vertex_id: str,label: str="", layer: int = 0) -> None:
+    def __init__(self, vertex_id: str,
+                 vertex_type: str, 
+                 shape_fill: str, 
+                 font_color: str,
+                 label: str="", 
+                 layer: int = 0) -> None:
         self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
+        self.vertex_type = vertex_type
+        self.shape_fill = shape_fill
+        self.font_color = font_color
         self.is_source = False
         self.is_sink = False
     
@@ -100,11 +108,16 @@ class Edge:
         return f"Edge({self.head} --{self.weight}-> {self.tail}) [is_back_edge = {self.reversed}]"
         
 class Graph:
-    def __init__(self, edges: set[Edge]) -> None:
-        self.edges = edges
+    def __init__(self, data: Dict[str,str]) -> None:
+        self._parsed_data = data
         self.vertices = set()
-        self.update_vertices()
-       
+        self.edges = self.create_edges(self.get_vertices_from_data(self._parsed_data))
+        # self.update_vertices()
+    
+    def get_vertices_from_data(self, data: Dict[str,str]) -> Dict[str,str]:
+        data_vertices = {key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+        return data_vertices
+    
     def update_vertices(self) -> None:
         for edge in self.edges:
              self.vertices.add(edge.head)
@@ -118,25 +131,34 @@ class Graph:
         self.edges.add(new_edge)
         self.update_vertices()
         
-    def add_vertex(self,vertex_id: str, label: str, layer: int) -> None:
-        vertex = Vertex(vertex_id,label,layer)
+    def add_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> None:
+        vertex = Vertex(vertex_id,"process",shape_fill,font_color,label,layer)
         return vertex
     
-    def create_edges(self, data: dict[str,str]) -> None:
-        data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
-        vertex_mapping = self.create_vertices(data)
-        for node_id, detail in data_nodes.items():
-            next_nodes = detail.get("next",[])                                                    
-            connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
-            head = vertex_mapping[node_id]
-            self.edges.update({Edge(head,vertex_mapping[next_id]) for next_id,_ in connected_nodes})
+    def create_edges(self, data_vertices: dict[str,str]) -> set[Edge]:
+        # data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+        vertex_mapping = self.create_vertices(data_vertices)
+        edges = set()
+        for vertex_id, detail in data_vertices.items():
+            next_vertices = detail.get("next",[])                                                    
+            connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_vertices]
+            head = vertex_mapping[vertex_id]
+            edges.update({Edge(head,vertex_mapping[next_id]) for next_id,_ in connected_nodes})
+
+        return edges
     
-    def create_vertices(self, data: dict[str,str]) -> set[Vertex]:
-        data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+    def create_vertices(self, data_vertices: dict[str,str]) -> set[Vertex]:
+        # data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
         vertex_mapping = {}
-        for vertex_id,detail in data_nodes.items():
+        for vertex_id,detail in data_vertices.items():
             label = detail.get("label", "")
-            vertex = Vertex(vertex_id,label)
+            vertex_type = detail.get("type", "process")
+            style = self._parsed_data.get("chartStyle",{})
+            text_color = detail.get("fontColor",style.get("fontColor", "black"))
+            # subgraph = detail.get("subgraph")
+            fill_color = detail.get("shapeFill",style.get("shapeFill", "white")) 
+            # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
+            vertex = Vertex(vertex_id, vertex_type, fill_color, text_color, label)
             vertex_mapping[vertex_id] = vertex
             self.vertices.add(vertex)
         return vertex_mapping
@@ -190,7 +212,7 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
         stacked.remove(vertex)
                 
 def dfs_cycle_removal(graph: Graph) -> Graph:
-    new_graph = Graph(set())
+    new_graph = Graph({})
     visited = set()
     stacked = set()
     

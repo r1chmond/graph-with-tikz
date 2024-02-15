@@ -3,60 +3,15 @@
 from collections import OrderedDict
 from collections import deque
 from typing import Dict,List, OrderedDict, Tuple
-# class DirectedGraph:
-#     def __init__(self):
-#         # Create a directed graph
-#         G = nx.DiGraph()
 
-#         # Add nodes
-#         G.add_node("A",node_color="yellow", node_shape="^",node_size=600)
-#         G.add_nodes_from([("B",{"node_color": "red","node_shape":"v", "label": "process"}),("C",{"node_color": "green", "node_shape":"8", "label": "end"})])
-
-#         # Add edges
-#         G.add_edge("A", "B")
-#         G.add_edge("B", "C")
-#         G.add_edge("C", "A")
-
-#         node_color_map=["red", "yellow", "green"]
-#         node_shapes=["^","o","D"]
-
-#         # G.nodes[0]["style"] = "blue"
-#         # Display the graph
-#         # custom_pos = {"A": (0, 0), "B": (1, 1), "C": (2, 0)} # Define the layout for better visualization
-#         custom_colors = {"A": "red", "B": "green"}
-#         pos = nx.spring_layout(G)
-#         # pos = nx.spring_layout(G)
-#         nodes_attr = {n: G.nodes[n] for n in G.nodes}
-#         print(f"{nodes_attr=}")
-
-#         num_of_nodes = len(G.nodes)
-#         nodes = OrderedDict()
-#         for n in G.nodes:
-#             nodes[n] = G.nodes[n]
-
-#         bbox=dict(facecolor="skyblue", boxstyle="round", pad=0.3)
-#         for node in nodes:
-#             nx.draw_networkx_nodes(node,pos,node_color=nodes[node]["node_color"])
-
-#         labels = {}
-#         for n in nodes:
-#             labels[n] = nodes[n]["label"] if "label" in nodes[n] else ""
-            
-#         # nx.draw_networkx(G,pos,labels=labels,bbox=dict(facecolor="skyblue", boxstyle="round", pad=0.3))
-#         nx.draw_networkx_edges(G,pos)
-#         nx.draw_networkx_labels(G, pos, labels=labels)
-
-
-#     def visualise(self): 
-#         # Show the plot
-#        plt.show()
 class Vertex:
     def __init__(self, vertex_id: str,
                  vertex_type: str, 
                  shape_fill: str, 
                  font_color: str,
                  label: str="", 
-                 layer: int = 0) -> None:
+                 layer: int = 0,
+                 position: Tuple[int, int] = (0,0)) -> None:
         self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
@@ -65,6 +20,7 @@ class Vertex:
         self.font_color = font_color
         self.is_source = False
         self.is_sink = False
+        self.position = position
     
     def __eq__(self, other: object) -> bool:
         return (self.vertex_id == other.vertex_id and
@@ -72,6 +28,9 @@ class Vertex:
                 self.layer == other.layer and 
                 self.is_sink == other.is_sink and 
                 self.is_source == other.is_source)
+        
+    def __ne__(self, other: object) -> bool:
+        return not self == other
     
     def __hash__(self) -> int:
         return hash((self.vertex_id,self.label, self.layer, self.is_source, self.is_sink))
@@ -82,7 +41,7 @@ class Vertex:
             symbol = "+"
         elif self.is_sink:
             symbol = "-"
-        return f"{symbol}{self.label}_{self.layer}"
+        return f"{symbol}{self.label}_{self.layer} pos({self.position})"
     
     
 class Edge:
@@ -261,7 +220,7 @@ def dfs_cycle_removal(graph: Graph) -> Graph:
 def longest_path_layer_assigment(graph: Graph):
     U = set() #track of vertices that have been assigned to a layer
     Z = set() #track of vertices whose outgoing neighbors have already been considered
-    
+    layer_mapping = {}
     current_layer = 1
     
     while len(U) != len(graph.vertices):
@@ -274,9 +233,38 @@ def longest_path_layer_assigment(graph: Graph):
         if selected_vertex:
             selected_vertex.layer = current_layer
             U.add(selected_vertex)
+            if current_layer in layer_mapping:
+                layer_mapping[current_layer].append(selected_vertex)
+            else:
+                layer_mapping[current_layer] = []
+                layer_mapping[current_layer].append(selected_vertex)
         else:
             current_layer += 1
             Z.update(U)
+            
+    #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
+    add_dummy_vertices(graph)
+            
+    #set positions
+    
+    #add dummies to layer mapping
+    for v in graph.vertices:
+        layer_vertices = [vertex for vertices in layer_mapping.values() for vertex in vertices]
+        if v not in layer_vertices:
+            layer_mapping[v.layer].append(v)
+    INTERVAL = 2        
+    factor = 0
+    for layer, vertices in layer_mapping.items():
+        if len(vertices) > 1:
+            for i,v in enumerate(vertices):
+                v.position = (i+factor, layer*INTERVAL)
+                factor += 3
+        else:
+            vertices[0].position = (0, layer*INTERVAL)
+                
+        factor = 0
+            
+    print(f"layer mapping = {layer_mapping}")
     #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
     add_dummy_vertices(graph)
     return graph
@@ -305,7 +293,8 @@ def add_dummy_vertices(graph: Graph) -> None:
     for vertices in dummies:
         for i in range(1,len(vertices)):
                 graph.add_edge(vertices[i], vertices[i-1])
-        
+
+        graph.vertices.update(set(vertices))
 
 
 def promote_vertex(graph: Graph, v: Vertex) -> int:

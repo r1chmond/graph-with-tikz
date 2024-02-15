@@ -26,6 +26,12 @@ layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
 
 layered_G.print_graph()
 
+t = TikzCodeGenerator(layered_G)
+
+code = t.generate_tikz_code()
+print(code)
+
+
 
 # """Start GUI"""
 # root = tk.Tk() 

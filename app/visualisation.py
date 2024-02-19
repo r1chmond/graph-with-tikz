@@ -243,30 +243,30 @@ def longest_path_layer_assigment(graph: Graph):
             Z.update(U)
             
     #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
-    add_dummy_vertices(graph)
+    # add_dummy_vertices(graph)
             
     #set positions
     
     #add dummies to layer mapping
-    for v in graph.vertices:
-        layer_vertices = [vertex for vertices in layer_mapping.values() for vertex in vertices]
-        if v not in layer_vertices:
-            layer_mapping[v.layer].append(v)
-    INTERVAL = 2        
-    factor = 0
-    for layer, vertices in layer_mapping.items():
-        if len(vertices) > 1:
-            for i,v in enumerate(vertices):
-                v.position = (i+factor, layer*INTERVAL)
-                factor += 3
-        else:
-            vertices[0].position = (0, layer*INTERVAL)
+    # for v in graph.vertices:
+    #     layer_vertices = [vertex for vertices in layer_mapping.values() for vertex in vertices]
+    #     if v not in layer_vertices:
+    #         layer_mapping[v.layer].append(v)
+    # INTERVAL = 2        
+    # factor = 0
+    # for layer, vertices in layer_mapping.items():
+    #     if len(vertices) > 1:
+    #         for i,v in enumerate(vertices):
+    #             v.position = (i+factor, layer*INTERVAL)
+    #             factor += 3
+    #     else:
+    #         vertices[0].position = (0, layer*INTERVAL)
                 
-        factor = 0
+    #     factor = 0
             
-    print(f"layer mapping = {layer_mapping}")
+    # print(f"layer mapping = {layer_mapping}")
     #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
-    add_dummy_vertices(graph)
+    # add_dummy_vertices(graph)
     return graph
 
     
@@ -323,6 +323,53 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
             break
     
     return graph
+
+def init_ordering(graph: Graph):
+    # rank_positions = {}
+    
+    max_layer = -float("inf")
+    for vertex in graph.vertices:
+        max_layer = max(max_layer, vertex.layer)
+    
+    rank_positions = {layer: [] for layer in range(1, max_layer+1)}
+    
+    
+    for layer in range(1, max_layer+1):
+        queue = deque([vertex for vertex in graph.vertices if vertex.layer == layer])
+        position = 0
+        
+        while queue:
+            current_vertex = queue.popleft()
+            
+            rank_positions[layer].append((current_vertex,position))
+            
+            position += 1
+            
+            for edge in graph.incoming_edges(current_vertex):
+                for i,v in enumerate(rank_positions[layer]):
+                    if edge.head == v[0]:
+                        break
+                    if i == len(rank_positions[layer])-1:
+                        queue.append(edge.head)
+    
+    return rank_positions                                                                                                                                                                                                                                        
+
+def weighted_median_sweep(graph: Graph, ordering, i: int):
+    pass
+
+def median_value(vertex: Vertex, adjacent_rank: int):
+    pass
+
+def adjacent_postion(vertex: Vertex, adjacent_rank: int):
+    pass
+
+def transpose(ordering):
+    pass
+
+def vertex_ordering(graph: Graph):
+    pass
+
+
 
 
 

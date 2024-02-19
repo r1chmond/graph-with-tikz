@@ -14,22 +14,28 @@ d = ParsedData("tester.json")
 
 print("================== Original Graph ==================\n")
 G = Graph(d.get_parsed_data())
-G.print_graph()
+# G.print_graph()
 
 print("\n=============== Cycles removed =====================\n")
 G_no_cycle = app.visualisation.dfs_cycle_removal(G)
 
-G_no_cycle.print_graph()
+# G_no_cycle.print_graph()
 
 print("\n===============Layered and Dummy vertices added =====================\n")
 layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
 
-layered_G.print_graph()
+# layered_G.print_graph()
 
-t = TikzCodeGenerator(layered_G)
+print("================== init order ==================\n")
+pos = app.visualisation.init_ordering(layered_G)
 
-code = t.generate_tikz_code()
-print(code)
+for k,v in pos.items():
+    print(f"{k}: {v} \n")
+
+# t = TikzCodeGenerator(layered_G)
+
+# code = t.generate_tikz_code()
+# print(code)
 
 
 

@@ -31,7 +31,15 @@ pos = app.visualisation.init_ordering(layered_G)
 
 for k,v in pos.items():
     print(f"{k}: {v} \n")
+    
 
+print("================== adj pos ==================\n")
+
+for i in range(5):
+    app.visualisation.weighted_median_sweep(layered_G,pos,i,7)
+    print("================== adj pos ==================\n")
+    print(pos)
+# print(f"{adj_pos=}")
 # t = TikzCodeGenerator(layered_G)
 
 # code = t.generate_tikz_code()

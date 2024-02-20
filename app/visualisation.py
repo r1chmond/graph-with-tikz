@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from collections import deque
 from typing import Dict,List, OrderedDict, Tuple
+import copy
 
 class Vertex:
     def __init__(self, vertex_id: str,
@@ -142,6 +143,12 @@ class Graph:
         for v in self.vertices:
             if vertex_id == v.vertex_id:
                 return v
+        return None
+    
+    def get_source_vertex(self,) -> Vertex:
+        for v in self.vertices:
+            if v.is_source:
+                return v    
         return None
     
     # def is_source(self, vertex):
@@ -324,50 +331,93 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
     
     return graph
 
-def init_ordering(graph: Graph):
-    # rank_positions = {}
+def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
+    '''Initially order vertices in each layer using depth first search'''
+    ordered_nodes = {i:[] for i in range(1, len(graph.vertices))}
+    visited = []
+    #get vertices with minimum layer
+    queue = deque([v for v in graph.vertices if v.layer == 1])
     
-    max_layer = -float("inf")
-    for vertex in graph.vertices:
-        max_layer = max(max_layer, vertex.layer)
-    
-    rank_positions = {layer: [] for layer in range(1, max_layer+1)}
-    
-    
-    for layer in range(1, max_layer+1):
-        queue = deque([vertex for vertex in graph.vertices if vertex.layer == layer])
-        position = 0
+    while queue:
+        current_vertex = queue.popleft()
         
-        while queue:
-            current_vertex = queue.popleft()
+        if current_vertex not in visited:
             
-            rank_positions[layer].append((current_vertex,position))
-            
-            position += 1
-            
+            ordered_nodes[current_vertex.layer].append(current_vertex)
+            visited.append(current_vertex)
             for edge in graph.incoming_edges(current_vertex):
-                for i,v in enumerate(rank_positions[layer]):
-                    if edge.head == v[0]:
-                        break
-                    if i == len(rank_positions[layer])-1:
-                        queue.append(edge.head)
+                neighbour = edge.head
+                if neighbour not in visited:
+                    queue.append(neighbour)
     
-    return rank_positions                                                                                                                                                                                                                                        
+    
+    return ordered_nodes
 
-def weighted_median_sweep(graph: Graph, ordering, i: int):
-    pass
+def adjacent_position(graph: Graph, 
+                      ordering: Dict[int, List[Vertex]], 
+                      vertex: Vertex,
+                      adjacent_layer: int) -> List[int]:
+    '''returns a list of the present positions of the vertices adjacent to vertex(v)
+    in a given adjacent layer'''
+    vertices = ordering[adjacent_layer]
+    positions = []
+    for edge in graph.outgoing_edges(vertex):
+        if edge.tail in vertices:
+            positions.append(vertices.index(edge.tail)+1)
+        
+    return positions   
 
-def median_value(vertex: Vertex, adjacent_rank: int):
-    pass
-
-def adjacent_postion(vertex: Vertex, adjacent_rank: int):
-    pass
+def median_value(graph: Graph, 
+                 ordering: Dict[int, List[Vertex]], 
+                 vertex: Vertex, 
+                 adjacent_layer: int) -> float:
+    '''Calculate the median value of a vertex based on its adjacent vertices' positions in the given adjacent layer'''
+    P = adjacent_position(graph, ordering, vertex, adjacent_layer)
+    abs_P = abs(len(P))
+    mid = abs_P//2
+    
+    if abs_P == 0:
+        return -1.0
+    elif abs_P % 2 == 1:
+        return P[mid]
+    elif abs_P == 2:
+        return (P[0]+P[1]) / 2
+    else:
+        left = P[mid - 1] - P[0]
+        right = P[abs_P - 1] - P[mid]
+        return (P[mid-1]*right + P[mid]*left)/(left+right) 
+   
+def weighted_median_sweep(graph: Graph, 
+                          ordering: Dict[int, List[Vertex]], 
+                          iter: int, 
+                          max_layer: int) -> None:
+    '''Perform weighted median calculation and sort vertices in each layer during a forward traversal.'''
+    if iter % 2 == 0:
+        for layer in range(2,max_layer+1): # avoid keyerror: start at layer 2 because layers starts at 1
+            medians = []
+            
+            for vertex in ordering[layer]:
+                median = median_value(graph, ordering, vertex, layer-1)
+                medians.append((vertex,median))
+            
+            ordering[layer] = [v for v,_ in sorted(medians, key=lambda x: x[1])]
+    
+    
 
 def transpose(ordering):
     pass
 
 def vertex_ordering(graph: Graph):
-    pass
+    order = init_ordering(graph)
+    best = copy.copy(order)
+    MAX_ITERATIONS = 24
+    max_layer = len(order)
+    for i in range(MAX_ITERATIONS):
+        weighted_median_sweep(graph,order,i,max_layer)
+        pass
+        
+        
+        
 
 
 

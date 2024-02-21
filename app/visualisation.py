@@ -12,7 +12,7 @@ class Vertex:
                  font_color: str,
                  label: str="", 
                  layer: int = 0,
-                 position: Tuple[int, int] = (0,0)) -> None:
+                 x_position: int = 0) -> None:
         self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
@@ -21,7 +21,7 @@ class Vertex:
         self.font_color = font_color
         self.is_source = False
         self.is_sink = False
-        self.position = position
+        self.x_position = x_position
     
     def __eq__(self, other: object) -> bool:
         return (self.vertex_id == other.vertex_id and
@@ -42,7 +42,7 @@ class Vertex:
             symbol = "+"
         elif self.is_sink:
             symbol = "-"
-        return f"{symbol}{self.label}_{self.layer} pos({self.position})"
+        return f"{symbol}{self.label}_{self.layer} pos({self.x_position})"
     
     
 class Edge:
@@ -333,7 +333,7 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
 
 def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
     '''Initially order vertices in each layer using depth first search'''
-    ordered_nodes = {i:[] for i in range(1, len(graph.vertices))}
+    ordered_nodes = {i:[] for i in range(1, graph.get_source_vertex().layer + 1)}
     visited = []
     #get vertices with minimum layer
     queue = deque([v for v in graph.vertices if v.layer == 1])
@@ -344,6 +344,7 @@ def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
         if current_vertex not in visited:
             
             ordered_nodes[current_vertex.layer].append(current_vertex)
+            current_vertex.x_position = len(ordered_nodes[current_vertex.layer])-1
             visited.append(current_vertex)
             for edge in graph.incoming_edges(current_vertex):
                 neighbour = edge.head
@@ -404,8 +405,33 @@ def weighted_median_sweep(graph: Graph,
     
     
 
-def transpose(ordering):
-    pass
+def transpose(ordering: Dict[int, List[Vertex]]) -> None:
+    improved = True
+    while improved:
+        improved = False
+        for layer in range(1,len(ordering)+1):
+            for i in range(len(ordering[layer])-1):
+                v = ordering[layer][i]
+                w = ordering[layer][i+1]
+                
+                if crossing(ordering,v,w) > crossing(ordering,w,v):
+                    improved = True
+                    ordering[layer][i], ordering[layer][i+1] = ordering[layer][i+1], ordering[layer][i]
+                    # ordering[layer][i].x_position = i
+                    # ordering[layer][i+1].x_position = i+1
+            # for vertex in order[layer]:
+            #     position = ordering[layer].index(vertex)
+            #     vertex.x_position = position
+                    
+
+def crossing(ordering: Dict[int, List[Vertex]], v: Vertex, w: Vertex) -> int:
+    crossings = 0
+    if not v.is_sink or not w.is_sink:
+        for vertex_x in ordering[v.layer-1]:
+            for vertex_y in ordering[w.layer-1]:
+                if v.x_position < w.x_position and vertex_x.x_position < vertex_y.x_position:
+                    crossings += 1
+    return crossings
 
 def vertex_ordering(graph: Graph):
     order = init_ordering(graph)

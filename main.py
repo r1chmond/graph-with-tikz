@@ -7,7 +7,7 @@ import app.visualisation
 import os
 import tkinter as tk
 
-d = ParsedData("tester.json")
+d = ParsedData("crossing_example.json")
 
 
 
@@ -39,6 +39,15 @@ for i in range(5):
     app.visualisation.weighted_median_sweep(layered_G,pos,i,7)
     print("================== adj pos ==================\n")
     print(pos)
+    
+    
+print("================== transpose ==================\n")
+app.visualisation.transpose(pos)
+
+for k,v in pos.items():
+    print(f"{k}: {v} \n")
+    
+
 # print(f"{adj_pos=}")
 # t = TikzCodeGenerator(layered_G)
 

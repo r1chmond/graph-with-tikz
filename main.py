@@ -7,24 +7,29 @@ import app.visualisation
 import os
 import tkinter as tk
 
-d = ParsedData("crossing_example.json")
+d = ParsedData("example_2.json")
 
 
 
 
 print("================== Original Graph ==================\n")
 G = Graph(d.get_parsed_data())
-# G.print_graph()
+G.print_graph()
 
 print("\n=============== Cycles removed =====================\n")
 G_no_cycle = app.visualisation.dfs_cycle_removal(G)
 
-# G_no_cycle.print_graph()
+G_no_cycle.print_graph()
 
-print("\n===============Layered and Dummy vertices added =====================\n")
+print("\n===============Layered =====================\n")
 layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
 
-# layered_G.print_graph()
+layered_G.print_graph()
+
+print("\n===============Dummy vertices added =====================\n")
+app.visualisation.add_dummy_vertices(layered_G)
+layered_G.print_graph()
+
 
 print("================== init order ==================\n")
 pos = app.visualisation.init_ordering(layered_G)
@@ -36,13 +41,13 @@ for k,v in pos.items():
 print("================== adj pos ==================\n")
 
 for i in range(5):
-    app.visualisation.weighted_median_sweep(layered_G,pos,i,7)
+    app.visualisation.weighted_median_sweep(layered_G,pos,i,5)
     print("================== adj pos ==================\n")
     print(pos)
     
     
 print("================== transpose ==================\n")
-app.visualisation.transpose(pos)
+app.visualisation.transpose(layered_G,pos)
 
 for k,v in pos.items():
     print(f"{k}: {v} \n")

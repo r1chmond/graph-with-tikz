@@ -405,7 +405,8 @@ def weighted_median_sweep(graph: Graph,
     
     
 
-def transpose(ordering: Dict[int, List[Vertex]]) -> None:
+def transpose(graph: Graph, 
+              ordering: Dict[int, List[Vertex]]) -> None:
     improved = True
     while improved:
         improved = False
@@ -414,23 +415,35 @@ def transpose(ordering: Dict[int, List[Vertex]]) -> None:
                 v = ordering[layer][i]
                 w = ordering[layer][i+1]
                 
-                if crossing(ordering,v,w) > crossing(ordering,w,v):
+                if crossing(graph,ordering,v,w) > crossing(graph,ordering,w,v):
                     improved = True
                     ordering[layer][i], ordering[layer][i+1] = ordering[layer][i+1], ordering[layer][i]
                     # ordering[layer][i].x_position = i
                     # ordering[layer][i+1].x_position = i+1
+                    
             # for vertex in order[layer]:
             #     position = ordering[layer].index(vertex)
             #     vertex.x_position = position
                     
 
-def crossing(ordering: Dict[int, List[Vertex]], v: Vertex, w: Vertex) -> int:
+def crossing(graph: Graph, 
+             ordering: Dict[int, List[Vertex]],
+             v: Vertex,
+             w: Vertex) -> int:
     crossings = 0
+    v_tails = {edge.tail for edge in graph.outgoing_edges(v)}
+    w_tails = {edge.tail for edge in graph.outgoing_edges(w)}
+     
     if not v.is_sink or not w.is_sink:
+        #loop through vertices below this layer
         for vertex_x in ordering[v.layer-1]:
-            for vertex_y in ordering[w.layer-1]:
-                if v.x_position < w.x_position and vertex_x.x_position < vertex_y.x_position:
-                    crossings += 1
+            #if the vertex is a tail of an edge where v is the head (ie if vertex_x is in v_tails)
+            if vertex_x in v_tails: 
+                for vertex_y in ordering[w.layer-1]:
+                    if vertex_y in w_tails:
+                        if (ordering[v.layer-1].index(vertex_x) > ordering[w.layer-1].index(vertex_y) and
+                            ordering[v.layer].index(v) < ordering[w.layer].index(w)):
+                            crossings += 1
     return crossings
 
 def vertex_ordering(graph: Graph):

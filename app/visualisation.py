@@ -12,7 +12,7 @@ class Vertex:
                  font_color: str,
                  label: str="", 
                  layer: int = 0,
-                 position: Tuple[int, int] = (0,0)) -> None:
+                 x_position: int = 0) -> None:
         self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
@@ -21,7 +21,7 @@ class Vertex:
         self.font_color = font_color
         self.is_source = False
         self.is_sink = False
-        self.position = position
+        self.x_position = x_position
     
     def __eq__(self, other: object) -> bool:
         return (self.vertex_id == other.vertex_id and
@@ -42,7 +42,7 @@ class Vertex:
             symbol = "+"
         elif self.is_sink:
             symbol = "-"
-        return f"{symbol}{self.label}_{self.layer} pos({self.position})"
+        return f"{symbol}{self.label}_{self.layer} pos({self.x_position})"
     
     
 class Edge:
@@ -145,6 +145,12 @@ class Graph:
                 return v
         return None
     
+    def get_source_vertex(self,) -> Vertex:
+        for v in self.vertices:
+            if v.is_source:
+                return v    
+        return None
+    
     # def is_source(self, vertex):
     #     return len(self.incoming_edges(vertex)) == 0
     
@@ -244,30 +250,30 @@ def longest_path_layer_assigment(graph: Graph):
             Z.update(U)
             
     #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
-    add_dummy_vertices(graph)
+    # add_dummy_vertices(graph)
             
     #set positions
     
     #add dummies to layer mapping
-    for v in graph.vertices:
-        layer_vertices = [vertex for vertices in layer_mapping.values() for vertex in vertices]
-        if v not in layer_vertices:
-            layer_mapping[v.layer].append(v)
-    INTERVAL = 2        
-    factor = 0
-    for layer, vertices in layer_mapping.items():
-        if len(vertices) > 1:
-            for i,v in enumerate(vertices):
-                v.position = (i+factor, layer*INTERVAL)
-                factor += 3
-        else:
-            vertices[0].position = (0, layer*INTERVAL)
+    # for v in graph.vertices:
+    #     layer_vertices = [vertex for vertices in layer_mapping.values() for vertex in vertices]
+    #     if v not in layer_vertices:
+    #         layer_mapping[v.layer].append(v)
+    # INTERVAL = 2        
+    # factor = 0
+    # for layer, vertices in layer_mapping.items():
+    #     if len(vertices) > 1:
+    #         for i,v in enumerate(vertices):
+    #             v.position = (i+factor, layer*INTERVAL)
+    #             factor += 3
+    #     else:
+    #         vertices[0].position = (0, layer*INTERVAL)
                 
-        factor = 0
+    #     factor = 0
             
-    print(f"layer mapping = {layer_mapping}")
+    # print(f"layer mapping = {layer_mapping}")
     #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
-    add_dummy_vertices(graph)
+    # add_dummy_vertices(graph)
     return graph
 
     
@@ -324,6 +330,155 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
             break
     
     return graph
+
+def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
+    '''Initially order vertices in each layer using depth first search'''
+    ordered_nodes = {i:[] for i in range(1, graph.get_source_vertex().layer + 1)}
+    visited = []
+    #get vertices with minimum layer
+    queue = deque([v for v in graph.vertices if v.layer == 1])
+    
+    while queue:
+        current_vertex = queue.popleft()
+        
+        if current_vertex not in visited:
+            
+            ordered_nodes[current_vertex.layer].append(current_vertex)
+            current_vertex.x_position = len(ordered_nodes[current_vertex.layer])-1
+            visited.append(current_vertex)
+            for edge in graph.incoming_edges(current_vertex):
+                neighbour = edge.head
+                if neighbour not in visited:
+                    queue.append(neighbour)
+    
+    
+    return ordered_nodes
+
+def adjacent_position(graph: Graph, 
+                      ordering: Dict[int, List[Vertex]], 
+                      vertex: Vertex,
+                      adjacent_layer: int) -> List[int]:
+    '''returns a list of the present positions of the vertices adjacent to vertex(v)
+    in a given adjacent layer'''
+    vertices = ordering[adjacent_layer]
+    positions = []
+    for edge in graph.outgoing_edges(vertex):
+        if edge.tail in vertices:
+            positions.append(vertices.index(edge.tail)+1)
+        
+    return positions   
+
+def median_value(graph: Graph, 
+                 ordering: Dict[int, List[Vertex]], 
+                 vertex: Vertex, 
+                 adjacent_layer: int) -> float:
+    '''Calculate the median value of a vertex based on its adjacent vertices' positions in the given adjacent layer'''
+    P = adjacent_position(graph, ordering, vertex, adjacent_layer)
+    abs_P = abs(len(P))
+    mid = abs_P//2
+    
+    if abs_P == 0:
+        return -1.0
+    elif abs_P % 2 == 1:
+        return P[mid]
+    elif abs_P == 2:
+        return (P[0]+P[1]) / 2
+    else:
+        left = P[mid - 1] - P[0]
+        right = P[abs_P - 1] - P[mid]
+        return (P[mid-1]*right + P[mid]*left)/(left+right) 
+   
+def weighted_median_sweep(graph: Graph, 
+                          ordering: Dict[int, List[Vertex]], 
+                          iter: int, 
+                          max_layer: int) -> None:
+    '''Perform weighted median calculation and sort vertices in each layer during a forward traversal.'''
+    if iter % 2 == 0:
+        for layer in range(2,max_layer+1): # avoid keyerror: start at layer 2 because layers starts at 1
+            medians = []
+            
+            for vertex in ordering[layer]:
+                median = median_value(graph, ordering, vertex, layer-1)
+                medians.append((vertex,median))
+            
+            ordering[layer] = [v for v,_ in sorted(medians, key=lambda x: x[1])]
+    
+    
+
+def transpose(graph: Graph, 
+              ordering: Dict[int, List[Vertex]]) -> None:
+    improved = True
+    ordering_list = [copy.copy(ordering)] #keep track of changes in ordering
+    layer_vertices = []
+
+    while improved:
+        improved = False
+        for layer in range(1,len(ordering)+1):
+            for i in range(len(ordering[layer])-1):
+                v = ordering[layer][i]
+                w = ordering[layer][i+1]
+                
+                if crossing(graph,ordering,v,w) > crossing(graph,ordering,w,v):
+                    improved = True
+                    ordering[layer][i], ordering[layer][i+1] = ordering[layer][i+1], ordering[layer][i]
+                    vertices = ordering[layer]
+                    if vertices in layer_vertices:
+                        improved = False
+                    else:
+                        layer_vertices.append(copy.copy(vertices))
+                    
+                    # ordering[layer][i].x_position = i
+                    # ordering[layer][i+1].x_position = i+1
+                    
+            # for vertex in order[layer]:
+            #     position = ordering[layer].index(vertex)
+            #     vertex.x_position = position
+def compare_orders(ordering_a, ordering_b):
+    #return true if same dict else false
+    return ordering_a.values() == ordering_b.values()
+                       
+def exchange(ordering: Dict[int, List[Vertex]],
+             vertex_x: Vertex, 
+             vertex_y: Vertex) -> None:
+    # vertex x and y are on the same layer
+    layer = vertex_x.layer 
+    x_index = ordering[layer].index(vertex_x)
+    y_index = ordering[layer].index(vertex_y)
+    ordering[layer][x_index], ordering[layer][y_index] = ordering[layer][y_index], ordering[layer][x_index] 
+    
+def crossing(graph: Graph, 
+             ordering: Dict[int, List[Vertex]],
+             v: Vertex,
+             w: Vertex) -> int:
+    crossings = 0
+    v_tails = {edge.tail for edge in graph.outgoing_edges(v)}
+    w_tails = {edge.tail for edge in graph.outgoing_edges(w)}
+     
+    if not v.is_sink or not w.is_sink:
+        #loop through vertices below this layer
+        for vertex_x in ordering[v.layer-1]:
+            #if the vertex is a tail of an edge where v is the head (ie if vertex_x is in v_tails)
+            if vertex_x in v_tails: 
+                for vertex_y in ordering[w.layer-1]:
+                    if vertex_y in w_tails:
+                        if (ordering[v.layer-1].index(vertex_x) > ordering[w.layer-1].index(vertex_y) and
+                            ordering[v.layer].index(v) < ordering[w.layer].index(w)):
+                            crossings += 1
+    return crossings
+
+def vertex_ordering(graph: Graph):
+    order = init_ordering(graph)
+    best = copy.copy(order)
+    MAX_ITERATIONS = 24
+    max_layer = len(order)
+    for i in range(MAX_ITERATIONS):
+        weighted_median_sweep(graph,order,i,max_layer)
+        pass
+        
+        
+        
+
+
 
 
 

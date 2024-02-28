@@ -7,7 +7,7 @@ import app.visualisation
 import os
 import tkinter as tk
 
-d = ParsedData("tester.json")
+d = ParsedData("example_2.json")
 
 
 
@@ -21,23 +21,43 @@ G_no_cycle = app.visualisation.dfs_cycle_removal(G)
 
 G_no_cycle.print_graph()
 
-print("\n===============Layered and Dummy vertices added =====================\n")
+print("\n===============Layered =====================\n")
 layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
 
 layered_G.print_graph()
 
-print("\n===============Vertex promotion =====================\n")
-g_ver_promo = app.visualisation.vertex_promotion_heuristic(layered_G)
+print("\n===============Dummy vertices added =====================\n")
+app.visualisation.add_dummy_vertices(layered_G)
+layered_G.print_graph()
 
-g_ver_promo.print_graph()
 
+print("================== init order ==================\n")
+pos = app.visualisation.init_ordering(layered_G)
 
-print("\n===============just layered =====================\n")
+for k,v in pos.items():
+    print(f"{k}: {v} \n")
+    
 
-t = TikzCodeGenerator(layered_G)
-# t1 = TikzCodeGenerator(g_ver_promo)
-code = t.generate_tikz_code()
-print(code)
+print("================== adj pos ==================\n")
+
+for i in range(5):
+    app.visualisation.weighted_median_sweep(layered_G,pos,i,5)
+    print("================== adj pos ==================\n")
+    print(pos)
+    
+    
+print("================== transpose ==================\n")
+app.visualisation.transpose(layered_G,pos)
+
+for k,v in pos.items():
+    print(f"{k}: {v} \n")
+    
+
+# print(f"{adj_pos=}")
+# t = TikzCodeGenerator(layered_G)
+
+# code = t.generate_tikz_code()
+# print(code)
 
 # print("\n===============vertex promoted =====================\n")
 

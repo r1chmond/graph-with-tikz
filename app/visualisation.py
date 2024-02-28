@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from collections import deque
 from typing import Dict,List, OrderedDict, Tuple
+import copy
 
 class Vertex:
     def __init__(self, vertex_id: str,
@@ -308,14 +309,14 @@ def promote_vertex(graph: Graph, v: Vertex) -> int:
     return dummydiff
 
 def vertex_promotion_heuristic(graph: Graph) -> None:
-    graph_copy = Graph(graph.edges)
+    graph_copy = copy.deepcopy(graph)
     while True:
         promotion = 0
         for v in graph.vertices:
             if len(graph.incoming_edges(v)) > 0:
                 if promote_vertex(graph,v) < 0:
                     promotion += 1
-                    graph_copy = Graph(graph.edges)
+                    graph_copy = copy.deepcopy(graph)
                 else:
                     graph = graph_copy
         

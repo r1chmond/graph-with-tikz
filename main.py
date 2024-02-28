@@ -26,10 +26,24 @@ layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
 
 layered_G.print_graph()
 
-t = TikzCodeGenerator(layered_G)
+print("\n===============Vertex promotion =====================\n")
+g_ver_promo = app.visualisation.vertex_promotion_heuristic(layered_G)
 
+g_ver_promo.print_graph()
+
+
+print("\n===============just layered =====================\n")
+
+t = TikzCodeGenerator(layered_G)
+# t1 = TikzCodeGenerator(g_ver_promo)
 code = t.generate_tikz_code()
 print(code)
+
+# print("\n===============vertex promoted =====================\n")
+
+# c = t1.generate_tikz_code()
+# print(c)
+
 
 
 

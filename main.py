@@ -30,27 +30,34 @@ print("\n===============Dummy vertices added =====================\n")
 app.visualisation.add_dummy_vertices(layered_G)
 layered_G.print_graph()
 
-
-print("================== init order ==================\n")
-pos = app.visualisation.init_ordering(layered_G)
-
-for k,v in pos.items():
+print("================== Vertex ordering ==================\n")
+ordered = app.visualisation.vertex_ordering(layered_G)
+for k,v in ordered.items():
     print(f"{k}: {v} \n")
+ 
+
+# print("================== init order ==================\n")
+# pos = app.visualisation.init_ordering(layered_G)
+
+# for k,v in pos.items():
+#     print(f"{k}: {v} \n")
     
 
-print("================== adj pos ==================\n")
+# print("================== adj pos ==================\n")
 
-for i in range(5):
-    app.visualisation.weighted_median_sweep(layered_G,pos,i,5)
-    print("================== adj pos ==================\n")
-    print(pos)
+# for i in range(5):
+#     app.visualisation.weighted_median_sweep(layered_G,pos,i,5)
+#     print("================== adj pos ==================\n")
+#     print(pos)
     
-    
-print("================== transpose ==================\n")
-app.visualisation.transpose(layered_G,pos)
+# print("================== total crossings ==================\n")
+# print(f"{app.visualisation.overall_crossing(layered_G,pos)=}")
+   
+# print("================== transpose ==================\n")
+# app.visualisation.transpose(layered_G,pos)
 
-for k,v in pos.items():
-    print(f"{k}: {v} \n")
+# for k,v in pos.items():
+#     print(f"{k}: {v} \n")
     
 
 # print(f"{adj_pos=}")

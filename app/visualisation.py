@@ -408,7 +408,7 @@ def weighted_median_sweep(graph: Graph,
 def transpose(graph: Graph, 
               ordering: Dict[int, List[Vertex]]) -> None:
     improved = True
-    ordering_list = [copy.copy(ordering)] #keep track of changes in ordering
+    #keep track of changes in ordering
     layer_vertices = []
 
     while improved:
@@ -433,6 +433,24 @@ def transpose(graph: Graph,
             # for vertex in order[layer]:
             #     position = ordering[layer].index(vertex)
             #     vertex.x_position = position
+
+def overall_crossing(graph: Graph, 
+                     ordering: Dict[int, List[Vertex]]) -> int:
+    '''go through each layer in the ordering adding the number of crossings
+    Return the total number of crossings in the entire ordering'''
+    total = 0
+    
+    for layer in range(1, len(ordering)+1):
+        for i in range(len(ordering[layer])-1):
+                v = ordering[layer][i]
+                w = ordering[layer][i+1]
+
+                total += crossing(graph, ordering, v, w)
+                
+    return total
+
+    
+
 def compare_orders(ordering_a, ordering_b):
     #return true if same dict else false
     return ordering_a.values() == ordering_b.values()
@@ -466,14 +484,21 @@ def crossing(graph: Graph,
                             crossings += 1
     return crossings
 
-def vertex_ordering(graph: Graph):
+def vertex_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
+    add_dummy_vertices(graph)
     order = init_ordering(graph)
     best = copy.copy(order)
     MAX_ITERATIONS = 24
     max_layer = len(order)
     for i in range(MAX_ITERATIONS):
         weighted_median_sweep(graph,order,i,max_layer)
-        pass
+        transpose(graph, order)
+        
+        #if crossings in order is less than crossings in previous best
+        if overall_crossing(graph, order) < overall_crossing(graph, best):
+            best = copy.copy(order)
+        
+    return best
         
         
         

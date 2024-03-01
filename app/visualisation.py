@@ -146,16 +146,15 @@ class Graph:
         return None
     
     def get_source_vertex(self,) -> Vertex:
-        for v in self.vertices:
-            if v.is_source:
-                return v    
-        return None
+        '''Return source vertex with the higher layer'''
+        max_layer = -1
+        source_vertex = None
+        for vertex in self.vertices:
+            if vertex.is_source and vertex.layer > max_layer:
+                source_vertex = vertex
+                max_layer = vertex.layer   
+        return source_vertex
     
-    # def is_source(self, vertex):
-    #     return len(self.incoming_edges(vertex)) == 0
-    
-    # def is_sink(self, vertex):
-    #     return len(self.outgoing_edges(vertex)) == 0
     
     def print_graph(self):
         for edge in self.edges:
@@ -163,7 +162,7 @@ class Graph:
     
 
     
-def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> FileNotFoundError:
+def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> None:
     if vertex not in visited:
         visited.add(vertex)
         stacked.add(vertex)

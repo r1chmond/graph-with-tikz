@@ -10,8 +10,6 @@ import tkinter as tk
 d = ParsedData("example_2.json")
 
 
-
-
 print("================== Original Graph ==================\n")
 G = Graph(d.get_parsed_data())
 G.print_graph()

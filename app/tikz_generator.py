@@ -64,7 +64,7 @@ class TikzCodeGenerator:
             # subgraph = detail.get("subgraph")
             fill_color = vertex.shape_fill 
             position = vertex.position
-            node_representation = f"\\node[{node_type},draw= black,text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
+            node_representation = f"\\node[{node_type},draw= black, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
             # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
             # if not subgraph:
             #     node_representation = f"\\node[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]({node_id}) {{{label}}}"

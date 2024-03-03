@@ -12,7 +12,7 @@ class Vertex:
                  font_color: str,
                  label: str="", 
                  layer: int = 0,
-                 x_position: int = 0) -> None:
+                 position: Tuple[int,int] = (0,0)) -> None:
         self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
@@ -21,7 +21,7 @@ class Vertex:
         self.font_color = font_color
         self.is_source = False
         self.is_sink = False
-        self.x_position = x_position
+        self.position = position
     
     def __eq__(self, other: object) -> bool:
         return (self.vertex_id == other.vertex_id and
@@ -42,7 +42,7 @@ class Vertex:
             symbol = "+"
         elif self.is_sink:
             symbol = "-"
-        return f"{symbol}{self.label}_{self.layer} pos({self.x_position})"
+        return f"{symbol}{self.label}_{self.layer} pos({self.position})"
     
     
 class Edge:
@@ -72,6 +72,7 @@ class Graph:
         self._parsed_data = data
         self.vertices = set()
         self.edges = self.create_edges(self.get_vertices_from_data(self._parsed_data))
+        self.ordering = {}
         # self.update_vertices()
     
     def get_vertices_from_data(self, data: Dict[str,str]) -> Dict[str,str]:
@@ -123,7 +124,7 @@ class Graph:
             self.vertices.add(vertex)
         return vertex_mapping
     
-    def outgoing_edges(self, vertex: Vertex) -> set[Edge]:
+    def all_outgoing_edges(self, vertex: Vertex) -> set[Edge]:
         edges = set()
         for edge in self.edges:
             if edge.head == vertex:
@@ -131,7 +132,12 @@ class Graph:
         
         return edges
     
-    def incoming_edges(self, vertex: Vertex) -> set[Edge]:
+    def outgoing_non_back_edges(self, vertex: Vertex) -> set[Edge]:
+        edges = {edge for edge in self.edges if not edge.reversed and edge.head == vertex} 
+        return edges
+    
+
+    def all_incoming_edges(self, vertex: Vertex) -> set[Edge]:
         edges = set()
         for edge in self.edges:
             if edge.tail == vertex:
@@ -139,22 +145,28 @@ class Graph:
             
         return edges
     
+    def incoming_non_back_edges(self, vertex: Vertex) -> set[Edge]:
+        edges = {edge for edge in self.edges if not edge.reversed and edge.tail == vertex} 
+        return edges
+
     def get_vertex(self, vertex_id: str) -> Vertex:
         for v in self.vertices:
             if vertex_id == v.vertex_id:
                 return v
         return None
     
-    def get_source_vertex(self,) -> Vertex:
+    def get_max_layer(self,) -> int:
         '''Return source vertex with the higher layer'''
-        max_layer = -1
-        source_vertex = None
+        max_layer = 0
         for vertex in self.vertices:
-            if vertex.is_source and vertex.layer > max_layer:
-                source_vertex = vertex
-                max_layer = vertex.layer   
-        return source_vertex
+            max_layer = max(max_layer, vertex.layer)  
+        return max_layer
     
+    def get_ordering(self) -> Dict[int, List[Vertex]]:
+        return self.ordering
+    
+    def update_ordering(self, new_ordering: Dict[int, List[Vertex]]) -> None:
+        self.ordering = new_ordering
     
     def print_graph(self):
         for edge in self.edges:
@@ -167,7 +179,7 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
         visited.add(vertex)
         stacked.add(vertex)
 
-        for edge in graph.outgoing_edges(vertex):
+        for edge in graph.all_outgoing_edges(vertex):
             if edge.tail in stacked:      
                 # graph.edges = {e for e in graph.edges if edge != e}
                 edge.reversed = True
@@ -177,28 +189,28 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
         stacked.remove(vertex)
                 
 def dfs_cycle_removal(graph: Graph) -> Graph:
-    new_graph = Graph({})
+    # new_graph = Graph({})
     visited = set()
     stacked = set()
     
     for v in graph.vertices:
         dfs_visit(graph,v,visited,stacked)  
     
-    for e in graph.edges:
-        if not e.reversed:
-            new_graph.add_edge(e.head, e.tail, e.weight)
+    # for e in graph.edges:
+    #     if not e.reversed:
+    #         new_graph.add_edge(e.head, e.tail, e.weight)
     
-    # toggle source and sink vertices        
-    for v in new_graph.vertices:
-        incoming_edges = new_graph.incoming_edges(v)
-        if len(incoming_edges) == 0:
-            v.is_source = True
+    # # toggle source and sink vertices        
+    # for v in new_graph.vertices:
+    #     incoming_edges = new_graph.incoming_edges(v)
+    #     if len(incoming_edges) == 0:
+    #         v.is_source = True
     
-    for v in new_graph.vertices:
-        outgoing_edges = new_graph.outgoing_edges(v)
-        v.is_sink = len(outgoing_edges) == 0
+    # for v in new_graph.vertices:
+    #     outgoing_edges = new_graph.outgoing_edges(v)
+    #     v.is_sink = len(outgoing_edges) == 0
             
-    return new_graph  
+    # return new_graph  
 
 # def init_rank(graph) -> None:
 #     # ranking = []
@@ -232,7 +244,7 @@ def longest_path_layer_assigment(graph: Graph):
     while len(U) != len(graph.vertices):
         selected_vertex = None
         for v in graph.vertices:
-            if v not in U and all(edge.tail in Z for edge in graph.outgoing_edges(v)):
+            if v not in U and all(edge.tail in Z for edge in graph.outgoing_non_back_edges(v)):
                 selected_vertex = v
                 break
         
@@ -248,31 +260,6 @@ def longest_path_layer_assigment(graph: Graph):
             current_layer += 1
             Z.update(U)
             
-    #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
-    # add_dummy_vertices(graph)
-            
-    #set positions
-    
-    #add dummies to layer mapping
-    # for v in graph.vertices:
-    #     layer_vertices = [vertex for vertices in layer_mapping.values() for vertex in vertices]
-    #     if v not in layer_vertices:
-    #         layer_mapping[v.layer].append(v)
-    # INTERVAL = 2        
-    # factor = 0
-    # for layer, vertices in layer_mapping.items():
-    #     if len(vertices) > 1:
-    #         for i,v in enumerate(vertices):
-    #             v.position = (i+factor, layer*INTERVAL)
-    #             factor += 3
-    #     else:
-    #         vertices[0].position = (0, layer*INTERVAL)
-                
-    #     factor = 0
-            
-    # print(f"layer mapping = {layer_mapping}")
-    #func below to be moved to vertex ordering {check if G has proper(all tight edges) layering if not add dummies}
-    # add_dummy_vertices(graph)
     return graph
 
     
@@ -305,12 +292,12 @@ def add_dummy_vertices(graph: Graph) -> None:
 
 def promote_vertex(graph: Graph, v: Vertex) -> int:
     dummydiff = 0
-    for edge in graph.incoming_edges(v):
+    for edge in graph.incoming_non_back_edges(v):
         if edge.head.layer == v.layer + 1:
             dummydiff += promote_vertex(graph, edge.head)
             
     v.layer += 1
-    dummydiff = dummydiff - len(graph.incoming_edges(v)) + len(graph.outgoing_edges(v))
+    dummydiff = dummydiff - len(graph.incoming_non_back_edges(v)) + len(graph.outgoing_non_back_edges(v))
     return dummydiff
 
 def vertex_promotion_heuristic(graph: Graph) -> None:
@@ -318,7 +305,7 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
     while True:
         promotion = 0
         for v in graph.vertices:
-            if len(graph.incoming_edges(v)) > 0:
+            if len(graph.incoming_non_back_edges(v)) > 0:
                 if promote_vertex(graph,v) < 0:
                     promotion += 1
                     graph_copy = copy.deepcopy(graph)
@@ -332,7 +319,8 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
 
 def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
     '''Initially order vertices in each layer using depth first search'''
-    ordered_nodes = {i:[] for i in range(1, graph.get_source_vertex().layer + 1)}
+    ordered_nodes = {i:[] for i in range(1, graph.get_max_layer() + 1)}
+    
     visited = []
     #get vertices with minimum layer
     queue = deque([v for v in graph.vertices if v.layer == 1])
@@ -343,15 +331,15 @@ def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
         if current_vertex not in visited:
             
             ordered_nodes[current_vertex.layer].append(current_vertex)
-            current_vertex.x_position = len(ordered_nodes[current_vertex.layer])-1
+
             visited.append(current_vertex)
-            for edge in graph.incoming_edges(current_vertex):
+            for edge in graph.incoming_non_back_edges(current_vertex):
                 neighbour = edge.head
                 if neighbour not in visited:
                     queue.append(neighbour)
     
-    
-    return ordered_nodes
+    graph.update_ordering(ordered_nodes)
+    return graph.get_ordering()
 
 def adjacent_position(graph: Graph, 
                       ordering: Dict[int, List[Vertex]], 
@@ -361,7 +349,7 @@ def adjacent_position(graph: Graph,
     in a given adjacent layer'''
     vertices = ordering[adjacent_layer]
     positions = []
-    for edge in graph.outgoing_edges(vertex):
+    for edge in graph.outgoing_non_back_edges(vertex):
         if edge.tail in vertices:
             positions.append(vertices.index(edge.tail)+1)
         
@@ -426,12 +414,6 @@ def transpose(graph: Graph,
                     else:
                         layer_vertices.append(copy.copy(vertices))
                     
-                    # ordering[layer][i].x_position = i
-                    # ordering[layer][i+1].x_position = i+1
-                    
-            # for vertex in order[layer]:
-            #     position = ordering[layer].index(vertex)
-            #     vertex.x_position = position
 
 def overall_crossing(graph: Graph, 
                      ordering: Dict[int, List[Vertex]]) -> int:
@@ -450,28 +432,29 @@ def overall_crossing(graph: Graph,
 
     
 
-def compare_orders(ordering_a, ordering_b):
-    #return true if same dict else false
-    return ordering_a.values() == ordering_b.values()
+# def compare_orders(ordering_a, ordering_b):
+#     #return true if same dict else false
+#     return ordering_a.values() == ordering_b.values()
                        
-def exchange(ordering: Dict[int, List[Vertex]],
-             vertex_x: Vertex, 
-             vertex_y: Vertex) -> None:
-    # vertex x and y are on the same layer
-    layer = vertex_x.layer 
-    x_index = ordering[layer].index(vertex_x)
-    y_index = ordering[layer].index(vertex_y)
-    ordering[layer][x_index], ordering[layer][y_index] = ordering[layer][y_index], ordering[layer][x_index] 
+# def exchange(ordering: Dict[int, List[Vertex]],
+#              vertex_x: Vertex, 
+#              vertex_y: Vertex) -> None:
+#     # vertex x and y are on the same layer
+#     layer = vertex_x.layer 
+#     x_index = ordering[layer].index(vertex_x)
+#     y_index = ordering[layer].index(vertex_y)
+#     ordering[layer][x_index], ordering[layer][y_index] = ordering[layer][y_index], ordering[layer][x_index] 
     
 def crossing(graph: Graph, 
              ordering: Dict[int, List[Vertex]],
              v: Vertex,
              w: Vertex) -> int:
     crossings = 0
-    v_tails = {edge.tail for edge in graph.outgoing_edges(v)}
-    w_tails = {edge.tail for edge in graph.outgoing_edges(w)}
+    v_tails = {edge.tail for edge in graph.outgoing_non_back_edges(v)}
+    w_tails = {edge.tail for edge in graph.outgoing_non_back_edges(w)}
      
-    if not v.is_sink or not w.is_sink:
+    # if vertex is not sink
+    if v.layer != 1 or w.layer != 1:
         #loop through vertices below this layer
         for vertex_x in ordering[v.layer-1]:
             #if the vertex is a tail of an edge where v is the head (ie if vertex_x is in v_tails)
@@ -496,8 +479,24 @@ def vertex_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
         #if crossings in order is less than crossings in previous best
         if overall_crossing(graph, order) < overall_crossing(graph, best):
             best = copy.copy(order)
-        
-    return best
+            
+    graph.update_ordering(best)   
+    return graph.get_ordering()
+
+
+def vertex_positioning(graph: Graph):
+    #set initial x cordinates
+    interval = 3 #because width of symbols in tikz is 3cm
+    y_axis = 1 
+    for _,vertices in graph.get_ordering().items():
+        x_axis = 0
+        for vertex in vertices:
+            vertex.position = x_axis, y_axis
+            # vertex.position[1] = y_axis
+            x_axis += interval+2
+            # y_axis += interval
+        y_axis += interval
+    return graph.get_ordering()
         
         
         

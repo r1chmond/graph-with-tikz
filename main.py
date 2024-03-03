@@ -1,5 +1,5 @@
 
-from app import main_app
+# from app import main_app
 from app.data import ParsedData
 from app.tikz_generator import TikzCodeGenerator
 from app.visualisation import Graph, Edge, Vertex
@@ -7,7 +7,7 @@ import app.visualisation
 import os
 import tkinter as tk
 
-d = ParsedData("example_2.json")
+d = ParsedData("tester.json")
 
 
 print("================== Original Graph ==================\n")
@@ -15,12 +15,12 @@ G = Graph(d.get_parsed_data())
 G.print_graph()
 
 print("\n=============== Cycles removed =====================\n")
-G_no_cycle = app.visualisation.dfs_cycle_removal(G)
+app.visualisation.dfs_cycle_removal(G)
 
-G_no_cycle.print_graph()
+G.print_graph()
 
 print("\n===============Layered =====================\n")
-layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
+layered_G = app.visualisation.longest_path_layer_assigment(G)
 
 layered_G.print_graph()
 
@@ -33,6 +33,10 @@ ordered = app.visualisation.vertex_ordering(layered_G)
 for k,v in ordered.items():
     print(f"{k}: {v} \n")
  
+print("================== x cordinates ==================\n")
+ordered = app.visualisation.vertex_positioning(layered_G)
+for k,v in ordered.items():
+    print(f"{k}: {v} \n")
 
 # print("================== init order ==================\n")
 # pos = app.visualisation.init_ordering(layered_G)
@@ -59,10 +63,10 @@ for k,v in ordered.items():
     
 
 # print(f"{adj_pos=}")
-# t = TikzCodeGenerator(layered_G)
+t = TikzCodeGenerator(layered_G)
 
-# code = t.generate_tikz_code()
-# print(code)
+code = t.generate_tikz_code()
+print(code)
 
 # print("\n===============vertex promoted =====================\n")
 

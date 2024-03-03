@@ -93,7 +93,7 @@ class Graph:
         self.update_vertices()
         
     def add_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> None:
-        vertex = Vertex(vertex_id,"process",shape_fill,font_color,label,layer)
+        vertex = Vertex(vertex_id,"dummy","black",font_color,label,layer)
         return vertex
     
     def create_edges(self, data_vertices: dict[str,str]) -> set[Edge]:
@@ -196,44 +196,6 @@ def dfs_cycle_removal(graph: Graph) -> Graph:
     for v in graph.vertices:
         dfs_visit(graph,v,visited,stacked)  
     
-    # for e in graph.edges:
-    #     if not e.reversed:
-    #         new_graph.add_edge(e.head, e.tail, e.weight)
-    
-    # # toggle source and sink vertices        
-    # for v in new_graph.vertices:
-    #     incoming_edges = new_graph.incoming_edges(v)
-    #     if len(incoming_edges) == 0:
-    #         v.is_source = True
-    
-    # for v in new_graph.vertices:
-    #     outgoing_edges = new_graph.outgoing_edges(v)
-    #     v.is_sink = len(outgoing_edges) == 0
-            
-    # return new_graph  
-
-# def init_rank(graph) -> None:
-#     # ranking = []
-#     scanned = [] #scanned contains a topological sort of vertices
-#     graph_copy = Graph(graph.edges)
-#     edges = graph.edges
-#     vertices = graph.vertices
-#     source_vertices = [v for v in vertices if graph.is_source(v)]
-#     while source_vertices:
-#         scanned.extend(source_vertices)
-#         edges = {e for e in edges if e.head not in source_vertices}
-#         vertices = {v for v in vertices if v not in source_vertices}
-#         graph.edges = edges
-#         graph.vertices = vertices
-#         source_vertices = [v for v in vertices if graph.is_source(v)]
-    
-#     for v in scanned:
-#         v.layer = 1
-        
-#         for e in graph_copy.incoming_edges(v):
-#             v.layer = max(v.layer, e.tail.layer+1)
-            
-#     return graph_copy
 
 def longest_path_layer_assigment(graph: Graph):
     U = set() #track of vertices that have been assigned to a layer
@@ -432,19 +394,6 @@ def overall_crossing(graph: Graph,
 
     
 
-# def compare_orders(ordering_a, ordering_b):
-#     #return true if same dict else false
-#     return ordering_a.values() == ordering_b.values()
-                       
-# def exchange(ordering: Dict[int, List[Vertex]],
-#              vertex_x: Vertex, 
-#              vertex_y: Vertex) -> None:
-#     # vertex x and y are on the same layer
-#     layer = vertex_x.layer 
-#     x_index = ordering[layer].index(vertex_x)
-#     y_index = ordering[layer].index(vertex_y)
-#     ordering[layer][x_index], ordering[layer][y_index] = ordering[layer][y_index], ordering[layer][x_index] 
-    
 def crossing(graph: Graph, 
              ordering: Dict[int, List[Vertex]],
              v: Vertex,

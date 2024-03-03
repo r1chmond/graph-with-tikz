@@ -7,7 +7,7 @@ import app.visualisation
 import os
 import tkinter as tk
 
-d = ParsedData("tester.json")
+d = ParsedData("example_2.json")
 
 
 print("================== Original Graph ==================\n")

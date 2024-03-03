@@ -18,7 +18,7 @@ class TikzCodeGenerator:
         """
         template = self.template()
         # self.update_nodes(self._parsed_data) #call update again in case data changes
-        all_nodes = self.create_tikz_vertices(self.graph)
+        all_nodes = self.create_tikz_vertices()
         # node_links = self.get_next_nodes_and_edges(self._data_nodes)
         # subgraphs = self.create_subgraphs(self._data_nodes)
         code = (
@@ -36,26 +36,25 @@ class TikzCodeGenerator:
             
         code += f"% Connect nodes \n"     
        
-        # for node_id, connected_nodes in node_links.items():
-        #     for node in connected_nodes:
-        #         code += f"{node_id}"
-        #         edge_label = node[1]
-        #         end_node = node[0] if all_nodes.get(node[0]) else "default[as=Default End, terminator]"
-        #         edge_id = "E" + str(random.randint(0,1000)) 
-        #         if edge_label:
-        #             code += f" -- {edge_id}[as={edge_label}] -> [-Latex]{end_node},\n"
-        #         else:
-        #             code += f" -> [-Latex]{end_node},\n"
+        for edge in self.graph.edges:
+                code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}); \n"
+                # edge_label = node[1]
+                # end_node = node[0] if all_nodes.get(node[0]) else "default[as=Default End, terminator]"
+                # edge_id = "E" + str(random.randint(0,1000)) 
+                # if edge_label:
+                #     code += f" -- {edge_id}[as={edge_label}] -> [-Latex]{end_node},\n"
+                # else:
+                #     code += f" -> [-Latex]{end_node},\n"
        
             
         code += template["end"]    
         
         return code
     
-    def create_tikz_vertices(self, graph: Graph) -> OrderedDict[str, str]:
+    def create_tikz_vertices(self,) -> OrderedDict[str, str]:
         """Create nodes based on input data"""
         vertices = OrderedDict()
-        for vertex in graph.vertices:
+        for vertex in self.graph.vertices:
             vertex_id = vertex.vertex_id
             label = vertex.label
             node_type = vertex.vertex_type
@@ -132,7 +131,7 @@ class TikzCodeGenerator:
     def get_shape_template(self)-> str:
         '''Return the shape based on type'''
         # style = self._parsed_data.get("chartStyle",{})
-        template = (r"[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}}]"
+        template = (r"[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}},dummy/.style={{rectangle, minimum size=1mm, text opacity=0}}]"
                     # .format(style.get("fontColor","black"))
                     )
         return template

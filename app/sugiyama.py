@@ -1,6 +1,5 @@
 from app.graph import Graph
 from app.graph import Vertex
-from app.graph import Edge
 from app.data import ParsedData
 from typing import Dict
 from typing import List

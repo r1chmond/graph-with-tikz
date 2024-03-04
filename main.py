@@ -1,10 +1,10 @@
 
-import app.main_app
+from app import main_app
 from app.data import ParsedData
 from app.tikz_generator import TikzCodeGenerator
 from app.graph import Graph, Edge, Vertex
-import app.sugiyama
-import app.graph
+from app import sugiyama
+from app import graph
 import os
 import tkinter as tk
 
@@ -16,27 +16,25 @@ G = Graph(d.get_parsed_data())
 G.print_graph()
 
 print("\n=============== Cycles removed =====================\n")
-app.graph.dfs_cycle_removal(G)
+sugiyama.dfs_cycle_removal(G)
 
 G.print_graph()
 
 print("\n===============Layered =====================\n")
-layered_G = app.graph.longest_path_layer_assigment(G)
+layered_G = sugiyama.longest_path_layer_assigment(G)
 
 layered_G.print_graph()
 
 print("\n===============Dummy vertices added =====================\n")
-app.graph.add_dummy_vertices(layered_G)
+sugiyama.add_dummy_vertices(layered_G)
 layered_G.print_graph()
 
 print("================== Vertex ordering ==================\n")
-ordered = app.graph.vertex_ordering(layered_G)
-for k,v in ordered.items():
-    print(f"{k}: {v} \n")
+sugiyama.vertex_ordering(layered_G)
  
 print("================== x cordinates ==================\n")
-ordered = app.graph.vertex_positioning(layered_G)
-for k,v in ordered.items():
+ordered = sugiyama.vertex_positioning(layered_G)
+for k,v in ordered.ordering.items():
     print(f"{k}: {v} \n")
 
 # print("================== init order ==================\n")
@@ -77,13 +75,13 @@ print(code)
 
 
 
-# """Start GUI"""
-# root = tk.Tk() 
-# app = main_app.TikzCodeGeneratorApp(root)
-# # # app.list_box.bind("<<ListboxSelect>>", app.on_select)
-# root.minsize(500,600)
-# root.maxsize(800, 620)
-# root.mainloop()
+"""Start GUI"""
+root = tk.Tk() 
+app = main_app.TikzCodeGeneratorApp(root)
+# # app.list_box.bind("<<ListboxSelect>>", app.on_select)
+root.minsize(500,600)
+root.maxsize(800, 620)
+root.mainloop()
 
 
 # a = Vertex("id1","a")
@@ -122,13 +120,13 @@ print(code)
     
 
 
-from schemdraw import flow
-import schemdraw
+# from schemdraw import flow
+# import schemdraw
 
-with schemdraw.Drawing() as d:
-    flow.Terminal().label('START')
-    flow.Arrow().down(d.unit/3)
-    h = flow.Decision(w=5.5, h=4, S='YES').label('Hey, wait,\nthis flowchart\nis a trap!')
-    flow.Line().down(d.unit/4)
-    flow.Wire('c', k=3.5, arrow='->').to(h.E)
-    d.draw()
+# with schemdraw.Drawing() as d:
+#     flow.Terminal().label('START')
+#     flow.Arrow().down(d.unit/3)
+#     h = flow.Decision(w=5.5, h=4, S='YES').label('Hey, wait,\nthis flowchart\nis a trap!')
+#     flow.Line().down(d.unit/4)
+#     flow.Wire('c', k=3.5, arrow='->').to(h.E)
+#     d.draw()

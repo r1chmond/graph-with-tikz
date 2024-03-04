@@ -1,7 +1,7 @@
 from app.tikz_generator import TikzCodeGenerator
 from app.graph import Graph
 import app.graph
-import app.sugiyama
+from app import sugiyama
 from app.data import ParsedData
 import tkinter as tk
 from tkinter import filedialog as fd
@@ -191,14 +191,7 @@ class TikzCodeGeneratorApp:
     
     def generate_code_btn_action(self) -> None:
         if self.current_filepath != "/":
-            graph = app.sugiyama.draw_graph(self.current_filepath)
-            # parsed_data = ParsedData(self.current_filepath)
-            #TODO: have a function that can be called to perform the framework ie apply_sugiyama
-            # graph = Graph(parsed_data.get_parsed_data())
-            # app.graph.dfs_cycle_removal(graph)
-            # layer_graph = app.graph.longest_path_layer_assigment(graph)
-            # order=app.graph.vertex_ordering(layer_graph)
-            # app.graph.vertex_positioning(layer_graph)
+            graph = sugiyama.draw_graph(self.current_filepath)
             generator = TikzCodeGenerator(graph)
             tikz_code = generator.generate_tikz_code()
             self.textbox.delete("1.0", tk.END) #clear textbox before generation
@@ -212,14 +205,25 @@ class TikzCodeGeneratorApp:
                   """)
             
     def visualise_btn_action(self) -> None:
-        command = "sh run_tex.sh"
-        subprocess.run(command, shell=True)
-        
-        file = os.path.join("tester.pdf")
-        webbrowser.open_new(file)
+        if self.current_filepath != "/":
+            graph = sugiyama.draw_graph(self.current_filepath)
+
+            with schemdraw.Drawing() as d:
+                self.create_vertices(graph)
+            
+            d.draw()
         
     def create_vertices(self, graph: Graph) :
-        pass
+        for vertex in graph.vertices:
+            match vertex.vertex_type:
+                case "terminator":
+                    flow.Terminal().label(vertex.label).at(vertex.position)
+                case "process":
+                    flow.Process().label(vertex.label).at(vertex.position)
+                case "decision":
+                    flow.Decision().label(vertex.label).at(vertex.position)
+                case "io":
+                    flow.Data().label(vertex.label).at(vertex.position)
             
     def shorten_filename(self, filename: str) -> str:
         size = len(filename)

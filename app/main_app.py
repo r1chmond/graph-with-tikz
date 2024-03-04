@@ -1,4 +1,7 @@
 from app.tikz_generator import TikzCodeGenerator
+from app.graph import Graph
+import app.graph
+import app.sugiyama
 from app.data import ParsedData
 import tkinter as tk
 from tkinter import filedialog as fd
@@ -6,6 +9,8 @@ import os
 from app.file_handler import FileHandler
 import webbrowser
 import subprocess
+import schemdraw
+from schemdraw import flow
 
 
 MAX_FILENAME_LENGTH = 20
@@ -186,8 +191,15 @@ class TikzCodeGeneratorApp:
     
     def generate_code_btn_action(self) -> None:
         if self.current_filepath != "/":
-            parsed_data = ParsedData(self.current_filepath)
-            generator = TikzCodeGenerator(parsed_data.get_parsed_data())
+            graph = app.sugiyama.draw_graph(self.current_filepath)
+            # parsed_data = ParsedData(self.current_filepath)
+            #TODO: have a function that can be called to perform the framework ie apply_sugiyama
+            # graph = Graph(parsed_data.get_parsed_data())
+            # app.graph.dfs_cycle_removal(graph)
+            # layer_graph = app.graph.longest_path_layer_assigment(graph)
+            # order=app.graph.vertex_ordering(layer_graph)
+            # app.graph.vertex_positioning(layer_graph)
+            generator = TikzCodeGenerator(graph)
             tikz_code = generator.generate_tikz_code()
             self.textbox.delete("1.0", tk.END) #clear textbox before generation
             self.textbox.insert(tk.END, tikz_code)
@@ -205,6 +217,9 @@ class TikzCodeGeneratorApp:
         
         file = os.path.join("tester.pdf")
         webbrowser.open_new(file)
+        
+    def create_vertices(self, graph: Graph) :
+        pass
             
     def shorten_filename(self, filename: str) -> str:
         size = len(filename)

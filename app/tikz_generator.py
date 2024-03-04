@@ -1,7 +1,7 @@
 
 from typing import Dict,List, OrderedDict, Tuple
 import random
-from app.visualisation import Vertex, Edge, Graph
+from app.graph import Graph
 
 class TikzCodeGenerator:
     def __init__(self, graph: Graph) -> None:

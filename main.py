@@ -1,9 +1,10 @@
 
-# from app import main_app
+import app.main_app
 from app.data import ParsedData
 from app.tikz_generator import TikzCodeGenerator
-from app.visualisation import Graph, Edge, Vertex
-import app.visualisation
+from app.graph import Graph, Edge, Vertex
+import app.sugiyama
+import app.graph
 import os
 import tkinter as tk
 
@@ -15,26 +16,26 @@ G = Graph(d.get_parsed_data())
 G.print_graph()
 
 print("\n=============== Cycles removed =====================\n")
-app.visualisation.dfs_cycle_removal(G)
+app.graph.dfs_cycle_removal(G)
 
 G.print_graph()
 
 print("\n===============Layered =====================\n")
-layered_G = app.visualisation.longest_path_layer_assigment(G)
+layered_G = app.graph.longest_path_layer_assigment(G)
 
 layered_G.print_graph()
 
 print("\n===============Dummy vertices added =====================\n")
-app.visualisation.add_dummy_vertices(layered_G)
+app.graph.add_dummy_vertices(layered_G)
 layered_G.print_graph()
 
 print("================== Vertex ordering ==================\n")
-ordered = app.visualisation.vertex_ordering(layered_G)
+ordered = app.graph.vertex_ordering(layered_G)
 for k,v in ordered.items():
     print(f"{k}: {v} \n")
  
 print("================== x cordinates ==================\n")
-ordered = app.visualisation.vertex_positioning(layered_G)
+ordered = app.graph.vertex_positioning(layered_G)
 for k,v in ordered.items():
     print(f"{k}: {v} \n")
 
@@ -119,3 +120,15 @@ print(code)
 # for v in v_promo.vertices:
 #     print(f"{v} layer: {v.layer}")
     
+
+
+from schemdraw import flow
+import schemdraw
+
+with schemdraw.Drawing() as d:
+    flow.Terminal().label('START')
+    flow.Arrow().down(d.unit/3)
+    h = flow.Decision(w=5.5, h=4, S='YES').label('Hey, wait,\nthis flowchart\nis a trap!')
+    flow.Line().down(d.unit/4)
+    flow.Wire('c', k=3.5, arrow='->').to(h.E)
+    d.draw()

@@ -21,8 +21,5 @@ class FileHandler:
                 file.write(content)
         except PermissionError as e:
             print(f"Permission error while accessing file: {path} - {e}")
-        # except FileNotFoundError:
-        #     with open(path, "x") as file:
-        #         file.write(content)
         except Exception as e:
             print(f"An error occurred while accessing file {path}: {e}")

@@ -1,16 +1,14 @@
 from app.tikz_generator import TikzCodeGenerator
 from app.graph import Graph
-import app.graph
 from app import sugiyama
 from app.data import ParsedData
 import tkinter as tk
 from tkinter import filedialog as fd
 import os
 from app.file_handler import FileHandler
-import webbrowser
 import subprocess
-import schemdraw
-from schemdraw import flow
+import pyperclip
+
 
 
 MAX_FILENAME_LENGTH = 20
@@ -106,7 +104,15 @@ class TikzCodeGeneratorApp:
         image = tk.PhotoImage(file=os.path.join("icons/export.png"))
         export_btn = tk.Button(r_top_frame, image=image, command=self.file_save_action)
         export_btn.image = image
+        export_btn.config(width=25, height=25)
+        
+        copy_image = tk.PhotoImage(file=os.path.join("icons/copy.png"))
+        copy_btn = tk.Button(r_top_frame, image=copy_image, command=self.copy_btn_action)
+        copy_btn.image = copy_image
+        copy_btn.config(width=25, height=25)
+        
         export_btn.pack(side=tk.RIGHT, padx=(0, 15))
+        copy_btn.pack(side=tk.RIGHT, padx=(0,15))
         
     def create_right_middle_frame(self, parent_frame: tk.Frame) -> None:
         r_middle_frame = tk.Frame(parent_frame)
@@ -204,27 +210,14 @@ class TikzCodeGeneratorApp:
                   Please select a file
                   ++ 
                   """)
+    def copy_btn_action(self) -> None:
+        pyperclip.copy(self.textbox.get("1.0", tk.END))
             
     def preview_btn_action(self) -> None:
         tikz_code = self.textbox.get("1.0", tk.END)
         if self.current_filepath != "/" and len(tikz_code) > 1:
             self.filehandler.write("tikz.tex",tikz_code)
             subprocess.run("sh run_tex.sh", shell=True)
-            # file = os.path.join("tester.pdf")
-            # webbrowser.open_new(file)
-            
-        
-    def create_vertices(self, graph: Graph) :
-        for vertex in graph.vertices:
-            match vertex.vertex_type:
-                case "terminator":
-                    flow.Terminal().label(vertex.label).at(vertex.position)
-                case "process":
-                    flow.Process().label(vertex.label).at(vertex.position)
-                case "decision":
-                    flow.Decision().label(vertex.label).at(vertex.position)
-                case "io":
-                    flow.Data().label(vertex.label).at(vertex.position)
             
     def shorten_filename(self, filename: str) -> str:
         size = len(filename)

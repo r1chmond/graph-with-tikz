@@ -1,23 +1,25 @@
-\usetikzlibrary{graphs,graphdrawing,positioning,quotes,shapes.geometric,arrows.meta}
-\usegdlibrary{layered}%
-\tikz[subgraph text none, level sep= 15pt, nodes=black, io/.style={trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}, decision/.style={diamond, thick,minimum width=3cm, minimum height=1cm}, terminator/.style={rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}, process/.style={rectangle, thick, minimum width=3cm, minimum height=1cm}]
-\graph[layered layout, grow'=right, edges={black,thick}]{
+\usetikzlibrary{graphs,positioning,quotes,shapes.geometric,arrows.meta}
+
+\begin{tikzpicture}[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}},dummy/.style={{rectangle, minimum size=1mm, text opacity=0}}]
 % Create nodes 
-idx1[as=Start,terminator,draw=black,text=black,fill=yellow!50],
-idx2[as=Input,io,draw=black,text=black,fill=white!50], idx3[process,draw=black]
-// [layered layout, grow'=down]{
-idx11[as=Begin,terminator,draw=black,text=black,fill=white!50],
-idx12[as=Input,io,draw=black,text=black,fill=white!50], idx13[as=Process
-        2a,process,draw=black,text=black,fill=white!50],
-idx14[as=End,terminator,draw=black,text=black,fill=white!50], idx11 ->
-[-Latex]idx12, idx12 -- E8091[as=begin process] -> [-Latex]idx13, idx13 --
-E2578[as=exit] -> [-Latex]idx14, ;}, idx4[as=Decision
-        1,decision,draw=black,text=black,fill=white!50], idx5[as=Process
-        2a,process,draw=black,text=black,fill=white!50], idx6[as=Process
-        2b,process,draw=black,text=black,fill=white!50],
-idx7[as=Output,io,draw=black,text=black,fill=white!50],
-idx8[as=Stop,terminator,draw=black,text=black,fill=white!50],
+\node[process,draw= black, text=black,fill=white!50](idx6) at (0, 1) {Process 2b}; 
+\node[io,draw= black, text=black,fill=white!50](idx2) at (0, 16) {Input}; 
+\node[io,draw= black, text=black,fill=white!50](idx7) at (5, 4) {Output}; 
+\node[process,draw= black, text=black,fill=white!50](idx3) at (0, 13) {Process 1}; 
+\node[decision,draw= black, text=black,fill=white!50](idx4) at (0, 10) {Decision 1}; 
+\node[process,draw= black, text=black,fill=white!50](idx5) at (5, 7) {Process 2a}; 
+\node[terminator,draw= black, text=black,fill=white!50](idx8) at (5, 1) {Stop}; 
+\node[dummy,draw= black, text=white,fill=black!50](*1) at (0, 4) {dummy}; 
+\node[terminator,draw= black, text=black,fill=yellow!50](idx1) at (0, 19) {Start}; 
+\node[dummy,draw= black, text=white,fill=black!50](*2) at (0, 7) {dummy}; 
 % Connect nodes 
-idx1 -> [-Latex]idx2, idx2 -- E978[as=begin process] -> [-Latex]idx3, idx3 ->
-[-Latex]idx4, idx4 -> [-Latex]idx5, idx4 -> [-Latex]idx6, idx5 -> [-Latex]idx7,
-idx7 -> [-Latex]idx8, };%
+\draw[-{Latex}] (*2) -- (*1); 
+\draw[-{Latex}] (*1) -- (idx6); 
+\draw[-{Latex}] (idx4) -- (idx5); 
+\draw[-{Latex}] (idx2) -- (idx3); 
+\draw[-{Latex}] (idx3) -- (idx4); 
+\draw[-{Latex}] (idx5) -- (idx7); 
+\draw[-{Latex}] (idx1) -- (idx2); 
+\draw[-{Latex}] (idx4) -- (*2); 
+\draw[-{Latex}] (idx7) -- (idx8); 
+\end{tikzpicture}

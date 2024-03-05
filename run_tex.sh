@@ -1,6 +1,6 @@
 #!/bin/sh
 
-lualatex tester.tex
+pdflatex tester.tex
 python3 run_tex.py
 
 

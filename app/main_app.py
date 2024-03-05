@@ -28,12 +28,13 @@ class TikzCodeGeneratorApp:
         self.list_box = tk.Listbox(self.left_mainframe,selectmode=tk.SINGLE, width= 30)
         self.textbox = tk.Text(self.right_mainframe)
     
-        
+        self.filehandler = FileHandler()
         self.radio_count = 0
         self.filepath_list=[]
         self.current_filepath = os.path.join("/")
         self.current_status = "status"
-        
+        self.tikz_code = ""
+         
         self.create_menubar()
         self.create_left_section()
         self.create_right_section()
@@ -117,10 +118,10 @@ class TikzCodeGeneratorApp:
         r_bottom_frame = tk.Frame(parent_frame)
         r_bottom_frame.pack(side=tk.BOTTOM)
 
-        visualise_btn = tk.Button(parent_frame, text="Visualise", command=self.visualise_btn_action)
+        preview_btn = tk.Button(parent_frame, text="Preview PDF", command=self.preview_btn_action)
         generate_btn = tk.Button(parent_frame, text="Generate Tikz Code", command=self.generate_code_btn_action)
 
-        visualise_btn.pack(side=tk.RIGHT, padx=(10, 30))
+        preview_btn.pack(side=tk.RIGHT, padx=(10, 30))
         generate_btn.pack(side=tk.RIGHT)
         
     def file_new_action(self):
@@ -170,9 +171,9 @@ class TikzCodeGeneratorApp:
                                             title="Save/Export",
                                             initialdir=os.path.join("/"),
                                             filetypes=filetypes)
-            filehandler = FileHandler()
+            # filehandler = FileHandler()
             
-            filehandler.write(filepath,export_code)
+            self.filehandler.write(filepath,export_code)
             self.current_status = "Saved."
         else:
             print("no exportable currently available. Please add a file and generate code to export.")
@@ -204,14 +205,14 @@ class TikzCodeGeneratorApp:
                   ++ 
                   """)
             
-    def visualise_btn_action(self) -> None:
-        if self.current_filepath != "/":
-            graph = sugiyama.draw_graph(self.current_filepath)
-
-            with schemdraw.Drawing() as d:
-                self.create_vertices(graph)
+    def preview_btn_action(self) -> None:
+        tikz_code = self.textbox.get("1.0", tk.END)
+        if self.current_filepath != "/" and len(tikz_code) > 1:
+            self.filehandler.write("tikz.tex",tikz_code)
+            subprocess.run("sh run_tex.sh", shell=True)
+            # file = os.path.join("tester.pdf")
+            # webbrowser.open_new(file)
             
-            d.draw()
         
     def create_vertices(self, graph: Graph) :
         for vertex in graph.vertices:

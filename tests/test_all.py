@@ -111,3 +111,6 @@ class TestJSONParser(unittest.TestCase):
         with open("invalid.json", "w") as file:
             file.write(data)     
             
+
+class TestTikzGenerator(unittest.TestCase):
+    pass

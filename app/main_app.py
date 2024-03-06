@@ -8,7 +8,8 @@ import os
 from app.file_handler import FileHandler
 import subprocess
 import pyperclip
-
+from tktooltip import ToolTip
+import time
 
 
 MAX_FILENAME_LENGTH = 20
@@ -30,6 +31,7 @@ class TikzCodeGeneratorApp:
         self.radio_count = 0
         self.filepath_list=[]
         self.current_filepath = os.path.join("/")
+        self.status_label = None
         self.current_status = "status"
         self.tikz_code = ""
          
@@ -76,6 +78,7 @@ class TikzCodeGeneratorApp:
         addfile_btn.image = add_image #add reference to image ..ref garbage collection
         addfile_btn.configure(image=add_image)
         addfile_btn.pack(side=tk.RIGHT, padx=(0, 10))  
+        ToolTip(addfile_btn, msg= "Add JSON file")
 
     def create_listbox(self, parent_frame: tk.Frame) -> None:
         l_list_frame = tk.Frame(parent_frame)
@@ -86,9 +89,10 @@ class TikzCodeGeneratorApp:
     def create_status_bar(self, parent_frame: tk.Frame) -> None:
         l_status_frame = tk.Frame(parent_frame)
         l_status_frame.pack(side=tk.BOTTOM)
-
-        status_label = tk.Label(l_status_frame, text=self.current_status)
-        status_label.pack(side=tk.LEFT)
+        self.status_label = tk.Label(l_status_frame, text= "status")
+        # self.status_label.config(text="status")
+        # status_label = tk.Label(l_status_frame, text=self.current_status)
+        self.status_label.pack(side=tk.LEFT)
         
     def create_right_section(self) -> None:
         self.right_mainframe.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
@@ -113,6 +117,8 @@ class TikzCodeGeneratorApp:
         
         export_btn.pack(side=tk.RIGHT, padx=(0, 15))
         copy_btn.pack(side=tk.RIGHT, padx=(0,15))
+        ToolTip(copy_btn, msg= "Copy")
+        ToolTip(export_btn, msg= "Export")
         
     def create_right_middle_frame(self, parent_frame: tk.Frame) -> None:
         r_middle_frame = tk.Frame(parent_frame)
@@ -163,7 +169,9 @@ class TikzCodeGeneratorApp:
                 radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=var, value=value, width=20, command=on_select)
                 radio_btn.pack(pady=5)
         
-        #
+            self.status_label.config(text="File added")
+        # time.sleep(3)
+        # self.status_label.config(text="status")
         
     def file_save_action(self) -> None:
         self.current_status = "Saving..."
@@ -180,7 +188,10 @@ class TikzCodeGeneratorApp:
             # filehandler = FileHandler()
             
             self.filehandler.write(filepath,export_code)
-            self.current_status = "Saved."
+            self.status_label.config(text="Saved!")
+            # time.sleep(3)
+            # self.status_label.config(text="status")
+            
         else:
             print("no exportable currently available. Please add a file and generate code to export.")
         
@@ -212,6 +223,7 @@ class TikzCodeGeneratorApp:
                   """)
     def copy_btn_action(self) -> None:
         pyperclip.copy(self.textbox.get("1.0", tk.END))
+        self.status_label.config(text="Copied to clipboard!")
             
     def preview_btn_action(self) -> None:
         tikz_code = self.textbox.get("1.0", tk.END)

@@ -113,6 +113,7 @@ class TikzCodeGeneratorApp:
         
         export_btn.pack(side=tk.RIGHT, padx=(0, 15))
         copy_btn.pack(side=tk.RIGHT, padx=(0,15))
+        #TODO: add tooltips to buttons
         
     def create_right_middle_frame(self, parent_frame: tk.Frame) -> None:
         r_middle_frame = tk.Frame(parent_frame)

@@ -4,6 +4,7 @@ from app.file_handler import FileHandler
 from app.json_parser import JSONParser
 from app.tikz_generator import TikzCodeGenerator
 from app.data import ParsedData
+from app.graph import Vertex, Edge, Graph
 
 class TestFileHandler(unittest.TestCase):
     
@@ -111,3 +112,41 @@ class TestJSONParser(unittest.TestCase):
         with open("invalid.json", "w") as file:
             file.write(data)     
             
+class TestVertex(unittest.TestCase):
+    
+    def setUp(self) -> None:
+        self.v1 = Vertex("v1", "type1", "fill1", "color1", "label1", 2, (10, 20))
+        self.v2 = Vertex("v1", "type1", "fill1", "color1", "label1", 2, (10, 20))
+        self.v3 = Vertex("v3", "type3", "fill3", "color3", "label3", 2, (10, 20))
+    
+    def test_vertex_equality(self):
+        self.assertEqual(self.v1, self.v2)
+        self.assertNotEqual(self.v1,self.v3)
+        self.assertNotEqual(self.v2, self.v3)
+        
+    def test_hash(self):
+        self.assertEqual(hash(self.v1), hash(self.v2))
+        self.assertNotEqual(hash(self.v1), hash(self.v3))
+        
+class TestEdge(unittest.TestCase):
+    
+    def setUp(self) -> None:
+        self.v1 = Vertex("v1", "type1", "fill1", "color1", "label1", 2, (10, 20))
+        self.v2 = Vertex("v2", "type2", "fill2", "color2", "label2", 2, (10, 20))
+        self.v3 = Vertex("v3", "type3", "fill3", "color3", "label3", 2, (10, 20))
+        self.edge1 = Edge(self.v1, self.v3)
+        self.edge2 = Edge(self.v1, self.v3)
+        self.edge3 = Edge(self.v1, self.v2)
+        
+    
+    def test_edge_equality(self):
+        self.assertEqual(self.edge1, self.edge2)
+        self.assertNotEqual(self.edge1, self.edge3)
+        
+    def test_hash(self):
+        self.assertEqual(hash(self.edge1), hash(self.edge2))
+        self.assertNotEqual(hash(self.edge1), hash(self.edge3))
+        
+       
+class TestTikzGenerator(unittest.TestCase):
+    pass

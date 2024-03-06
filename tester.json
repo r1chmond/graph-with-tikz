@@ -8,7 +8,7 @@
                 "id": "idx2"
             }
         ],
-        "shapeFill": "yellow"
+        "shapeFill": "red"
     },
     "idx2": {
         "label": "Input",
@@ -18,7 +18,8 @@
                 "id": "idx3",
                 "edge": "begin process"
             }
-        ]
+        ],
+        "shapeFill": "blue"
     },
     "idx3": {
         "label": "Process 1",
@@ -27,7 +28,8 @@
             {
                 "id": "idx4"
             }
-        ]
+        ],
+        "shapeFill": "orange"
     },
     "idx4": {
         "label": "Decision 1",
@@ -39,7 +41,8 @@
             {
                 "id": "idx6"
             }
-        ]
+        ],
+        "shapeFill": "green"
     },
     "idx5": {
         "label": "Process 2a",
@@ -48,11 +51,13 @@
             {
                 "id": "idx7"
             }
-        ]
+        ],
+        "shapeFill": "orange"
     },
     "idx6": {
         "label": "Process 2b",
-        "type": "process"
+        "type": "process",
+        "shapeFill": "orange"
     },
     "idx7": {
         "label": "Output",
@@ -61,10 +66,12 @@
             {
                 "id": "idx8"
             }
-        ]
+        ],
+        "shapeFill": "blue"
     },
     "idx8": {
         "label": "Stop",
-        "type": "terminator"
+        "type": "terminator",
+        "shapeFill": "red"
     }
 }

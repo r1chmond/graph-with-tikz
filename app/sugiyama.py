@@ -34,7 +34,9 @@ def dfs_cycle_removal(graph: Graph) -> None:
     # new_graph = Graph({})
     visited = set()
     stacked = set()
-    
+    # start at source
+    v = graph.get_rel_source() 
+    dfs_visit(graph,v,visited,stacked)
     for v in graph.vertices:
         dfs_visit(graph,v,visited,stacked)  
     

@@ -8,7 +8,8 @@ import copy
 class Vertex:
     def __init__(self, vertex_id: str,
                  vertex_type: str, 
-                 shape_fill: str, 
+                 shape_fill: str,
+                 shape_color: str, 
                  font_color: str,
                  label: str="", 
                  layer: int = 0,
@@ -18,6 +19,7 @@ class Vertex:
         self.layer = layer
         self.vertex_type = vertex_type
         self.shape_fill = shape_fill
+        self.shape_color = shape_color
         self.font_color = font_color
         self.is_source = False
         self.is_sink = False
@@ -25,8 +27,13 @@ class Vertex:
     
     def __eq__(self, other: object) -> bool:
         return (self.vertex_id == other.vertex_id and
-                self.label == other.label and 
-                self.layer == other.layer and 
+                self.label == other.label and
+                self.layer == other.layer and
+                self.vertex_type == other.vertex_type and
+                self.shape_fill == other.shape_fill and
+                self.shape_color == other.shape_color and 
+                self.font_color == other.font_color and 
+                self.position == other.position and
                 self.is_sink == other.is_sink and 
                 self.is_source == other.is_source)
         
@@ -34,7 +41,7 @@ class Vertex:
         return not self == other
     
     def __hash__(self) -> int:
-        return hash((self.vertex_id,self.label, self.layer, self.is_source, self.is_sink))
+        return hash((self.vertex_id,self.label, self.layer, self.vertex_type,self.position,self.shape_fill,self.shape_color, self.is_source, self.is_sink))
     
     def __repr__(self) -> str:
         symbol = ""
@@ -46,10 +53,11 @@ class Vertex:
     
     
 class Edge:
-    def __init__(self, head: Vertex, tail: Vertex, weight: int = 1) -> None:
+    def __init__(self, head: Vertex, tail: Vertex, weight: int = 1, edge_color: str = "black") -> None:
         self.head = head
         self.tail = tail
         self.weight = weight
+        self.edge_color = edge_color
         self.reversed = False 
         
     
@@ -93,7 +101,7 @@ class Graph:
         self.update_vertices()
         
     def add_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> None:
-        vertex = Vertex(vertex_id,"dummy","black",font_color,label,layer)
+        vertex = Vertex(vertex_id,"dummy","black","black",font_color,label,layer)
         return vertex
     
     def create_edges(self, data_vertices: dict[str,str]) -> set[Edge]:
@@ -117,9 +125,10 @@ class Graph:
             style = self._parsed_data.get("chartStyle",{})
             text_color = detail.get("fontColor",style.get("fontColor", "black"))
             # subgraph = detail.get("subgraph")
+            shape_color = detail.get("shapeColor", style.get("shapeColor", "black"))
             fill_color = detail.get("shapeFill",style.get("shapeFill", "white")) 
             # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
-            vertex = Vertex(vertex_id, vertex_type, fill_color, text_color, label)
+            vertex = Vertex(vertex_id, vertex_type, fill_color, shape_color, text_color, label)
             vertex_mapping[vertex_id] = vertex
             self.vertices.add(vertex)
         return vertex_mapping
@@ -154,7 +163,13 @@ class Graph:
             if vertex_id == v.vertex_id:
                 return v
         return None
-    
+
+    def get_rel_source(self) -> Vertex:
+        for vertex in self.vertices:
+            if len(self.all_incoming_edges(vertex)) == 0:
+                vertex.is_source = True
+                return vertex
+        return None
     def get_max_layer(self,) -> int:
         '''Return source vertex with the higher layer'''
         max_layer = 0

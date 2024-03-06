@@ -3,7 +3,7 @@ from app.graph import Graph
 from app import sugiyama
 from app.data import ParsedData
 import tkinter as tk
-from tkinter import filedialog as fd
+from tkinter import filedialog as fd, messagebox
 import os
 from app.file_handler import FileHandler
 import subprocess
@@ -193,7 +193,7 @@ class TikzCodeGeneratorApp:
             # self.status_label.config(text="status")
             
         else:
-            print("no exportable currently available. Please add a file and generate code to export.")
+            messagebox.showwarning(title="Unable To Export/Save", message="Unable to perform this action. Please add an appropriate JSON file, select it and click on generate. You will then be able to perform this action")
         
     def about_menu_action(self) -> None:
         print("About clicked !!!")
@@ -216,11 +216,8 @@ class TikzCodeGeneratorApp:
             self.textbox.insert(tk.END, tikz_code)
 
         else:
-            print("""
-                  ++
-                  Please select a file
-                  ++ 
-                  """)
+            messagebox.showinfo("JSON File Required", "Please add an appropriate JSON file and select.")
+    
     def copy_btn_action(self) -> None:
         pyperclip.copy(self.textbox.get("1.0", tk.END))
         self.status_label.config(text="Copied to clipboard!")
@@ -230,6 +227,8 @@ class TikzCodeGeneratorApp:
         if self.current_filepath != "/" and len(tikz_code) > 1:
             self.filehandler.write("tikz.tex",tikz_code)
             subprocess.run("sh run_tex.sh", shell=True)
+        else:
+            messagebox.showinfo("Nothing To Preview", "Please add an appropriate JSON file, select and then click on generate. You will then be able to preview the generated code.")
             
     def shorten_filename(self, filename: str) -> str:
         size = len(filename)

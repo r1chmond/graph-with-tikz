@@ -1,8 +1,6 @@
-# import networkx as nx
-# import matplotlib.pyplot as plt
 from collections import OrderedDict
 from collections import deque
-from typing import Dict,List, Set, Tuple
+from typing import Dict,List, Tuple, Any
 import copy
 
 class Vertex:
@@ -68,6 +66,9 @@ class Edge:
                     self.weight == other.weight and \
                     self.reversed == other.reversed
         return False
+    
+    def __ne__(self, other: object) -> bool:
+        return not self == other
           
     def __hash__(self) -> int:
         return hash((self.head, self.tail, self.weight))
@@ -78,7 +79,7 @@ class Edge:
 class Graph:
     def __init__(self, data: Dict[str,str]) -> None:
         self._parsed_data = data
-        self.vertices: Set[Vertex] = set()
+        self.vertices: List[Vertex] = []  #maintain order of creation
         self.edges = self.create_edges(self.get_vertices_from_data(self._parsed_data))
         self.ordering: Dict[int, List[Vertex]] = {}
         # self.update_vertices()
@@ -89,34 +90,35 @@ class Graph:
     
     def update_vertices(self) -> None:
         for edge in self.edges:
-             self.vertices.add(edge.head)
-             self.vertices.add(edge.tail)
+             self.vertices.append(edge.head)
+             self.vertices.append(edge.tail)
     
     def get_num_of_vertices(self) -> int:
         return len(self.vertices)
     
     def add_edge(self,head: Vertex, tail: Vertex, weight: int = 1) -> None:
         new_edge = Edge(head,tail,weight)
-        self.edges.add(new_edge)
+        self.edges.append(new_edge)
         self.update_vertices()
         
     def add_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> None:
         vertex = Vertex(vertex_id,"dummy","black","black",font_color,label,layer)
         return vertex
     
-    def create_edges(self, data_vertices: dict[str,str]) -> set[Edge]:
+    def create_edges(self, data_vertices: dict[str,str]) -> List[Edge]:
         # data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
         vertex_mapping = self.create_vertices(data_vertices)
-        edges = set()
+        edges: List[Edge] = []
         for vertex_id, detail in data_vertices.items():
             next_vertices = detail.get("next",[])                                                    
             connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_vertices]
             head = vertex_mapping[vertex_id]
-            edges.update({Edge(head,vertex_mapping[next_id]) for next_id,_ in connected_nodes})
+            edges.extend([Edge(head,vertex_mapping[next_id]) for next_id,_ in connected_nodes])
 
+        self.remove_duplicates(edges)
         return edges
     
-    def create_vertices(self, data_vertices: dict[str,str]) -> set[Vertex]:
+    def create_vertices(self, data_vertices: dict[str,str]) -> Dict[str,Vertex]:
         # data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
         vertex_mapping = {}
         for vertex_id,detail in data_vertices.items():
@@ -130,32 +132,32 @@ class Graph:
             # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
             vertex = Vertex(vertex_id, vertex_type, fill_color, shape_color, text_color, label)
             vertex_mapping[vertex_id] = vertex
-            self.vertices.add(vertex)
+            self.vertices.append(vertex)
         return vertex_mapping
     
-    def all_outgoing_edges(self, vertex: Vertex) -> set[Edge]:
-        edges = set()
+    def all_outgoing_edges(self, vertex: Vertex) -> List[Edge]:
+        edges: List[Edge] = []
         for edge in self.edges:
             if edge.head == vertex:
-                edges.add(edge)
+                edges.append(edge)
         
         return edges
     
-    def outgoing_non_back_edges(self, vertex: Vertex) -> set[Edge]:
-        edges = {edge for edge in self.edges if not edge.reversed and edge.head == vertex} 
+    def outgoing_non_back_edges(self, vertex: Vertex) -> List[Edge]:
+        edges = [edge for edge in self.edges if not edge.reversed and edge.head == vertex] 
         return edges
     
 
-    def all_incoming_edges(self, vertex: Vertex) -> set[Edge]:
-        edges = set()
+    def all_incoming_edges(self, vertex: Vertex) -> List[Edge]:
+        edges: List[Edge] = []
         for edge in self.edges:
             if edge.tail == vertex:
-                edges.add(edge)
+                edges.append(edge)
             
         return edges
     
-    def incoming_non_back_edges(self, vertex: Vertex) -> set[Edge]:
-        edges = {edge for edge in self.edges if not edge.reversed and edge.tail == vertex} 
+    def incoming_non_back_edges(self, vertex: Vertex) -> List[Edge]:
+        edges = [edge for edge in self.edges if not edge.reversed and edge.tail == vertex] 
         return edges
 
     def get_vertex(self, vertex_id: str) -> Vertex:
@@ -164,12 +166,14 @@ class Graph:
                 return v
         return None
 
-    def get_rel_source(self) -> Vertex:
+    def get_source_vertices(self) -> List[Vertex]:
+        source_vertices = []
         for vertex in self.vertices:
             if len(self.all_incoming_edges(vertex)) == 0:
                 vertex.is_source = True
-                return vertex
-        return None
+                source_vertices.append(vertex)
+        return source_vertices
+    
     def get_max_layer(self,) -> int:
         '''Return source vertex with the higher layer'''
         max_layer = 0
@@ -182,6 +186,16 @@ class Graph:
     
     def update_ordering(self, new_ordering: Dict[int, List[Vertex]]) -> None:
         self.ordering = new_ordering
+    
+    def remove_duplicates(self, elements: List[Any]) -> None:
+        seen = OrderedDict()
+        for element in elements:
+            if element not in seen:
+                seen[element] = None
+            
+        elements.clear()
+        elements.extend(list(seen.keys()))
+        
     
     def print_graph(self):
         for edge in self.edges:

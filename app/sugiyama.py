@@ -23,7 +23,6 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
 
         for edge in graph.all_outgoing_edges(vertex):
             if edge.tail in stacked:      
-                # graph.edges = {e for e in graph.edges if edge != e}
                 edge.reversed = True
             else:
                 dfs_visit(graph, edge.tail, visited, stacked)
@@ -31,12 +30,9 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
         stacked.remove(vertex)
                 
 def dfs_cycle_removal(graph: Graph) -> None:
-    # new_graph = Graph({})
     visited = set()
     stacked = set()
-    # start at source
-    v = graph.get_rel_source() 
-    dfs_visit(graph,v,visited,stacked)
+    
     for v in graph.vertices:
         dfs_visit(graph,v,visited,stacked)  
     
@@ -93,7 +89,8 @@ def add_dummy_vertices(graph: Graph) -> None:
         for i in range(1,len(vertices)):
                 graph.add_edge(vertices[i], vertices[i-1])
 
-        graph.vertices.update(set(vertices))
+        graph.vertices.extend(vertices)
+        graph.remove_duplicates(graph.vertices)
 
 
 def promote_vertex(graph: Graph, v: Vertex) -> int:
@@ -290,3 +287,14 @@ def vertex_positioning(graph: Graph) -> Graph:
         y_axis += interval
     return graph
  
+def remove_duplicates(vertices: List[Vertex]) -> List[Vertex]:
+    count = {}
+    for vertex in vertices:
+        if vertex in count:
+            count[vertex] += 1
+        else:
+            count[vertex] = 1
+    
+    vertices.clear()
+    for vertex in count.keys():
+        vertices.append(vertex)

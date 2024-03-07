@@ -114,11 +114,19 @@ class TikzCodeGeneratorApp:
         copy_btn = tk.Button(r_top_frame, image=copy_image, command=self.copy_btn_action)
         copy_btn.image = copy_image
         copy_btn.config(width=25, height=25)
+
+
+        clear_image = tk.PhotoImage(file=os.path.join("icons/clear.png"))
+        clear_btn = tk.Button(r_top_frame, image=clear_image, command=self.clear_btn_action)
+        clear_btn.image = clear_image
+        clear_btn.config(width=25, height=25)
         
         export_btn.pack(side=tk.RIGHT, padx=(0, 15))
         copy_btn.pack(side=tk.RIGHT, padx=(0,15))
+        clear_btn.pack(side=tk.RIGHT,padx=(0,15))
         ToolTip(copy_btn, msg= "Copy")
         ToolTip(export_btn, msg= "Export")
+        ToolTip(clear_btn, msg="Clear")
         
     def create_right_middle_frame(self, parent_frame: tk.Frame) -> None:
         r_middle_frame = tk.Frame(parent_frame)
@@ -188,7 +196,7 @@ class TikzCodeGeneratorApp:
             # filehandler = FileHandler()
             
             self.filehandler.write(filepath,export_code)
-            self.status_label.config(text="Saved!")
+            self.status_label.config(text="File saved")
             # time.sleep(3)
             # self.status_label.config(text="status")
             
@@ -221,6 +229,13 @@ class TikzCodeGeneratorApp:
     def copy_btn_action(self) -> None:
         pyperclip.copy(self.textbox.get("1.0", tk.END))
         self.status_label.config(text="Copied to clipboard!")
+
+    def clear_btn_action(self) -> None:
+        if len(self.textbox.get("1.0",tk.END)) > 1:   
+            self.textbox.delete("1.0", tk.END)
+            self.status_label.config(text="Textbox cleared!")
+        else:
+            messagebox.showinfo("Nothing To Clear", "Textbox is already empty")
             
     def preview_btn_action(self) -> None:
         tikz_code = self.textbox.get("1.0", tk.END)

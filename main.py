@@ -8,7 +8,7 @@ from app import graph
 import os
 import tkinter as tk
 
-d = ParsedData("example_2.json")
+d = ParsedData("crossing_example.json")
 
 
 print("================== Original Graph ==================\n")
@@ -83,12 +83,12 @@ for k,v in pos.items():
 
 
 
-"""Start GUI"""
-root = tk.Tk() 
-app = main_app.TikzCodeGeneratorApp(root)
-root.minsize(500,600)
-root.maxsize(800, 620)
-root.mainloop()
+# """Start GUI"""
+# root = tk.Tk() 
+# app = main_app.TikzCodeGeneratorApp(root)
+# root.minsize(500,600)
+# root.maxsize(800, 620)
+# root.mainloop()
 
 
 # a = Vertex("id1","a")

@@ -4,7 +4,7 @@ from app.data import ParsedData
 from typing import Dict
 from typing import List
 import copy
-from collections import deque
+from collections import defaultdict
 
 
 
@@ -28,6 +28,58 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
                 dfs_visit(graph, edge.tail, visited, stacked)
         
         stacked.remove(vertex)
+
+# def dfs_ordering(graph: Graph, vertex: Vertex = None) -> Dict[int, List[Vertex]]:
+#     if not vertex:
+#         vertex = graph.get_source_vertices()[0]
+        
+#     ordered_vertices = defaultdict(list)
+    
+#     if not graph.outgoing_non_back_edges(vertex):
+#         ordered_vertices[vertex.layer].append(vertex)
+#         return ordered_vertices
+    
+#     for edge in graph.outgoing_non_back_edges(vertex):
+#         neighbour_order = dfs_ordering(graph, edge.tail)
+#         merge_dict(ordered_vertices, neighbour_order)
+    
+#     return ordered_vertices
+
+def init_ordering(graph: Graph, vertex: Vertex = None) -> Dict[int, List[Vertex]]:
+
+    if not vertex:
+
+        source_vertices = graph.get_source_vertices()
+
+        if len(source_vertices) > 1:
+
+            raise ValueError("Graph has multiple source vertices")
+
+        vertex = source_vertices[0]
+
+    ordered_vertices = defaultdict(list)
+
+    def dfs(vertex: Vertex):
+
+        ordered_vertices[vertex.layer].append(vertex)
+        graph.remove_duplicates(ordered_vertices[vertex.layer])
+        for edge in graph.outgoing_non_back_edges(vertex):
+
+            dfs(edge.tail)
+
+    dfs(vertex)
+
+    return ordered_vertices
+
+def merge_dict(a,b):
+    for key, value in b.items():
+        if key in a:
+            a[key].extend(value)          
+        else:
+            a[key] = value
+
+def remove_duplicate(vertices: List[Vertex]):
+    pass
                 
 def dfs_cycle_removal(graph: Graph) -> None:
     visited = set()
@@ -36,31 +88,56 @@ def dfs_cycle_removal(graph: Graph) -> None:
     for v in graph.vertices:
         dfs_visit(graph,v,visited,stacked)  
     
+def topological_ordering(graph: Graph) -> List[Vertex]:
+    ''' Kahn's algorithm O(|V|+|E|)'''
+    sorted_vertices = []
+    source_vertices = graph.get_source_vertices()
+    marked = set()
+    while source_vertices:
+        vertex = source_vertices.pop()
+        sorted_vertices.append(vertex)
+        for edge in graph.outgoing_non_back_edges(vertex):
+            if edge not in marked:
+                marked.add(edge)
+                tail = edge.tail
+                if all(in_edge in marked for in_edge in graph.incoming_non_back_edges(tail)):
+                    source_vertices.append(tail)
+    
+    return sorted_vertices
+            
+            
 
 def longest_path_layer_assigment(graph: Graph) -> Graph:
-    U = set() #track of vertices that have been assigned to a layer
-    Z = set() #track of vertices whose outgoing neighbors have already been considered
-    layer_mapping = {}
-    current_layer = 1
+    # U = set() #track of vertices that have been assigned to a layer
+    # Z = set() #track of vertices whose outgoing neighbors have already been considered
+    # layer_mapping = {}
+    # current_layer = 1
     
-    while len(U) != len(graph.vertices):
-        selected_vertex = None
-        for v in graph.vertices:
-            if v not in U and all(edge.tail in Z for edge in graph.outgoing_non_back_edges(v)):
-                selected_vertex = v
-                break
+    # while len(U) != len(graph.vertices):
+    #     selected_vertex = None
+    #     for v in graph.vertices:
+    #         if v not in U and all(edge.tail in Z for edge in graph.outgoing_non_back_edges(v)):
+    #             selected_vertex = v
+    #             break
         
-        if selected_vertex:
-            selected_vertex.layer = current_layer
-            U.add(selected_vertex)
-            if current_layer in layer_mapping:
-                layer_mapping[current_layer].append(selected_vertex)
-            else:
-                layer_mapping[current_layer] = []
-                layer_mapping[current_layer].append(selected_vertex)
-        else:
-            current_layer += 1
-            Z.update(U)
+    #     if selected_vertex:
+    #         selected_vertex.layer = current_layer
+    #         U.add(selected_vertex)
+    #         if current_layer in layer_mapping:
+    #             layer_mapping[current_layer].append(selected_vertex)
+    #         else:
+    #             layer_mapping[current_layer] = []
+    #             layer_mapping[current_layer].append(selected_vertex)
+    #     else:
+    #         current_layer += 1
+    #         Z.update(U)
+    vertices = topological_ordering(graph)
+    for vertex in vertices:
+        vertex.layer = 1
+        
+        for edge in graph.incoming_non_back_edges(vertex):
+            head = edge.head
+            vertex.layer = max(vertex.layer, head.layer+1)
             
     return graph
 
@@ -120,29 +197,62 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
     
     return graph
 
-def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
-    '''Initially order vertices in each layer using depth first search'''
-    ordered_nodes = {i:[] for i in range(1, graph.get_max_layer() + 1)}
+# def init_ordering(graph: Graph) -> Dict[int, List[Vertex]]:
+#     '''Initially order vertices in each layer using depth first search'''
+#     ordered_nodes = {i:[] for i in range(1, graph.get_max_layer() + 1)}
     
-    visited = []
-    #get vertices with minimum layer
-    queue = deque([v for v in graph.vertices if v.layer == 1])
+#     visited = set()
+#     #get vertices with minimum layer (arranged top-bottom so min layer in the max layer)
+#     queue = deque([v for v in graph.vertices if v.layer == graph.get_max_layer()])
     
-    while queue:
-        current_vertex = queue.popleft()
+#     while queue:
+#         current_vertex = queue.popleft()
         
-        if current_vertex not in visited:
+#         if current_vertex not in visited:
             
-            ordered_nodes[current_vertex.layer].append(current_vertex)
+#             ordered_nodes[current_vertex.layer].append(current_vertex)
 
-            visited.append(current_vertex)
-            for edge in graph.incoming_non_back_edges(current_vertex):
-                neighbour = edge.head
-                if neighbour not in visited:
-                    queue.append(neighbour)
+#             visited.add(current_vertex)
+#             for edge in graph.incoming_non_back_edges(current_vertex):
+#                 neighbour = edge.head
+#                 if neighbour not in visited:
+#                     queue.append(neighbour)
     
-    graph.update_ordering(ordered_nodes)
-    return graph.get_ordering()
+#     graph.update_ordering(ordered_nodes)
+#     return graph.get_ordering()
+
+# def init_ordering(graph:Graph) -> Dict[int, List[Vertex]]:
+#     '''Initially, order vertices from left to right in each layer using depth first search'''
+#     ordered_nodes = {i:[] for i in range(1, graph.get_max_layer() + 1)}
+#     stack = [v for v in graph.vertices if v.layer == 1]
+#     visited = set()
+    
+#     while stack:
+#         current_vertex = stack.pop()
+#         if current_vertex not in visited:
+#             visited.add(current_vertex)
+#             ordered_nodes[current_vertex.layer].append(current_vertex)
+#             for edge in graph.outgoing_non_back_edges(current_vertex):
+#                 tail = edge.tail
+#                 if tail not in visited:
+#                     stack.append(tail)
+    
+#     graph.update_ordering(ordered_nodes)
+#     return graph.get_ordering()
+            
+        
+
+def reverse_layers(graph: Graph) -> None:
+    max_count = graph.get_max_layer()
+    mapping = {layer: 0 for layer in range(1,max_count+1)}
+    
+    for layer in mapping.keys():
+        mapping[layer] = max_count
+        max_count -= 1
+        
+    for vertex in graph.vertices:
+        vertex.layer = mapping[vertex.layer]
+        
 
 def adjacent_position(graph: Graph, 
                       ordering: Dict[int, List[Vertex]], 
@@ -286,15 +396,3 @@ def vertex_positioning(graph: Graph) -> Graph:
             # y_axis += interval
         y_axis += interval
     return graph
- 
-def remove_duplicates(vertices: List[Vertex]) -> List[Vertex]:
-    count = {}
-    for vertex in vertices:
-        if vertex in count:
-            count[vertex] += 1
-        else:
-            count[vertex] = 1
-    
-    vertices.clear()
-    for vertex in count.keys():
-        vertices.append(vertex)

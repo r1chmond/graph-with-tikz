@@ -282,18 +282,66 @@ def vertex_ordering(graph: Graph) -> None:
 
 def vertex_positioning(graph: Graph) -> Graph:
     #set initial x cordinates
+    # top_to_bottom(graph)
     interval = 3 #because width of symbols in tikz is 3cm
     y_axis = 1 
-    for _,vertices in graph.get_ordering().items():
+    max_layer = graph.get_max_layer()
+    for i in range(1, max_layer+1):
         x_axis = 0
-        for vertex in vertices:
+        for vertex in graph.get_ordering().get(i):
             vertex.position = x_axis, y_axis
-            # vertex.position[1] = y_axis
             x_axis += interval+2
-            # y_axis += interval
         y_axis += interval
+    set_orientation(graph)       
     return graph
 
+        
+# def top_to_bottom(graph: Graph):
+#     '''Throughout functions, the direction of the graph is from bottom to top
+#     reverse the direction of the graph'''
+#     layer_mapping = defaultdict()
+#     max_layer = graph.get_max_layer()
+#     j = max_layer
+#     for i in range(1, max_layer+1):
+#        layer_mapping[i] =  j
+#        j -= 1
+    
+#     for vertex in graph.vertices:
+#         vertex.layer = layer_mapping[vertex.layer]
+#     ordering = defaultdict(list)
+#     for vertices in graph.get_ordering().values():
+#        ordering[vertices[0].layer] = vertices     
+#     graph.update_ordering(ordering)
 
+
+
+def right_to_left(graph: Graph):
+    '''90 degrees counter clockwise rotation of the graph(graph has the bottom to top orientation)'''
+    for vertex in graph.vertices:
+        x, y = vertex.position
+        vertex.position = -y, x
+
+def left_to_right(graph: Graph) -> None:
+    '''90 degrees clockwise rotation of the graph(graph has the bottom to top orientation)'''
+    for vertex in graph.vertices:
+        x, y = vertex.position
+        vertex.position = y, -x   
+
+def top_to_bottom(graph: Graph) -> None:
+    '''Reflection in the x_axis of the graph(graph has the bottom to top orientation)'''
+    for vertex in graph.vertices:
+        _, y = vertex.position
+        vertex.position = _, -y   
+         
+def set_orientation(graph: Graph):
+    match graph.orientation:
+        case "dt":
+            return
+        case "lr":
+            left_to_right(graph)
+        case "rl":
+            right_to_left(graph)
+        case _: 
+            top_to_bottom(graph)            
 
 #TODO: Test wrong file and wrong json format

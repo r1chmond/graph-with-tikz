@@ -8,7 +8,7 @@ from app import graph
 import os
 import tkinter as tk
 
-d = ParsedData("tester.json")
+d = ParsedData("crossing_example.json")
 
 
 print("================== Original Graph ==================\n")

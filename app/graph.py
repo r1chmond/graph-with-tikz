@@ -157,6 +157,14 @@ class Graph:
         
         return edges
     
+    def get_all_non_back_edges(self,) -> List[Edge]:
+        edges = []
+        for edge in self.edges:
+            if not edge.reversed:
+                edges.append(edge)
+        
+        return edges
+    
     def outgoing_non_back_edges(self, vertex: Vertex) -> List[Edge]:
         edges = [edge for edge in self.edges if not edge.reversed and edge.head == vertex] 
         return edges

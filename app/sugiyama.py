@@ -72,12 +72,12 @@ def add_dummy_vertices(graph: Graph) -> None:
     '''add dummies to achieve proper layering i.e 
     when all edges are tight(a span of 1)'''
     dummies = []
-    for edge in graph.edges:
-        layer_diff = edge.head.layer - edge.tail.layer
+    for edge in graph.get_all_non_back_edges():
+        layer_diff = edge.tail.layer - edge.head.layer
         
         if layer_diff > 1:
             start_vertex = edge.head
-            edge.head = graph.add_vertex("*1","dummy",edge.tail.layer+1)
+            edge.head = graph.add_vertex("*1","dummy",edge.head.layer+1)
             end_vertex = edge.head
             dummies_on_edge = [end_vertex]
             

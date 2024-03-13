@@ -33,13 +33,35 @@ print("\n===============Dummy vertices added =====================\n")
 sugiyama.add_dummy_vertices(layered_G)
 layered_G.print_graph()
 
-print("================== Vertex ordering ==================\n")
-sugiyama.vertex_ordering(layered_G)
+
+sugiyama.init_ordering(layered_G)
+
+print("\n=============== crossing reduction =====================\n")
+for v in layered_G.get_ordering().values():
+    print(v)
+sugiyama.cross_reduction(layered_G)
+
+
+print("\n=============== reduction applied =====================\n")
+for v in layered_G.get_ordering().values():
+    print(v)
+
+
+print("\n=============== count d crossings  =====================\n")
+crossing = sugiyama.count_crossing_above_vertex(layered_G.get_vertex("idx10"), layered_G)
+print(crossing)
+
+print("\n=============== count below c crossings  =====================\n")
+crossing = sugiyama.count_crossing_below_vertex(layered_G.get_vertex("idx7"), layered_G)
+print(crossing)
+#
+# print("================== Vertex ordering ==================\n")
+# sugiyama.vertex_ordering(layered_G)
  
-print("================== x cordinates ==================\n")
-ordered = sugiyama.vertex_positioning(layered_G)
-for k,v in ordered.ordering.items():
-    print(f"{k}: {v} \n")
+# print("================== x cordinates ==================\n")
+# ordered = sugiyama.vertex_positioning(layered_G)
+# for k,v in ordered.ordering.items():
+#     print(f"{k}: {v} \n")
 # print("================== reverse layers ==================\n")
 # sugiyama.reverse_layers(layered_G)
 # layered_G.print_graph()

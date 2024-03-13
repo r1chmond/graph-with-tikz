@@ -1,4 +1,4 @@
-from app.graph import Graph
+from app.graph import Graph, Edge
 from app.graph import Vertex
 from app.data import ParsedData
 from typing import Dict
@@ -13,7 +13,9 @@ def draw_graph(current_filepath: str) -> Graph:
     graph = Graph(parsed_data.get_parsed_data())
     dfs_cycle_removal(graph)
     layer_graph = longest_path_layer_assigment(graph)
-    vertex_ordering(layer_graph)
+    add_dummy_vertices(layer_graph)
+    init_ordering(layer_graph)
+    cross_reduction(layer_graph)
     return vertex_positioning(layer_graph)
     
 def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> None:
@@ -143,6 +145,116 @@ def init_ordering(graph: Graph, vertex: Vertex = None) -> Dict[int, List[Vertex]
     graph.update_ordering(ordered_vertices)
     return graph.get_ordering()           
         
+        
+def cross_reduction(graph: Graph) -> None:
+    max_iterations = 10
+    ordering = graph.get_ordering()
+    for i in range(max_iterations):
+        for layer in range(1,graph.get_max_layer()):
+            vertices = ordering[layer]
+            adj_delta = .00
+            vertices_adj_delta = []
+            for vertex in vertices:
+            
+                for edge in graph.outgoing_non_back_edges(vertex):
+                    tail = edge.tail
+                    adj_delta += ordering[tail.layer].index(tail)
+                num_of_tail_vertices = len(graph.outgoing_non_back_edges(vertex))
+                if num_of_tail_vertices != 0:
+                    adj_delta /= num_of_tail_vertices
+                adj_delta = abs(adj_delta - ordering[vertex.layer].index(vertex))
+                vertices_adj_delta.append((vertex,adj_delta))   
+            #sort by adjacent delta
+            ordering[layer] = [v for v,_ in sorted(vertices_adj_delta, key=lambda x: x[1])]
+    
+    #sifting      
+    for j in range(max_iterations):
+        vertices_degree = []    
+        for vertex in graph.vertices:
+            incoming = len(graph.incoming_non_back_edges(vertex))
+            outgoing = len(graph.outgoing_non_back_edges(vertex))
+            degree = incoming + outgoing
+            vertices_degree.append((vertex, degree))
+            
+        #sort by highest degree
+        vertices_q = [v for v,_ in sorted(vertices_degree, key=lambda x: x[1])]
+        vertices_q.reverse()
+        for vertex in vertices_q:
+            vertices_on_layer = ordering.get(vertex.layer)
+
+            best = []
+            for sibling in vertices_on_layer:
+                crossing = 0
+                #swap vertices
+                v_index = vertices_on_layer.index(vertex)
+                s_index = vertices_on_layer.index(sibling)
+                
+                vertices_on_layer[v_index], vertices_on_layer[s_index] = sibling, vertex
+                crossing += count_crossing_above_vertex(vertex, graph)
+                crossing += count_crossing_below_vertex(vertex, graph)
+                best.append((copy.copy(vertices_on_layer), crossing))
+                
+                v_index = vertices_on_layer.index(vertex)
+                s_index = vertices_on_layer.index(sibling)
+                vertices_on_layer[v_index], vertices_on_layer[s_index] = sibling, vertex
+            
+            new_ordering = min(best,key=lambda x: x[1])[0]
+            ordering[vertex.layer] = new_ordering
+                    
+            
+                            
+             
+    
+def count_crossing_above_vertex(vertex: Vertex, graph: Graph) -> int:
+    crossing = 0
+    incoming_edges = graph.incoming_non_back_edges(vertex)
+    for edge in incoming_edges:
+        head = edge.head
+        tail = edge.tail
+    
+        head_index = graph.get_ordering().get(head.layer).index(head)
+        tail_index = graph.get_ordering().get(tail.layer).index(tail)
+
+        vertices_on_layer = graph.get_ordering().get(head.layer)
+        for v_index,v in enumerate(vertices_on_layer):
+           outgoing = graph.outgoing_non_back_edges(v)
+           for out_edge in outgoing:
+               out_edge_tail_index = graph.get_ordering().get(out_edge.tail.layer).index(out_edge.tail)
+               if (v_index > head_index and out_edge_tail_index < tail_index) or \
+                    (v_index < head_index and out_edge_tail_index > tail_index) :
+                        crossing += 1
+    
+    return crossing
+
+def count_crossing_below_vertex(vertex: Vertex, graph: Graph) -> int:
+    crossing = 0
+    outgoing_edges = graph.outgoing_non_back_edges(vertex)
+    for edge in outgoing_edges:
+        head = edge.head
+        tail = edge.tail
+    
+        head_index = graph.get_ordering().get(head.layer).index(head)
+        tail_index = graph.get_ordering().get(tail.layer).index(tail)
+
+        vertices_on_layer = graph.get_ordering().get(tail.layer)
+        for v_index,v in enumerate(vertices_on_layer):
+           incoming = graph.incoming_non_back_edges(v)
+           for in_edge in incoming:
+               in_edge_head_index = graph.get_ordering().get(in_edge.head.layer).index(in_edge.head)
+               if (v_index > tail_index and in_edge_head_index < head_index) or \
+                    (v_index < tail_index and in_edge_head_index > head_index) :
+                        crossing += 1
+    
+    return crossing
+
+
+                        
+            
+                    
+            
+            
+            
+            
 
 def adjacent_position(graph: Graph, 
                       ordering: Dict[int, List[Vertex]], 

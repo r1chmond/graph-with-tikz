@@ -33,6 +33,20 @@ print("\n===============Dummy vertices added =====================\n")
 sugiyama.add_dummy_vertices(layered_G)
 layered_G.print_graph()
 
+
+sugiyama.init_ordering(layered_G)
+
+print("\n=============== crossing reduction =====================\n")
+for v in layered_G.get_ordering().values():
+    print(v)
+sugiyama.cross_reduction(layered_G)
+
+
+# print("\n=============== x cord assigment  =====================\n")
+# d = sugiyama.x_coordinate_assignment(layered_G)
+# for i,j in d.items():
+#     print(i, j)
+# #
 # print("================== Vertex ordering ==================\n")
 # sugiyama.vertex_ordering(layered_G)
  
@@ -44,32 +58,29 @@ layered_G.print_graph()
 # sugiyama.reverse_layers(layered_G)
 # layered_G.print_graph()
 
-print("================== init order ==================\n")
-v = layered_G.get_source_vertices()[0]
-pos = sugiyama.init_ordering(layered_G,v)
+# print("================== init order ==================\n")
+# v = layered_G.get_source_vertices()[0]
+# pos = sugiyama.init_ordering(layered_G,v)
 
-for k,v in pos.items():
-    print(f"{k}: {v} \n")
+# for k,v in pos.items():
+#     print(f"{k}: {v} \n")
     
 
-print("================== adj pos ==================\n")
+# print("================== adj pos ==================\n")
 
-for i in range(5):
-    sugiyama.weighted_median_sweep(layered_G,pos,i,5)
-    print("================== adj pos ==================\n")
-    print(pos)
+# for i in range(5):
+#     sugiyama.weighted_median_sweep(layered_G,pos,i,5)
+#     print("================== adj pos ==================\n")
+#     print(pos)
     
-# print("================== total crossings ==================\n")
-# print(f"{app.visualisation.overall_crossing(layered_G,pos)=}")
+# # print("================== total crossings ==================\n")
+# # print(f"{app.visualisation.overall_crossing(layered_G,pos)=}")
    
-print("================== transpose ==================\n")
-sugiyama.transpose(layered_G,pos)
+# print("================== transpose ==================\n")
+# sugiyama.transpose(layered_G,pos)
 
-for k,v in pos.items():
-    print(f"{k}: {v} \n")
-
-print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=- \n")
-layered_G.print_graph()
+# for k,v in pos.items():
+#     print(f"{k}: {v} \n")
     
 
 # print(f"{adj_pos=}")
@@ -86,57 +97,9 @@ layered_G.print_graph()
 
 
 
-# """Start GUI"""
-# root = tk.Tk() 
-# app = main_app.TikzCodeGeneratorApp(root)
-# root.minsize(500,600)
-# root.maxsize(800, 620)
-# root.mainloop()
-
-
-# a = Vertex("id1","a")
-# b = Vertex("id2","b")
-# c = Vertex("id3","c")
-# d = Vertex("id4","d")
-
-# e1 = Edge(a, b, 1)
-# e2 = Edge(a, c, 1)
-# e3 = Edge(b, a, 0)
-# e4 = Edge(b, d, 1)
-# e5 = Edge(d, b, 0)
-# e6 = Edge(d, c, 1)
-# e7 = Edge(c, c, 1)
-
-# edges = {e1,e3,e6,e7,e2,e5,e4}
-
-# G = Graph(edges)
-# print("================== Original Graph ==================\n")
-# G.print_graph()
-
-# print("\n=============== Cycles removed =====================\n")
-# G_no_cycle = app.visualisation.dfs_cycle_removal(G)
-
-# G_no_cycle.print_graph()
-
-# print("\n===============Layered and Dummy vertices added =====================\n")
-# layered_G = app.visualisation.longest_path_layer_assigment(G_no_cycle)
-
-# layered_G.print_graph()
-
-# v_promo = app.visualisation.vertex_promotion_heuristic(layered_G)
-# print("\n=============== =====================\n")
-# for v in v_promo.vertices:
-#     print(f"{v} layer: {v.layer}")
-    
-
-
-# from schemdraw import flow
-# import schemdraw
-
-# with schemdraw.Drawing() as d:
-#     flow.Terminal().label('START')
-#     flow.Arrow().down(d.unit/3)
-#     h = flow.Decision(w=5.5, h=4, S='YES').label('Hey, wait,\nthis flowchart\nis a trap!')
-#     flow.Line().down(d.unit/4)
-#     flow.Wire('c', k=3.5, arrow='->').to(h.E)
-#     d.draw()
+"""Start GUI"""
+root = tk.Tk() 
+app = main_app.TikzCodeGeneratorApp(root)
+root.minsize(500,600)
+root.maxsize(800, 620)
+root.mainloop()

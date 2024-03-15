@@ -80,8 +80,15 @@ class Graph:
     def __init__(self, data: Dict[str,str]) -> None:
         self._parsed_data = data
         self.vertices: List[Vertex] = []  #maintain order of creation
+        self.orientation: str = ""
+        self.font_color: str = ""
+        self.shape_color: str = ""
+        self.shape_fill: str = ""
+        self.edge_color: str = ""
+        self.set_graph_styles()
         self.edges = self.create_edges(self.get_vertices_from_data(self._parsed_data))
         self.ordering: Dict[int, List[Vertex]] = {}
+        
         # self.update_vertices()
     
     def get_vertices_from_data(self, data: Dict[str,str]) -> Dict[str,str]:
@@ -124,21 +131,36 @@ class Graph:
         for vertex_id,detail in data_vertices.items():
             label = detail.get("label", "")
             vertex_type = detail.get("type", "process")
-            style = self._parsed_data.get("chartStyle",{})
-            text_color = detail.get("fontColor",style.get("fontColor", "black"))
+            # style = self._parsed_data.get("chartStyle",{})
+            text_color = detail.get("fontColor",self.font_color)
+            # edge_color = detail.get("edgeColor")
             # subgraph = detail.get("subgraph")
-            shape_color = detail.get("shapeColor", style.get("shapeColor", "black"))
-            fill_color = detail.get("shapeFill",style.get("shapeFill", "white")) 
-            # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
+            fill_color = detail.get("shapeFill",self.shape_fill) 
+            shape_color = detail.get("shapeColor",self.shape_color)
             vertex = Vertex(vertex_id, vertex_type, fill_color, shape_color, text_color, label)
             vertex_mapping[vertex_id] = vertex
             self.vertices.append(vertex)
         return vertex_mapping
     
+    def set_graph_styles(self,) -> None:
+        self.orientation = self._parsed_data.get("orientation", "td")
+        self.font_color = self._parsed_data.get("fontColor", "black")
+        self.shape_color = self._parsed_data.get("shapeColor", "black")
+        self.shape_fill = self._parsed_data.get("shapeFill", "white")
+        self.edge_color = self._parsed_data.get("edgeColor", "black")
+    
     def all_outgoing_edges(self, vertex: Vertex) -> List[Edge]:
         edges: List[Edge] = []
         for edge in self.edges:
             if edge.head == vertex:
+                edges.append(edge)
+        
+        return edges
+    
+    def get_all_non_back_edges(self,) -> List[Edge]:
+        edges = []
+        for edge in self.edges:
+            if not edge.reversed:
                 edges.append(edge)
         
         return edges

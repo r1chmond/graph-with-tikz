@@ -1,7 +1,7 @@
 {
     "orientation": "dt",
     "idx1": {
-        "label": "Start",
+        "label": "Start the process",
         "type": "terminator",
         "next": [
             {
@@ -22,7 +22,7 @@
         "shapeFill": "blue"
     },
     "idx3": {
-        "label": "Process 1",
+        "label": "Process 1 proceed",
         "type": "process",
         "next": [
             {
@@ -70,7 +70,7 @@
         "shapeFill": "blue"
     },
     "idx8": {
-        "label": "Stop",
+        "label": "Stop entire process",
         "type": "terminator",
         "shapeFill": "red"
     }

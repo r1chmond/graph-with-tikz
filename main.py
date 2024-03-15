@@ -67,6 +67,9 @@ sugiyama.transpose(layered_G,pos)
 
 for k,v in pos.items():
     print(f"{k}: {v} \n")
+
+print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=- \n")
+layered_G.print_graph()
     
 
 # print(f"{adj_pos=}")

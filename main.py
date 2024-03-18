@@ -8,7 +8,7 @@ from app import graph
 import os
 import tkinter as tk
 
-d = ParsedData("crossing_example.json")
+d = ParsedData("example_2.json")
 
 
 print("================== Original Graph ==================\n")
@@ -45,6 +45,8 @@ sugiyama.cross_reduction(layered_G)
 print("\n=============== x cord assigment  =====================\n")
 d = sugiyama.x_coordinate_assignment(layered_G)
 d.print_graph()
+
+sugiyama.remove_dummies(layered_G)
 # #
 # print("================== Vertex ordering ==================\n")
 # sugiyama.vertex_ordering(layered_G)

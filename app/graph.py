@@ -21,6 +21,7 @@ class Vertex:
         self.font_color = font_color
         self.is_source = False
         self.is_sink = False
+        self.is_dummy = False
         self.position = position
     
     def __eq__(self, other: object) -> bool:
@@ -33,13 +34,14 @@ class Vertex:
                 self.font_color == other.font_color and 
                 self.position == other.position and
                 self.is_sink == other.is_sink and 
+                self.is_dummy == other.is_dummy and
                 self.is_source == other.is_source)
         
     def __ne__(self, other: object) -> bool:
         return not self == other
     
     def __hash__(self) -> int:
-        return hash((self.vertex_id,self.label, self.layer, self.vertex_type,self.position,self.shape_fill,self.shape_color, self.is_source, self.is_sink))
+        return hash((self.vertex_id,self.label, self.layer, self.vertex_type,self.position,self.shape_fill,self.shape_color, self.is_source, self.is_sink, self.is_dummy))
     
     def __repr__(self) -> str:
         symbol = ""
@@ -103,12 +105,13 @@ class Graph:
     def get_num_of_vertices(self) -> int:
         return len(self.vertices)
     
-    def add_edge(self,head: Vertex, tail: Vertex, weight: int = 1) -> None:
+    def add_edge(self,head: Vertex, tail: Vertex, weight: int = 1, is_reversed: bool = False) -> None:
         new_edge = Edge(head,tail,weight)
+        new_edge.reversed = is_reversed
         self.edges.append(new_edge)
         self.update_vertices()
         
-    def add_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> None:
+    def add_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> Vertex:
         vertex = Vertex(vertex_id,"dummy","black","black",font_color,label,layer)
         return vertex
     
@@ -157,17 +160,17 @@ class Graph:
         
         return edges
     
-    def get_all_non_back_edges(self,) -> List[Edge]:
-        edges = []
-        for edge in self.edges:
-            if not edge.reversed:
-                edges.append(edge)
+    # def get_all_non_back_edges(self,) -> List[Edge]:
+    #     edges = []
+    #     for edge in self.edges:
+    #         if not edge.reversed:
+    #             edges.append(edge)
         
-        return edges
+    #     return edges
     
-    def outgoing_non_back_edges(self, vertex: Vertex) -> List[Edge]:
-        edges = [edge for edge in self.edges if not edge.reversed and edge.head == vertex] 
-        return edges
+    # def outgoing_non_back_edges(self, vertex: Vertex) -> List[Edge]:
+    #     edges = [edge for edge in self.edges if not edge.reversed and edge.head == vertex] 
+    #     return edges
     
 
     def all_incoming_edges(self, vertex: Vertex) -> List[Edge]:
@@ -178,9 +181,9 @@ class Graph:
             
         return edges
     
-    def incoming_non_back_edges(self, vertex: Vertex) -> List[Edge]:
-        edges = [edge for edge in self.edges if not edge.reversed and edge.tail == vertex] 
-        return edges
+    # def incoming_non_back_edges(self, vertex: Vertex) -> List[Edge]:
+    #     edges = [edge for edge in self.edges if not edge.reversed and edge.tail == vertex] 
+    #     return edges
 
     def get_vertex(self, vertex_id: str) -> Vertex:
         for v in self.vertices:

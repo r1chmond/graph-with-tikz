@@ -1,5 +1,5 @@
 {
-    "orientation": "td",
+    "orientation": "lr",
     "idx1": {
         "label": "Start",
         "type": "terminator",

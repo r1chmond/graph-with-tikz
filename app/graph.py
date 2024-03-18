@@ -111,8 +111,8 @@ class Graph:
         self.edges.append(new_edge)
         self.update_vertices()
         
-    def add_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> Vertex:
-        vertex = Vertex(vertex_id,"dummy","black","black",font_color,label,layer)
+    def add_dummy_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> Vertex:
+        vertex = Vertex(vertex_id,"dummy","white","black",font_color,label,layer)
         return vertex
     
     def create_edges(self, data_vertices: dict[str,str]) -> List[Edge]:

@@ -10,6 +10,7 @@ import subprocess
 import pyperclip
 from tktooltip import ToolTip
 import time
+from app import helper
 
 
 MAX_FILENAME_LENGTH = 20
@@ -149,7 +150,7 @@ class TikzCodeGeneratorApp:
     
     def file_open_action(self) -> None:
         filetypes = (("json files", "*.json"),("All files", "*,*"))
-        filepath = fd.askopenfilename(title="Open file",
+        filepaths = fd.askopenfilenames(title="Open file",
                                         initialdir=os.path.join("/"),
                                         filetypes=filetypes
         )
@@ -158,25 +159,40 @@ class TikzCodeGeneratorApp:
         def on_select() -> None:
             selection = var.get()
             self.current_filepath = self.filepath_list[selection-1][0]
-            print(self.current_filepath)
+            print(f"-=-=-==-==-==-=-=-={selection}")
+
+        paths = list(filepaths)
+        paths_tuple_list = []
+        self.radio_count = len(self.filepath_list)
+        for p in paths:
+            self.radio_count += 1
+            paths_tuple_list.append((p,self.radio_count))
         
-        path_exist = filepath in [path for path,_ in self.filepath_list]
+        if paths:
+            # self.current_filepath = paths[0]    
+        # path_exist = filepath in [path for path,_ in self.filepath_list]
+            print(f"-=-=-=--=-=-=-=-={self.filepath_list=} \n")
+            self.filepath_list.extend(paths_tuple_list)
+            helper.remove_duplicates(self.filepath_list)
+            print(f"-=-=-=--=-=-=-=-={self.filepath_list=}")
+            
+            
         
-        if filepath and not path_exist: 
-            self.radio_count += 1 
-            self.filepath_list.append((filepath,self.radio_count))
+        # if filepath and not path_exist: 
+        #     self.radio_count += 1 
+        #     self.filepath_list.append((filepath,self.radio_count))
             
            
             for widget in self.left_mainframe.winfo_children():
                 if "!radiobutton" in widget.winfo_name(): 
                     widget.destroy()
-     
+        
             for path, value in self.filepath_list:
                 filename = self.get_filename(path)
                 radio_txt = filename if len(filename) <= MAX_FILENAME_LENGTH else self.shorten_filename(filename)
                 radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=var, value=value, width=20, command=on_select)
                 radio_btn.pack(pady=5)
-        
+    
             self.status_label.config(text="File added")
         # time.sleep(3)
         # self.status_label.config(text="status")

@@ -8,45 +8,45 @@ from app import graph
 import os
 import tkinter as tk
 
-d = ParsedData("example_2.json")
+# d = ParsedData(os.path.join("test-graphs/example_2.json"))
 
 
-print("================== Original Graph ==================\n")
-G = Graph(d.get_parsed_data())
-G.print_graph()
+# print("================== Original Graph ==================\n")
+# G = Graph(d.get_parsed_data())
+# G.print_graph()
 
-print("\n=============== Cycles removed =====================\n")
-sugiyama.dfs_cycle_removal(G)
+# print("\n=============== Cycles removed =====================\n")
+# sugiyama.dfs_cycle_removal(G)
 
-G.print_graph()
-print("\n===============Top Sort =====================\n")
+# G.print_graph()
+# print("\n===============Top Sort =====================\n")
 
-V = sugiyama.topological_ordering(G)
-print(f"{V=}")
+# V = sugiyama.topological_ordering(G)
+# print(f"{V=}")
 
-print("\n===============Layered =====================\n")
-layered_G = sugiyama.longest_path_layer_assigment(G)
+# print("\n===============Layered =====================\n")
+# layered_G = sugiyama.longest_path_layer_assigment(G)
 
-layered_G.print_graph()
+# layered_G.print_graph()
 
-print("\n===============Dummy vertices added =====================\n")
-sugiyama.add_dummy_vertices(layered_G)
-layered_G.print_graph()
-
-
-sugiyama.init_ordering(layered_G)
-
-print("\n=============== crossing reduction =====================\n")
-for v in layered_G.get_ordering().values():
-    print(v)
-sugiyama.cross_reduction(layered_G)
+# print("\n===============Dummy vertices added =====================\n")
+# sugiyama.add_dummy_vertices(layered_G)
+# layered_G.print_graph()
 
 
-print("\n=============== x cord assigment  =====================\n")
-d = sugiyama.x_coordinate_assignment(layered_G)
-d.print_graph()
+# sugiyama.init_ordering(layered_G)
 
-sugiyama.remove_dummies(layered_G)
+# print("\n=============== crossing reduction =====================\n")
+# for v in layered_G.get_ordering().values():
+#     print(v)
+# sugiyama.cross_reduction(layered_G)
+
+
+# print("\n=============== x cord assigment  =====================\n")
+# d = sugiyama.x_coordinate_assignment(layered_G)
+# d.print_graph()
+
+# sugiyama.remove_dummies(layered_G)
 # #
 # print("================== Vertex ordering ==================\n")
 # sugiyama.vertex_ordering(layered_G)

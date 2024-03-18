@@ -18,7 +18,7 @@ def draw_graph(current_filepath: str) -> Graph:
     cross_reduction(layer_graph)
     x_assigned_graph = x_coordinate_assignment(layer_graph)
     undo_reversed_edges(x_assigned_graph)
-    remove_dummies(x_assigned_graph)
+    # remove_dummies(x_assigned_graph)
     return x_assigned_graph
     
 def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> None:
@@ -84,13 +84,13 @@ def add_dummy_vertices(graph: Graph) -> None:
         if layer_diff > 1:
             start_vertex = edge.head
             edges_require_dummies.append(copy.copy(edge))
-            edge.head = graph.add_vertex("*1","dummy",edge.head.layer+1)
+            edge.head = graph.add_dummy_vertex("*1","dummy",edge.head.layer+1)
             edge.head.is_dummy = True
             end_vertex = edge.head
             dummies_on_edge = [end_vertex]
             
             for vertex_id in range(2,layer_diff):
-                new_vertex = graph.add_vertex("*"+str(vertex_id),"dummy",end_vertex.layer+1)
+                new_vertex = graph.add_dummy_vertex("*"+str(vertex_id),"dummy",end_vertex.layer+1)
                 new_vertex.is_dummy = True
                 dummies_on_edge.append(new_vertex)
                 end_vertex = new_vertex 
@@ -272,16 +272,16 @@ def x_coordinate_assignment(graph: Graph) -> Graph:
         up_sweep_assignment(graph, vertices_position)
         
     for vertex, x in vertices_position.items():
-        vertex.position = x, vertex.layer*3
+        vertex.position = x, vertex.layer*4
     
     set_orientation(graph)
     return graph
            
 def down_sweep_assignment(graph:Graph, vertices_position):
 
-    for layer in range(1, graph.get_max_layer()+1):
+    for layer in range(0, graph.get_max_layer()+1):
         #TODO: what if I do not sort the layer???
-        layer_vertices = graph.get_ordering().get(layer)#copy.copy(graph.get_ordering().get(layer))
+        layer_vertices = graph.get_ordering().get(layer,[])#copy.copy(graph.get_ordering().get(layer))
         
         for vertex in layer_vertices:
             #get positions of vertices above current layer

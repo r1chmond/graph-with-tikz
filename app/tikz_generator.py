@@ -37,7 +37,16 @@ class TikzCodeGenerator:
         code += f"% Connect nodes \n"     
        
         for edge in self.graph.edges:
-                code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}); \n"
+                if edge.head.is_dummy and edge.tail.is_dummy:
+                    code += f"\\draw ({edge.head.vertex_id}.center) -- ({edge.tail.vertex_id}.center); \n"
+                    
+                elif edge.head.is_dummy:
+                    code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}.center) -- ({edge.tail.vertex_id}); \n"
+                elif edge.tail.is_dummy:
+                    code += f"\\draw ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}.center); \n"
+                else:
+                    code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}); \n"
+                        
                 # edge_label = node[1]
                 # end_node = node[0] if all_nodes.get(node[0]) else "default[as=Default End, terminator]"
                 # edge_id = "E" + str(random.randint(0,1000)) 
@@ -63,7 +72,10 @@ class TikzCodeGenerator:
             # subgraph = detail.get("subgraph")
             fill_color = vertex.shape_fill 
             position = vertex.position
-            node_representation = f"\\node[{node_type},draw= black, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
+            if vertex.is_dummy:
+                node_representation = f"\\node[{node_type},draw= none, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
+            else:
+                node_representation = f"\\node[{node_type},draw= black, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
             # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
             # if not subgraph:
             #     node_representation = f"\\node[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]({node_id}) {{{label}}}"

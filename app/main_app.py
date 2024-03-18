@@ -63,11 +63,8 @@ class TikzCodeGeneratorApp:
         self.root.config(menu=menubar)
     
     def create_left_section(self) -> None:
-        
         self.left_mainframe.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-
         self.create_toolbar(self.left_mainframe)
-        # self.create_listbox(self.left_mainframe)
         self.create_status_bar(self.left_mainframe)
     
     def create_toolbar(self, parent_frame: tk.Frame) -> None:
@@ -91,8 +88,6 @@ class TikzCodeGeneratorApp:
         l_status_frame = tk.Frame(parent_frame)
         l_status_frame.pack(side=tk.BOTTOM)
         self.status_label = tk.Label(l_status_frame, text= "status")
-        # self.status_label.config(text="status")
-        # status_label = tk.Label(l_status_frame, text=self.current_status)
         self.status_label.pack(side=tk.LEFT)
         
     def create_right_section(self) -> None:
@@ -151,7 +146,7 @@ class TikzCodeGeneratorApp:
     def file_open_action(self) -> None:
         filetypes = (("json files", "*.json"),("All files", "*,*"))
         filepaths = fd.askopenfilenames(title="Open file",
-                                        initialdir=os.path.join("/"),
+                                        initialdir=self.current_filepath,
                                         filetypes=filetypes
         )
         var = tk.IntVar() 
@@ -159,8 +154,8 @@ class TikzCodeGeneratorApp:
         def on_select() -> None:
             selection = var.get()
             self.current_filepath = self.filepath_list[selection-1][0]
-            print(f"-=-=-==-==-==-=-=-={selection}")
-
+            print(f"-=-=-=-=-=-=--=--={selection=}")
+        #TODO: error with radio count. add one file, then add more than one files including the one added earlier to get the error
         paths = list(filepaths)
         paths_tuple_list = []
         self.radio_count = len(self.filepath_list)
@@ -169,20 +164,9 @@ class TikzCodeGeneratorApp:
             paths_tuple_list.append((p,self.radio_count))
         
         if paths:
-            # self.current_filepath = paths[0]    
-        # path_exist = filepath in [path for path,_ in self.filepath_list]
-            print(f"-=-=-=--=-=-=-=-={self.filepath_list=} \n")
             self.filepath_list.extend(paths_tuple_list)
             helper.remove_duplicates(self.filepath_list)
-            print(f"-=-=-=--=-=-=-=-={self.filepath_list=}")
             
-            
-        
-        # if filepath and not path_exist: 
-        #     self.radio_count += 1 
-        #     self.filepath_list.append((filepath,self.radio_count))
-            
-           
             for widget in self.left_mainframe.winfo_children():
                 if "!radiobutton" in widget.winfo_name(): 
                     widget.destroy()
@@ -192,10 +176,9 @@ class TikzCodeGeneratorApp:
                 radio_txt = filename if len(filename) <= MAX_FILENAME_LENGTH else self.shorten_filename(filename)
                 radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=var, value=value, width=20, command=on_select)
                 radio_btn.pack(pady=5)
-    
+            self.textbox.delete("1.0", tk.END) 
             self.status_label.config(text="File added")
-        # time.sleep(3)
-        # self.status_label.config(text="status")
+        
         
     def file_save_action(self) -> None:
         self.current_status = "Saving..."
@@ -209,18 +192,17 @@ class TikzCodeGeneratorApp:
                                             title="Save/Export",
                                             initialdir=os.path.join("/"),
                                             filetypes=filetypes)
-            # filehandler = FileHandler()
             
             self.filehandler.write(filepath,export_code)
             self.status_label.config(text="File saved")
-            # time.sleep(3)
-            # self.status_label.config(text="status")
             
         else:
             messagebox.showwarning(title="Unable To Export/Save", message="Unable to perform this action. Please add an appropriate JSON file, select it and click on generate. You will then be able to perform this action")
         
     def about_menu_action(self) -> None:
-        print("About clicked !!!")
+        file = FileHandler()
+        about = file.read(os.path.join("about.txt"))
+        messagebox.showinfo("About", about)        
 
     def exit_application(self) -> None:
         self.root.destroy()

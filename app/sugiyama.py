@@ -256,7 +256,6 @@ def count_crossing_below_vertex(vertex: Vertex, graph: Graph) -> int:
     return crossing
 
 def x_coordinate_assignment(graph: Graph) -> Graph:
-    #Down-sweep
     vertices_position = {v: 0 for v in graph.vertices} # maybe set to relative pos
     
     for _ in range(2):
@@ -264,17 +263,18 @@ def x_coordinate_assignment(graph: Graph) -> Graph:
         up_sweep_assignment(graph, vertices_position)
         
     for vertex, x in vertices_position.items():
-        vertex.position = x, vertex.layer*5
+        vertex.position = x, vertex.layer*3
     
     set_orientation(graph)
     return graph
            
 def down_sweep_assignment(graph:Graph, vertices_position):
 
-    for layer in range(2, graph.get_max_layer()+1):
-        layer_vertices = copy.copy(graph.get_ordering().get(layer))
-        vertices_indegree = [(v,len(graph.incoming_non_back_edges(v))) for v in layer_vertices]
-        layer_vertices = [v for v,_ in sorted(vertices_indegree,key=lambda x: x[1])]
+    for layer in range(1, graph.get_max_layer()+1):
+        #TODO: what if I do not sort the layer???
+        layer_vertices = graph.get_ordering().get(layer)#copy.copy(graph.get_ordering().get(layer))
+        # vertices_indegree = [(v,len(graph.incoming_non_back_edges(v))) for v in layer_vertices]
+        # layer_vertices = [v for v,_ in sorted(vertices_indegree,key=lambda x: x[1])]
         for vertex in layer_vertices:
             #get positions of vertices above current layer
             incoming_positions = [vertices_position[e.head] for e in graph.incoming_non_back_edges(vertex)]
@@ -284,10 +284,10 @@ def down_sweep_assignment(graph:Graph, vertices_position):
             
 def up_sweep_assignment(graph: Graph, vertices_position):
     
-    for layer in range(graph.get_max_layer()-1, 1, -1):
-        layer_vertices = copy.copy(graph.get_ordering().get(layer))
-        vertices_outdegree = [(v,len(graph.outgoing_non_back_edges(v))) for v in layer_vertices]
-        layer_vertices = [v for v,_ in sorted(vertices_outdegree,key=lambda x: x[1])]
+    for layer in range(graph.get_max_layer(), 1, -1):
+        layer_vertices =graph.get_ordering().get(layer) #copy.copy(graph.get_ordering().get(layer))
+        # vertices_outdegree = [(v,len(graph.outgoing_non_back_edges(v))) for v in layer_vertices]
+        # layer_vertices = [v for v,_ in sorted(vertices_outdegree,key=lambda x: x[1])]
         for vertex in layer_vertices:
             #get positions of vertices above current layer
             outgoing_positions = [vertices_position[e.tail] for e in graph.outgoing_non_back_edges(vertex)]
@@ -313,8 +313,8 @@ def add_vertex(vertex: Vertex,
     if rightmost_list:
         rightmost = min(rightmost_list, key=lambda x: vertices_position.get(x)) 
     
-    vertex_width = 3
-    vertex_offset = 2
+    vertex_width = 4
+    vertex_offset = 4
     
     min_x = vertices_position.get(leftmost, 0) + vertex_width + vertex_offset
     max_x = vertices_position.get(rightmost,len(vertices_position)) - vertex_width # using len of positions might be a problem

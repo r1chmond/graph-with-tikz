@@ -42,10 +42,9 @@ for v in layered_G.get_ordering().values():
 sugiyama.cross_reduction(layered_G)
 
 
-# print("\n=============== x cord assigment  =====================\n")
-# d = sugiyama.x_coordinate_assignment(layered_G)
-# for i,j in d.items():
-#     print(i, j)
+print("\n=============== x cord assigment  =====================\n")
+d = sugiyama.x_coordinate_assignment(layered_G)
+d.print_graph()
 # #
 # print("================== Vertex ordering ==================\n")
 # sugiyama.vertex_ordering(layered_G)

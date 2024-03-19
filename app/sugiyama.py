@@ -264,7 +264,7 @@ def x_coordinate_assignment(graph: Graph) -> Graph:
         up_sweep_assignment(graph, vertices_position)
         
     for vertex, x in vertices_position.items():
-        vertex.position = x, vertex.layer*5
+        vertex.position = x, vertex.layer*4
     
     set_orientation(graph)
     return graph
@@ -295,7 +295,65 @@ def up_sweep_assignment(graph: Graph, vertices_position):
             position = median_position(outgoing_positions)
             vertices_position[vertex] = add_vertex(vertex, position, vertices_position,graph.get_ordering()) 
      
-             
+def vertex_centrality(graph: Graph):
+    '''Brandes algorithm'''   
+    betweenness = {v: 0 for v in graph.vertices}
+    V = []
+    for vertices in graph.get_ordering().values():
+        V.extend(vertices)
+    for source in V:
+        dependencies = {v: 0 for v in graph.vertices}
+        predecessors, bfs_tree, num_of_shortest_paths = bfs_single_source_shortest_path(graph, source)          
+        for sink in reversed(bfs_tree):
+            if sink != source:
+                for v in predecessors[sink]:
+                    dependencies[v] += (num_of_shortest_paths[v] / num_of_shortest_paths[sink]) * (1 + dependencies[sink])
+        
+        for sink in graph.vertices:
+            if sink != source:
+                betweenness[sink] += dependencies[sink]    
+    return betweenness
+
+def bfs_single_source_shortest_path(graph: Graph, source: Vertex):
+    distances = {v: float("inf") for v in graph.vertices}
+    predecessors = {v: [] for v in graph.vertices}
+    num_of_shortest_paths = {v: 0 for v in graph.vertices}
+    
+    bfs_tree = [] # tracks how vertices are visited
+    distances[source] = 0
+
+    num_of_shortest_paths[source] = 1 
+    queue = deque([(0,source)])
+    
+    while queue:
+        current_distance, current_vertex = queue.popleft()
+        bfs_tree.append(current_vertex)
+        
+        for edge in graph.outgoing_non_back_edges(current_vertex):
+            new_distance = current_distance + edge.weight
+            neighbour = edge.tail
+            if new_distance <= distances[neighbour]:
+                distances[neighbour] =  new_distance
+                predecessors[neighbour].extend([current_vertex])
+                num_of_shortest_paths[neighbour] += num_of_shortest_paths[current_vertex]
+                queue.append((new_distance, neighbour))
+    
+    return predecessors, bfs_tree, num_of_shortest_paths
+            
+def find_paths(predecessors: Dict[Vertex, List[Vertex]]):
+    '''find paths based on predecessors'''
+    def dfs(vertex: Vertex, path):
+        if not predecessors[vertex]:
+            paths.append(((vertex, sink), [vertex]+path ))
+        else:
+            for predecessor in predecessors[vertex]:
+                dfs(predecessor, [vertex]+path)
+    paths = []      
+    for sink in predecessors:
+        for vertex in predecessors[sink]:
+            dfs(vertex, [sink])
+    
+    return paths
    
         
 def add_vertex(vertex: Vertex, 

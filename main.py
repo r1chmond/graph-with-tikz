@@ -42,6 +42,35 @@ for v in layered_G.get_ordering().values():
 sugiyama.cross_reduction(layered_G)
 
 
+print("\n=============== bfs shortest path =====================\n")
+print("\n=============== x cord  =====================\n")
+v = layered_G.get_vertex("idx1")
+p,l, n = sugiyama.bfs_single_source_shortest_path(layered_G, v)
+
+
+x_cor = sugiyama.x_coordinate_assignment(layered_G)
+layered_G.print_graph()
+print("\n=============== bfs tree  =====================\n")
+print(l)
+print("\n=============== predecessors  =====================\n")
+for v,l in p.items():
+    print(v,l)
+print("\n=============== num of shortest paths  =====================\n")
+for v, i in n.items():
+    print(v, i)
+    
+
+# print("\n=============== paths  =====================\n")
+# paths = sugiyama.find_paths(p)
+# for a,b in paths:
+#     print(f"({a[0]}, {a[1]}) -> {b}")
+
+
+print("\n=============== centrality  =====================\n")
+bc = sugiyama.vertex_centrality(layered_G)
+for v, i in bc.items():
+    print(f"{v} -=-=-=- {i}")
+
 # print("\n=============== x cord assigment  =====================\n")
 # d = sugiyama.x_coordinate_assignment(layered_G)
 # for i,j in d.items():
@@ -97,9 +126,9 @@ sugiyama.cross_reduction(layered_G)
 
 
 
-"""Start GUI"""
-root = tk.Tk() 
-app = main_app.TikzCodeGeneratorApp(root)
-root.minsize(500,600)
-root.maxsize(800, 620)
-root.mainloop()
+# """Start GUI"""
+# root = tk.Tk() 
+# app = main_app.TikzCodeGeneratorApp(root)
+# root.minsize(500,600)
+# root.maxsize(800, 620)
+# root.mainloop()

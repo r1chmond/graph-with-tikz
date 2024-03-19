@@ -16,7 +16,10 @@ def draw_graph(current_filepath: str) -> Graph:
     add_dummy_vertices(layer_graph)
     init_ordering(layer_graph)
     cross_reduction(layer_graph)
-    return x_coordinate_assignment(layer_graph)
+    x_assigned_graph = x_coordinate_assignment(layer_graph)
+    undo_reversed_edges(x_assigned_graph)
+    # remove_dummies(x_assigned_graph)
+    return x_assigned_graph
     
 def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> None:
     if vertex not in visited:
@@ -26,6 +29,7 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
         for edge in graph.all_outgoing_edges(vertex):
             if edge.tail in stacked:      
                 edge.reversed = True
+                edge.head, edge.tail = edge.tail, edge.head
             else:
                 dfs_visit(graph, edge.tail, visited, stacked)
         
@@ -47,11 +51,11 @@ def topological_ordering(graph: Graph) -> List[Vertex]:
     while source_vertices:
         vertex = source_vertices.pop()
         sorted_vertices.append(vertex)
-        for edge in graph.outgoing_non_back_edges(vertex):
+        for edge in graph.all_outgoing_edges(vertex):
             if edge not in marked:
                 marked.add(edge)
                 tail = edge.tail
-                if all(in_edge in marked for in_edge in graph.incoming_non_back_edges(tail)):
+                if all(in_edge in marked for in_edge in graph.all_incoming_edges(tail)):
                     source_vertices.append(tail)
     
     return sorted_vertices
@@ -63,28 +67,31 @@ def longest_path_layer_assigment(graph: Graph) -> Graph:
     for vertex in vertices:
         vertex.layer = 1
         
-        for edge in graph.incoming_non_back_edges(vertex):
+        for edge in graph.all_incoming_edges(vertex):
             head = edge.head
             vertex.layer = max(vertex.layer, head.layer+1)
             
     return graph
 
-#TODO: review because dummies arent generated for crossing_example
 def add_dummy_vertices(graph: Graph) -> None:
     '''add dummies to achieve proper layering i.e 
     when all edges are tight(a span of 1)'''
     dummies = []
-    for edge in graph.get_all_non_back_edges():
+    edges_require_dummies = []
+    for edge in graph.edges:
         layer_diff = edge.tail.layer - edge.head.layer
         
         if layer_diff > 1:
             start_vertex = edge.head
-            edge.head = graph.add_vertex("*1","dummy",edge.head.layer+1)
+            edges_require_dummies.append(copy.copy(edge))
+            edge.head = graph.add_dummy_vertex("*1","dummy",edge.head.layer+1)
+            edge.head.is_dummy = True
             end_vertex = edge.head
             dummies_on_edge = [end_vertex]
             
             for vertex_id in range(2,layer_diff):
-                new_vertex = graph.add_vertex("*"+str(vertex_id),"dummy",end_vertex.layer+1)
+                new_vertex = graph.add_dummy_vertex("*"+str(vertex_id),"dummy",end_vertex.layer+1)
+                new_vertex.is_dummy = True
                 dummies_on_edge.append(new_vertex)
                 end_vertex = new_vertex 
             dummies_on_edge.append(start_vertex)
@@ -92,7 +99,9 @@ def add_dummy_vertices(graph: Graph) -> None:
     
     for vertices in dummies:
         for i in range(1,len(vertices)):
-                graph.add_edge(vertices[i], vertices[i-1])
+            for e in edges_require_dummies:
+                if e.head in vertices:
+                    graph.add_edge(vertices[i], vertices[i-1], 1, e.reversed)
 
         graph.vertices.extend(vertices)
         graph.remove_duplicates(graph.vertices)
@@ -100,12 +109,12 @@ def add_dummy_vertices(graph: Graph) -> None:
 
 def promote_vertex(graph: Graph, v: Vertex) -> int:
     dummydiff = 0
-    for edge in graph.incoming_non_back_edges(v):
+    for edge in graph.all_incoming_edges(v):
         if edge.head.layer == v.layer + 1:
             dummydiff += promote_vertex(graph, edge.head)
             
     v.layer += 1
-    dummydiff = dummydiff - len(graph.incoming_non_back_edges(v)) + len(graph.outgoing_non_back_edges(v))
+    dummydiff = dummydiff - len(graph.all_incoming_edges(v)) + len(graph.all_outgoing_edges(v))
     return dummydiff
 
 def vertex_promotion_heuristic(graph: Graph) -> None:
@@ -113,7 +122,7 @@ def vertex_promotion_heuristic(graph: Graph) -> None:
     while True:
         promotion = 0
         for v in graph.vertices:
-            if len(graph.incoming_non_back_edges(v)) > 0:
+            if len(graph.all_incoming_edges(v)) > 0:
                 if promote_vertex(graph,v) < 0:
                     promotion += 1
                     graph_copy = copy.deepcopy(graph)
@@ -137,7 +146,7 @@ def init_ordering(graph: Graph, vertex: Vertex = None) -> Dict[int, List[Vertex]
     def dfs(vertex: Vertex):
         ordered_vertices[vertex.layer].append(vertex)
         graph.remove_duplicates(ordered_vertices[vertex.layer])
-        for edge in graph.outgoing_non_back_edges(vertex):
+        for edge in graph.all_outgoing_edges(vertex):
             dfs(edge.tail)
 
     dfs(vertex)
@@ -161,10 +170,10 @@ def layer_cross_minimisation(graph: Graph) -> None:
             vertices_adj_delta = []
             for vertex in vertices:
             
-                for edge in graph.outgoing_non_back_edges(vertex):
+                for edge in graph.all_outgoing_edges(vertex):
                     tail = edge.tail
                     adj_delta += ordering[tail.layer].index(tail)
-                num_of_tail_vertices = len(graph.outgoing_non_back_edges(vertex))
+                num_of_tail_vertices = len(graph.all_outgoing_edges(vertex))
                 if num_of_tail_vertices != 0:
                     adj_delta /= num_of_tail_vertices
                 adj_delta = abs(adj_delta - ordering[vertex.layer].index(vertex))
@@ -180,8 +189,8 @@ def sifting(graph: Graph) -> None:
     for j in range(max_iterations):
         vertices_degree = []    
         for vertex in graph.vertices:
-            incoming = len(graph.incoming_non_back_edges(vertex))
-            outgoing = len(graph.outgoing_non_back_edges(vertex))
+            incoming = len(graph.all_incoming_edges(vertex))
+            outgoing = len(graph.all_outgoing_edges(vertex))
             degree = incoming + outgoing
             vertices_degree.append((vertex, degree))
             
@@ -215,7 +224,7 @@ def sifting(graph: Graph) -> None:
     
 def count_crossing_above_vertex(vertex: Vertex, graph: Graph) -> int:
     crossing = 0
-    incoming_edges = graph.incoming_non_back_edges(vertex)
+    incoming_edges = graph.all_incoming_edges(vertex)
     for edge in incoming_edges:
         head = edge.head
         tail = edge.tail
@@ -225,7 +234,7 @@ def count_crossing_above_vertex(vertex: Vertex, graph: Graph) -> int:
 
         vertices_on_layer = graph.get_ordering().get(head.layer)
         for v_index,v in enumerate(vertices_on_layer):
-           outgoing = graph.outgoing_non_back_edges(v)
+           outgoing = graph.all_outgoing_edges(v)
            for out_edge in outgoing:
                out_edge_tail_index = graph.get_ordering().get(out_edge.tail.layer).index(out_edge.tail)
                if (v_index > head_index and out_edge_tail_index < tail_index) or \
@@ -236,7 +245,7 @@ def count_crossing_above_vertex(vertex: Vertex, graph: Graph) -> int:
 
 def count_crossing_below_vertex(vertex: Vertex, graph: Graph) -> int:
     crossing = 0
-    outgoing_edges = graph.outgoing_non_back_edges(vertex)
+    outgoing_edges = graph.all_outgoing_edges(vertex)
     for edge in outgoing_edges:
         head = edge.head
         tail = edge.tail
@@ -246,7 +255,7 @@ def count_crossing_below_vertex(vertex: Vertex, graph: Graph) -> int:
 
         vertices_on_layer = graph.get_ordering().get(tail.layer)
         for v_index,v in enumerate(vertices_on_layer):
-           incoming = graph.incoming_non_back_edges(v)
+           incoming = graph.all_incoming_edges(v)
            for in_edge in incoming:
                in_edge_head_index = graph.get_ordering().get(in_edge.head.layer).index(in_edge.head)
                if (v_index > tail_index and in_edge_head_index < head_index) or \
@@ -256,7 +265,6 @@ def count_crossing_below_vertex(vertex: Vertex, graph: Graph) -> int:
     return crossing
 
 def x_coordinate_assignment(graph: Graph) -> Graph:
-    #Down-sweep
     vertices_position = {v: 0 for v in graph.vertices} # maybe set to relative pos
     
     for _ in range(2):
@@ -271,26 +279,25 @@ def x_coordinate_assignment(graph: Graph) -> Graph:
            
 def down_sweep_assignment(graph:Graph, vertices_position):
 
-    for layer in range(2, graph.get_max_layer()+1):
-        layer_vertices = copy.copy(graph.get_ordering().get(layer))
-        vertices_indegree = [(v,len(graph.incoming_non_back_edges(v))) for v in layer_vertices]
-        layer_vertices = [v for v,_ in sorted(vertices_indegree,key=lambda x: x[1])]
+    for layer in range(0, graph.get_max_layer()+1):
+        #TODO: what if I do not sort the layer???
+        layer_vertices = graph.get_ordering().get(layer,[])#copy.copy(graph.get_ordering().get(layer))
+        
         for vertex in layer_vertices:
             #get positions of vertices above current layer
-            incoming_positions = [vertices_position[e.head] for e in graph.incoming_non_back_edges(vertex)]
+            incoming_positions = [vertices_position[e.head] for e in graph.all_incoming_edges(vertex)]
             
             position = median_position(incoming_positions)
             vertices_position[vertex] = add_vertex(vertex, position, vertices_position, graph.get_ordering())
             
 def up_sweep_assignment(graph: Graph, vertices_position):
     
-    for layer in range(graph.get_max_layer()-1, 1, -1):
-        layer_vertices = copy.copy(graph.get_ordering().get(layer))
-        vertices_outdegree = [(v,len(graph.outgoing_non_back_edges(v))) for v in layer_vertices]
-        layer_vertices = [v for v,_ in sorted(vertices_outdegree,key=lambda x: x[1])]
+    for layer in range(graph.get_max_layer(), 1, -1):
+        layer_vertices =graph.get_ordering().get(layer) 
+       
         for vertex in layer_vertices:
             #get positions of vertices above current layer
-            outgoing_positions = [vertices_position[e.tail] for e in graph.outgoing_non_back_edges(vertex)]
+            outgoing_positions = [vertices_position[e.tail] for e in graph.all_outgoing_edges(vertex)]
             
             position = median_position(outgoing_positions)
             vertices_position[vertex] = add_vertex(vertex, position, vertices_position,graph.get_ordering()) 
@@ -371,8 +378,8 @@ def add_vertex(vertex: Vertex,
     if rightmost_list:
         rightmost = min(rightmost_list, key=lambda x: vertices_position.get(x)) 
     
-    vertex_width = 3
-    vertex_offset = 2
+    vertex_width = 4
+    vertex_offset = 4
     
     min_x = vertices_position.get(leftmost, 0) + vertex_width + vertex_offset
     max_x = vertices_position.get(rightmost,len(vertices_position)) - vertex_width # using len of positions might be a problem
@@ -407,7 +414,7 @@ def adjacent_position(graph: Graph,
     in a given adjacent layer'''
     vertices = ordering[adjacent_layer]
     positions = []
-    for edge in graph.incoming_non_back_edges(vertex):
+    for edge in graph.all_incoming_edges(vertex):
         if edge.head in vertices:
             positions.append(vertices.index(edge.head)+1)
         
@@ -502,8 +509,8 @@ def crossing(graph: Graph,
              v: Vertex,
              w: Vertex) -> int:
     crossings = 0
-    v_tails = {edge.tail for edge in graph.outgoing_non_back_edges(v)}
-    w_tails = {edge.tail for edge in graph.outgoing_non_back_edges(w)}
+    v_tails = {edge.tail for edge in graph.all_outgoing_edges(v)}
+    w_tails = {edge.tail for edge in graph.all_outgoing_edges(w)}
      
     # if vertex is not sink
     if v.layer != 1 or w.layer != 1:
@@ -578,6 +585,34 @@ def set_orientation(graph: Graph):
         case "rl":
             right_to_left(graph)
         case _: 
-            top_to_bottom(graph)            
+            top_to_bottom(graph)  
+
+def remove_dummies(graph: Graph) -> None:
+    edge_to_remove = []
+    edge_to_connect = None
+    for edge in graph.edges:
+        if edge.head.is_dummy and edge.tail.is_dummy:
+            edge_to_remove.append(edge)
+        elif edge.head.is_dummy and not edge.tail.is_dummy:
+            if not edge_to_connect:
+                edge_to_connect = edge
+            elif edge_to_connect.tail.is_dummy:
+                edge_to_connect.tail = edge.tail
+                edge_to_remove.append(edge)
+        elif not edge.head.is_dummy and edge.tail.is_dummy:
+            if not edge_to_connect:
+                edge_to_connect = edge
+            elif edge_to_connect.head.is_dummy:
+                edge_to_connect.head = edge.head
+                edge_to_remove.append(edge)
+    
+    for edge in edge_to_remove:
+        graph.edges.remove(edge)
+            
+def undo_reversed_edges(graph: Graph) -> None: 
+    for edge in graph.edges:
+        if edge.reversed:
+            edge.head, edge.tail = edge.tail, edge.head   
+           
 
 #TODO: Test wrong file and wrong json format

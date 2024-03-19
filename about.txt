@@ -1,0 +1,13 @@
+TikZ Code Generator App
+This app allows you to generate TikZ code for flowcharts from a JSON file. The TikZ code can then be integrated into your LaTeX document for creating sophisticated diagrams and illustrations.
+
+JSON Specification:
+Refer to the provided documentation for details on the JSON format required as input. The JSON file should adhere to the specified structure to ensure accurate generation of TikZ code.
+
+Exporting and Merging TikZ Code:
+Once the TikZ code is generated, follow the instructions in the manual to export and integrate the generated TikZ code into your LaTeX document. This process ensures smooth incorporation of diagrams and illustrations into your LaTeX projects.
+
+Local Compilation and Viewing:
+You can compile the LaTeX document locally(by clicking preview pdf) using a LaTeX distribution that includes pdflatex compiler. Ensure that pdflatex is installed on your system to compile the LaTeX document containing the TikZ code. After compilation, you can view the PDF output to visualize the generated diagrams and illustrations.
+
+NOTE: For macOS users, you have to go to the root directory and open the pdf file (tester.pdf)

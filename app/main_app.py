@@ -152,7 +152,6 @@ class TikzCodeGeneratorApp:
         print("New")
     
     def on_select(self) -> None:
-        self.var.
         selection = self.var.get()
         self.current_filepath = self.filepath_list[selection-1][0]
         print(f"-=-=--=-=-=--=--=--={selection=}")
@@ -170,22 +169,24 @@ class TikzCodeGeneratorApp:
         if paths:
             self.filepath_list.extend(paths_tuple_list)
             helper.remove_duplicates(self.filepath_list)
-            self.radio_count = 1
-            for i in range(len(self.filepath_list)):
-                self.filepath_list[i] = self.filepath_list[i][0],self.radio_count
-                self.radio_count += 1
-                
+            # self.radio_count = 1
+            self.set_count_for_paths()
             self.refresh_radio_btns()
             
             self.textbox.delete("1.0", tk.END) 
             self.status_label.config(text="File added")
-        
+    def set_count_for_paths(self,) -> None:
+        self.radio_count = 1
+        for i in range(len(self.filepath_list)):
+            self.filepath_list[i] = self.filepath_list[i][0],self.radio_count
+            self.radio_count += 1
+                 
     def refresh_radio_btns(self,) -> None:
         
         for widget in self.left_mainframe.winfo_children():
             if "!radiobutton" in widget.winfo_name(): 
                 widget.destroy()
-        
+        self.set_count_for_paths()
         for path, value in self.filepath_list:
             #TODO: reset value to prevent out of bound
             filename = self.get_filename(path)

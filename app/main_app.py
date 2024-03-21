@@ -152,6 +152,7 @@ class TikzCodeGeneratorApp:
         print("New")
     
     def on_select(self) -> None:
+        self.var.
         selection = self.var.get()
         self.current_filepath = self.filepath_list[selection-1][0]
         print(f"-=-=--=-=-=--=--=--={selection=}")
@@ -180,12 +181,13 @@ class TikzCodeGeneratorApp:
             self.status_label.config(text="File added")
         
     def refresh_radio_btns(self,) -> None:
-
+        
         for widget in self.left_mainframe.winfo_children():
             if "!radiobutton" in widget.winfo_name(): 
                 widget.destroy()
         
         for path, value in self.filepath_list:
+            #TODO: reset value to prevent out of bound
             filename = self.get_filename(path)
             radio_txt = filename if len(filename) <= MAX_FILENAME_LENGTH else self.shorten_filename(filename)
             radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=self.var, value=value, width=20, command=self.on_select)
@@ -223,7 +225,10 @@ class TikzCodeGeneratorApp:
                     break
             
             self.filepath_list.remove(current_tuple)
+            self.current_filepath = os.path.join("/")
+            self.textbox.delete("1.0", tk.END)
             self.refresh_radio_btns()
+            
             
 
         

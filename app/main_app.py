@@ -152,7 +152,7 @@ class TikzCodeGeneratorApp:
         print("New")
     
     def on_select(self) -> None:
-        self.var.
+        
         selection = self.var.get()
         self.current_filepath = self.filepath_list[selection-1][0]
         print(f"-=-=--=-=-=--=--=--={selection=}")

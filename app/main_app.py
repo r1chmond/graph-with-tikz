@@ -151,10 +151,9 @@ class TikzCodeGeneratorApp:
     def file_new_action(self):
         print("New")
     
-    def on_select(self) -> None:
+    def radio_btn_on_select_action(self) -> None:
         selection = self.var.get()
         self.current_filepath = self.filepath_list[selection-1][0]
-        print(f"-=-=--=-=-=--=--=--={selection=}")
         
     def file_open_action(self) -> None:
         filetypes = (("json files", "*.json"),("All files", "*,*"))
@@ -175,6 +174,7 @@ class TikzCodeGeneratorApp:
             
             self.textbox.delete("1.0", tk.END) 
             self.status_label.config(text="File added")
+
     def set_count_for_paths(self,) -> None:
         self.radio_count = 1
         for i in range(len(self.filepath_list)):
@@ -188,10 +188,9 @@ class TikzCodeGeneratorApp:
                 widget.destroy()
         self.set_count_for_paths()
         for path, value in self.filepath_list:
-            #TODO: reset value to prevent out of bound
             filename = self.get_filename(path)
             radio_txt = filename if len(filename) <= MAX_FILENAME_LENGTH else self.shorten_filename(filename)
-            radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=self.var, value=value, width=20, command=self.on_select)
+            radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=self.var, value=value, width=20, command=self.radio_btn_on_select_action)
             radio_btn.pack(pady=5)   
                  
     def file_save_action(self) -> None:
@@ -214,12 +213,10 @@ class TikzCodeGeneratorApp:
             messagebox.showwarning(title="Unable To Export/Save", message="Unable to perform this action. Please add an appropriate JSON file, select it and click on generate. You will then be able to perform this action")
 
     def remove_file_btn_action(self, current_file: str) -> None:
-        #TODO: fix remove btn
         if current_file == "/" or len(self.filepath_list) == 0:
             messagebox.showerror("Nothing To Delete", "You have not selected a file. Please make sure a file is imported and selected to be able to delete") 
         else:
             current_tuple = None
-            print(f"-=-=-==-=-=-=-=-{current_file=}-=-=--==-")
             for path, pos in self.filepath_list:
                 if path == current_file:
                     current_tuple = (path, pos)
@@ -229,6 +226,7 @@ class TikzCodeGeneratorApp:
             self.current_filepath = os.path.join("/")
             self.textbox.delete("1.0", tk.END)
             self.refresh_radio_btns()
+            self.status_label.config(text="File removed")
             
             
 

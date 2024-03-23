@@ -41,6 +41,7 @@ class TikzCodeGeneratorApp:
         self.create_left_section()
         self.create_right_section()
         
+        
     
     def create_menubar(self)-> None:
         self.root.tk.call("tk","windowingsystem")
@@ -49,7 +50,7 @@ class TikzCodeGeneratorApp:
         menubar = tk.Menu(self.root)
 
         file_menu = tk.Menu(menubar)
-        file_menu.add_command(label="New", command=self.file_new_action)
+        # file_menu.add_command(label="New", command=self.file_new_action)
         file_menu.add_command(label="Open", command=self.file_open_action)
         file_menu.add_command(label="Save/Export", command=self.file_save_action)
         file_menu.add_separator()
@@ -57,7 +58,7 @@ class TikzCodeGeneratorApp:
         menubar.add_cascade(label="File", menu=file_menu)
 
         help_menu = tk.Menu(menubar)
-        help_menu.add_command(label="Documentation")
+        help_menu.add_command(label="Documentation", command=self.documentation_menu_action)
         help_menu.add_command(label="About", command=self.about_menu_action)
         menubar.add_cascade(label="Help", menu=help_menu)
         
@@ -147,15 +148,10 @@ class TikzCodeGeneratorApp:
 
         preview_btn.pack(side=tk.RIGHT, padx=(10, 30))
         generate_btn.pack(side=tk.RIGHT)
-        
-    def file_new_action(self):
-        print("New")
     
-    def on_select(self) -> None:
-        
+    def radio_btn_on_select_action(self) -> None:
         selection = self.var.get()
         self.current_filepath = self.filepath_list[selection-1][0]
-        print(f"-=-=--=-=-=--=--=--={selection=}")
         
     def file_open_action(self) -> None:
         filetypes = (("json files", "*.json"),("All files", "*,*"))
@@ -170,27 +166,28 @@ class TikzCodeGeneratorApp:
         if paths:
             self.filepath_list.extend(paths_tuple_list)
             helper.remove_duplicates(self.filepath_list)
-            self.radio_count = 1
-            for i in range(len(self.filepath_list)):
-                self.filepath_list[i] = self.filepath_list[i][0],self.radio_count
-                self.radio_count += 1
-                
+            self.set_count_for_paths()
             self.refresh_radio_btns()
             
             self.textbox.delete("1.0", tk.END) 
             self.status_label.config(text="File added")
-        
+
+    def set_count_for_paths(self,) -> None:
+        self.radio_count = 1
+        for i in range(len(self.filepath_list)):
+            self.filepath_list[i] = self.filepath_list[i][0],self.radio_count
+            self.radio_count += 1
+                 
     def refresh_radio_btns(self,) -> None:
         
         for widget in self.left_mainframe.winfo_children():
             if "!radiobutton" in widget.winfo_name(): 
                 widget.destroy()
-        
+        self.set_count_for_paths()
         for path, value in self.filepath_list:
-            #TODO: reset value to prevent out of bound
             filename = self.get_filename(path)
             radio_txt = filename if len(filename) <= MAX_FILENAME_LENGTH else self.shorten_filename(filename)
-            radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=self.var, value=value, width=20, command=self.on_select)
+            radio_btn = tk.Radiobutton(self.left_mainframe,text=radio_txt, variable=self.var, value=value, width=20, command=self.radio_btn_on_select_action)
             radio_btn.pack(pady=5)   
                  
     def file_save_action(self) -> None:
@@ -213,12 +210,10 @@ class TikzCodeGeneratorApp:
             messagebox.showwarning(title="Unable To Export/Save", message="Unable to perform this action. Please add an appropriate JSON file, select it and click on generate. You will then be able to perform this action")
 
     def remove_file_btn_action(self, current_file: str) -> None:
-        #TODO: fix remove btn
         if current_file == "/" or len(self.filepath_list) == 0:
             messagebox.showerror("Nothing To Delete", "You have not selected a file. Please make sure a file is imported and selected to be able to delete") 
         else:
             current_tuple = None
-            print(f"-=-=-==-=-=-=-=-{current_file=}-=-=--==-")
             for path, pos in self.filepath_list:
                 if path == current_file:
                     current_tuple = (path, pos)
@@ -228,14 +223,18 @@ class TikzCodeGeneratorApp:
             self.current_filepath = os.path.join("/")
             self.textbox.delete("1.0", tk.END)
             self.refresh_radio_btns()
+            self.status_label.config(text="File removed")
             
             
 
         
     def about_menu_action(self) -> None:
-        file = FileHandler()
-        about = file.read(os.path.join("about.txt"))
-        messagebox.showinfo("About", about)        
+        about = self.filehandler.read(os.path.join("about.txt"))
+        messagebox.showinfo("About", about)
+        
+    def documentation_menu_action(self) -> None:
+        documentation = self.filehandler.read(os.path.join("documentation.txt"))
+        messagebox.showinfo("Documentation", documentation)       
 
     def exit_application(self) -> None:
         self.root.destroy()

@@ -1,0 +1,6 @@
+User Manual
+
+Tutorials
+
+Troubleshooting Guide
+Information on common problems or errors that users may encounter while using the software, along with troubleshooting steps to resolve them.

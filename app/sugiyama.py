@@ -1,10 +1,10 @@
-from app.graph import Graph, Edge
+from app.graph import Graph
 from app.graph import Vertex
 from app.data import ParsedData
 from typing import Dict
 from typing import List
 import copy
-from collections import defaultdict, deque
+from collections import defaultdict
 
 
 
@@ -18,7 +18,6 @@ def draw_graph(current_filepath: str) -> Graph:
     cross_reduction(layer_graph)
     x_assigned_graph = x_coordinate_assignment(layer_graph)
     undo_reversed_edges(x_assigned_graph)
-    # remove_dummies(x_assigned_graph)
     return x_assigned_graph
     
 def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> None:
@@ -107,33 +106,6 @@ def add_dummy_vertices(graph: Graph) -> None:
         graph.remove_duplicates(graph.vertices)
 
 
-def promote_vertex(graph: Graph, v: Vertex) -> int:
-    dummydiff = 0
-    for edge in graph.all_incoming_edges(v):
-        if edge.head.layer == v.layer + 1:
-            dummydiff += promote_vertex(graph, edge.head)
-            
-    v.layer += 1
-    dummydiff = dummydiff - len(graph.all_incoming_edges(v)) + len(graph.all_outgoing_edges(v))
-    return dummydiff
-
-def vertex_promotion_heuristic(graph: Graph) -> None:
-    graph_copy = copy.deepcopy(graph)
-    while True:
-        promotion = 0
-        for v in graph.vertices:
-            if len(graph.all_incoming_edges(v)) > 0:
-                if promote_vertex(graph,v) < 0:
-                    promotion += 1
-                    graph_copy = copy.deepcopy(graph)
-                else:
-                    graph = graph_copy
-        
-        if promotion == 0:
-            break
-    
-    return graph
-
 def init_ordering(graph: Graph, vertex: Vertex = None) -> Dict[int, List[Vertex]]:
     if not vertex:
         source_vertices = graph.get_source_vertices()
@@ -186,7 +158,7 @@ def sifting(graph: Graph) -> None:
      #sifting      
     ordering = graph.get_ordering()
     max_iterations = 10
-    for j in range(max_iterations):
+    for _ in range(max_iterations):
         vertices_degree = []    
         for vertex in graph.vertices:
             incoming = len(graph.all_incoming_edges(vertex))
@@ -280,11 +252,10 @@ def x_coordinate_assignment(graph: Graph) -> Graph:
 def down_sweep_assignment(graph:Graph, vertices_position):
 
     for layer in range(0, graph.get_max_layer()+1):
-        #TODO: what if I do not sort the layer???
-        layer_vertices = graph.get_ordering().get(layer,[])#copy.copy(graph.get_ordering().get(layer))
+        layer_vertices = graph.get_ordering().get(layer,[])
         
         for vertex in layer_vertices:
-            #get positions of vertices above current layer
+            
             incoming_positions = [vertices_position[e.head] for e in graph.all_incoming_edges(vertex)]
             
             position = median_position(incoming_positions)
@@ -296,73 +267,10 @@ def up_sweep_assignment(graph: Graph, vertices_position):
         layer_vertices =graph.get_ordering().get(layer) 
        
         for vertex in layer_vertices:
-            #get positions of vertices above current layer
             outgoing_positions = [vertices_position[e.tail] for e in graph.all_outgoing_edges(vertex)]
-            
             position = median_position(outgoing_positions)
             vertices_position[vertex] = add_vertex(vertex, position, vertices_position,graph.get_ordering()) 
      
-def vertex_centrality(graph: Graph):
-    '''Brandes algorithm'''   
-    betweenness = {v: 0 for v in graph.vertices}
-    V = []
-    for vertices in graph.get_ordering().values():
-        V.extend(vertices)
-    for source in V:
-        dependencies = {v: 0 for v in graph.vertices}
-        predecessors, bfs_tree, num_of_shortest_paths = bfs_single_source_shortest_path(graph, source)          
-        for sink in reversed(bfs_tree):
-            if sink != source:
-                for v in predecessors[sink]:
-                    dependencies[v] += (num_of_shortest_paths[v] / num_of_shortest_paths[sink]) * (1 + dependencies[sink])
-        
-        for sink in graph.vertices:
-            if sink != source:
-                betweenness[sink] += dependencies[sink]    
-    return betweenness
-
-def bfs_single_source_shortest_path(graph: Graph, source: Vertex):
-    distances = {v: float("inf") for v in graph.vertices}
-    predecessors = {v: [] for v in graph.vertices}
-    num_of_shortest_paths = {v: 0 for v in graph.vertices}
-    
-    bfs_tree = [] # tracks how vertices are visited
-    distances[source] = 0
-
-    num_of_shortest_paths[source] = 1 
-    queue = deque([(0,source)])
-    
-    while queue:
-        current_distance, current_vertex = queue.popleft()
-        bfs_tree.append(current_vertex)
-        
-        for edge in graph.outgoing_non_back_edges(current_vertex):
-            new_distance = current_distance + edge.weight
-            neighbour = edge.tail
-            if new_distance <= distances[neighbour]:
-                distances[neighbour] =  new_distance
-                predecessors[neighbour].extend([current_vertex])
-                num_of_shortest_paths[neighbour] += num_of_shortest_paths[current_vertex]
-                queue.append((new_distance, neighbour))
-    
-    return predecessors, bfs_tree, num_of_shortest_paths
-            
-def find_paths(predecessors: Dict[Vertex, List[Vertex]]):
-    '''find paths based on predecessors'''
-    def dfs(vertex: Vertex, path):
-        if not predecessors[vertex]:
-            paths.append(((vertex, sink), [vertex]+path ))
-        else:
-            for predecessor in predecessors[vertex]:
-                dfs(predecessor, [vertex]+path)
-    paths = []      
-    for sink in predecessors:
-        for vertex in predecessors[sink]:
-            dfs(vertex, [sink])
-    
-    return paths
-   
-        
 def add_vertex(vertex: Vertex, 
                position: int, 
                vertices_position: Dict[Vertex, int], 
@@ -402,162 +310,6 @@ def median_position(vertices_position: List[Vertex]) -> int:
         return (mid_r + mid_l)//2      
                     
             
-            
-            
-            
-
-def adjacent_position(graph: Graph, 
-                      ordering: Dict[int, List[Vertex]], 
-                      vertex: Vertex,
-                      adjacent_layer: int) -> List[int]:
-    '''returns a list of the present positions of the vertices adjacent to vertex(v)
-    in a given adjacent layer'''
-    vertices = ordering[adjacent_layer]
-    positions = []
-    for edge in graph.all_incoming_edges(vertex):
-        if edge.head in vertices:
-            positions.append(vertices.index(edge.head)+1)
-        
-    return positions   
-
-def median_value(graph: Graph, 
-                 ordering: Dict[int, List[Vertex]], 
-                 vertex: Vertex, 
-                 adjacent_layer: int) -> float:
-    '''Calculate the median value of a vertex based on its adjacent vertices' positions in the given adjacent layer'''
-    P = adjacent_position(graph, ordering, vertex, adjacent_layer)
-    abs_P = abs(len(P))
-    mid = abs_P//2
-    
-    if abs_P == 0:
-        return -1.0
-    elif abs_P % 2 == 1:
-        return P[mid]
-    elif abs_P == 2:
-        return (P[0]+P[1]) / 2
-    else:
-        left = P[mid - 1] - P[0]
-        right = P[abs_P - 1] - P[mid]
-        return (P[mid-1]*right + P[mid]*left)/(left+right) 
-   
-def weighted_median_sweep(graph: Graph, 
-                          ordering: Dict[int, List[Vertex]], 
-                          iter: int, 
-                          max_layer: int) -> None:
-    '''Perform weighted median calculation and sort vertices in each layer during a forward traversal.'''
-    if iter % 2 == 0:
-        for layer in range(2,max_layer+1): # avoid keyerror: start at layer 2 because layers starts at 1
-            medians = []
-            neg_median_vertices = []
-            for vertex in ordering[layer]:
-                median = median_value(graph, ordering, vertex, layer-1)
-                medians.append((vertex,median))
-                if median < 0:
-                    neg_median_vertices.append((ordering[layer].index(vertex),vertex))
-                
-            ordering[layer] = [v for v,_ in sorted(medians, key=lambda x: x[1])]
-            
-            #if median of vertex is negative maintain position 
-            for index, vertex in neg_median_vertices:
-                ordering[layer].remove(vertex)
-                ordering[layer].insert(index, vertex)
-    
-    
-
-def transpose(graph: Graph, 
-              ordering: Dict[int, List[Vertex]]) -> None:
-    improved = True
-    #keep track of changes in ordering
-    layer_vertices = []
-
-    while improved:
-        improved = False
-        for layer in range(1,len(ordering)+1):
-            for i in range(len(ordering[layer])-1):
-                v = ordering[layer][i]
-                w = ordering[layer][i+1]
-                
-                if crossing(graph,ordering,v,w) > crossing(graph,ordering,w,v):
-                    improved = True
-                    ordering[layer][i], ordering[layer][i+1] = ordering[layer][i+1], ordering[layer][i]
-                    vertices = ordering[layer]
-                    if vertices in layer_vertices:
-                        improved = False
-                    else:
-                        layer_vertices.append(copy.copy(vertices))
-                    
-
-def overall_crossing(graph: Graph, 
-                     ordering: Dict[int, List[Vertex]]) -> int:
-    '''go through each layer in the ordering adding the number of crossings
-    Return the total number of crossings in the entire ordering'''
-    total = 0
-    
-    for layer in range(1, len(ordering)+1):
-        for i in range(len(ordering[layer])-1):
-                v = ordering[layer][i]
-                w = ordering[layer][i+1]
-
-                total += crossing(graph, ordering, v, w)
-                
-    return total
-
-    
-
-def crossing(graph: Graph, 
-             ordering: Dict[int, List[Vertex]],
-             v: Vertex,
-             w: Vertex) -> int:
-    crossings = 0
-    v_tails = {edge.tail for edge in graph.all_outgoing_edges(v)}
-    w_tails = {edge.tail for edge in graph.all_outgoing_edges(w)}
-     
-    # if vertex is not sink
-    if v.layer != 1 or w.layer != 1:
-        #loop through vertices below this layer
-        for vertex_x in ordering[v.layer-1]:
-            #if the vertex is a tail of an edge where v is the head (ie if vertex_x is in v_tails)
-            if vertex_x in v_tails: 
-                for vertex_y in ordering[w.layer-1]:
-                    if vertex_y in w_tails:
-                        if (ordering[v.layer-1].index(vertex_x) > ordering[w.layer-1].index(vertex_y) and
-                            ordering[v.layer].index(v) < ordering[w.layer].index(w)):
-                            crossings += 1
-    return crossings
-
-def vertex_ordering(graph: Graph) -> None:
-    add_dummy_vertices(graph)
-    order = init_ordering(graph)
-    best = copy.copy(order)
-    MAX_ITERATIONS = 24
-    max_layer = graph.get_max_layer()
-    for i in range(MAX_ITERATIONS):
-        weighted_median_sweep(graph,order,i,max_layer)
-        transpose(graph, order)
-        
-        #if crossings in order is less than crossings in previous best
-        if overall_crossing(graph, order) < overall_crossing(graph, best):
-            best = copy.copy(order)
-            
-    graph.update_ordering(best)
-
-
-def vertex_positioning(graph: Graph) -> Graph:
-    #set initial x cordinates
-    # top_to_bottom(graph)
-    interval = 3 #because width of symbols in tikz is 3cm
-    y_axis = 1 
-    max_layer = graph.get_max_layer()
-    for i in range(1, max_layer+1):
-        x_axis = 0
-        for vertex in graph.get_ordering().get(i):
-            vertex.position = x_axis, y_axis
-            x_axis += interval+2
-        y_axis += interval
-    set_orientation(graph)       
-    return graph
-
-
 def right_to_left(graph: Graph):
     '''90 degrees counter clockwise rotation of the graph(graph has the bottom to top orientation)'''
     for vertex in graph.vertices:

@@ -2,8 +2,15 @@
 
 class FileHandler:
     
-    
     def read(self, path: str) -> str:
+        '''
+        Read file content
+        Returns:
+        str -- The content of the file as a string, or None if an error occurs
+        Raises:
+        FileNotFoundError -- If the file specified by `path` does not exist.
+        IOError -- If an error occurs while reading the file.
+        '''
         try:
             with open(path, "r") as file:
                 json_content = file.read()
@@ -16,6 +23,12 @@ class FileHandler:
             return None
     
     def write(self, path: str, content: str) -> None:
+        '''
+        Write content to a file
+        Raises:
+        PermissionError -- If the user does not have permission to write to the file.
+        Exception -- For any other unexpected error while accessing or writing to the file.
+        '''
         try:
             with open(path, "w+") as file:
                 file.write(content)

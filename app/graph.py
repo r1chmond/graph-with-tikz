@@ -12,6 +12,18 @@ class Vertex:
                  label: str="", 
                  layer: int = 0,
                  position: Tuple[int,int] = (0,0)) -> None:
+        '''
+        Initialise a Vertex object
+        Args:
+            vertex_id (str) -- The unique identifier of the vertex.
+            vertex_type (str) -- The type of the vertex(eg: process, terminal, etc).
+            shape_fill (str) -- The fill color of the vertex shape.
+            shape_color (str) -- The outline color of the vertex shape.
+            font_color (str) -- The color of the font used to label the vertex.
+            label (str, optional) -- The label of the vertex (default "").
+            layer (int, optional) -- The layer of the vertex (default 0).
+            position (Tuple[int,int], optional) -- The position of the vertex (default (0,0)).
+        '''
         self.vertex_id = vertex_id
         self.label = label
         self.layer = layer
@@ -25,6 +37,7 @@ class Vertex:
         self.position = position
     
     def __eq__(self, other: object) -> bool:
+        '''Return True if both instances are equal, False if otherwise'''
         return (self.vertex_id == other.vertex_id and
                 self.label == other.label and
                 self.layer == other.layer and
@@ -38,12 +51,15 @@ class Vertex:
                 self.is_source == other.is_source)
         
     def __ne__(self, other: object) -> bool:
+        '''Return True if both instances are not equal, False if otherwise'''
         return not self == other
     
     def __hash__(self) -> int:
+        '''Return the hash value of the Vertex object'''
         return hash((self.vertex_id,self.label, self.layer, self.vertex_type,self.position,self.shape_fill,self.shape_color, self.is_source, self.is_sink, self.is_dummy))
     
     def __repr__(self) -> str:
+        '''Return a str representation of the Vertex object'''
         symbol = ""
         if self.is_source:
             symbol = "+"
@@ -54,6 +70,15 @@ class Vertex:
     
 class Edge:
     def __init__(self, head: Vertex, tail: Vertex, weight: int = 1, edge_color: str = "black") -> None:
+        '''
+        Initialize an Edge object.
+
+        Args:
+            head (Vertex) -- The head vertex of the edge.
+            tail (Vertex) -- The tail vertex of the edge.
+            weight (int, optional) -- The weight of the edge (default 1).
+            edge_color (str, optional) -- The color of the edge (default "black").
+        '''
         self.head = head
         self.tail = tail
         self.weight = weight
@@ -62,6 +87,7 @@ class Edge:
         
     
     def __eq__(self, other: object) -> bool:
+        '''Return True if both instances are equal, False if otherwise'''
         if isinstance(other, Edge):
             return self.head == other.head and \
                     self.tail == other.tail and \
@@ -70,18 +96,27 @@ class Edge:
         return False
     
     def __ne__(self, other: object) -> bool:
+        '''Return True if both instances are not equal, False if otherwise'''
         return not self == other
           
     def __hash__(self) -> int:
+        '''Return the hash value of the Edge object'''
         return hash((self.head, self.tail, self.weight))
         
     def __repr__(self) -> str:
+        '''Return a str representation of the Vertex object'''
         return f"Edge({self.head} --{self.weight}-> {self.tail}) [is_back_edge = {self.reversed}]"
         
 class Graph:
     def __init__(self, data: Dict[str,str]) -> None:
+        '''
+        Initialize a Graph object.
+
+        Args:
+            data (Dict[str,str]) -- The parsed data to create the graph from.
+        '''
         self._parsed_data = data
-        self.vertices: List[Vertex] = []  #maintain order of creation
+        self.vertices: List[Vertex] = []
         self.orientation: str = ""
         self.font_color: str = ""
         self.shape_color: str = ""
@@ -91,13 +126,22 @@ class Graph:
         self.edges = self.create_edges(self.get_vertices_from_data(self._parsed_data))
         self.ordering: Dict[int, List[Vertex]] = {}
         
-        # self.update_vertices()
     
     def get_vertices_from_data(self, data: Dict[str,str]) -> Dict[str,str]:
+        '''
+        Extract vertices data from the parsed data.
+
+        Args:
+            data (Dict[str, str]) -- The parsed data containing information about vertices.
+
+        Returns:
+            Dict[str, str] -- A dictionary containing only the vertices data, with their id as key.
+        '''
         data_vertices = {key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
         return data_vertices
     
     def update_vertices(self) -> None:
+        '''Update the vertices list based on the edges.'''
         for edge in self.edges:
              self.vertices.append(edge.head)
              self.vertices.append(edge.tail)
@@ -106,6 +150,15 @@ class Graph:
         return len(self.vertices)
     
     def add_edge(self,head: Vertex, tail: Vertex, weight: int = 1, is_reversed: bool = False) -> None:
+        '''
+        Add a new edge to the graph.
+
+        Args:
+            head (Vertex) -- The head vertex of the edge.
+            tail (Vertex) -- The tail vertex of the edge.
+            weight (int, optional) -- The weight of the edge (default 1).
+            is_reversed (bool, optional) -- Whether the edge is reversed (default False).
+        '''
         new_edge = Edge(head,tail,weight)
         new_edge.reversed = is_reversed
         self.edges.append(new_edge)

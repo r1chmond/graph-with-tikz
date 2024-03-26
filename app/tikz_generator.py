@@ -5,11 +5,13 @@ from app.graph import Graph
 
 class TikzCodeGenerator:
     def __init__(self, graph: Graph) -> None:
+        ''' 
+        Initialise TikzCodeGenerator object
+        Args:
+            graph (Graph) -- graph to generate tikz code from.
+        '''
         self.graph = graph
 
-    def update_nodes(self, data:Dict[str,str]) -> None:
-        self._data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
-    
     def generate_tikz_code(self) -> str:
         """
         Generates tikz code
@@ -17,51 +19,40 @@ class TikzCodeGenerator:
             str: tikz code to be exported
         """
         template = self.template()
-        # self.update_nodes(self._parsed_data) #call update again in case data changes
         all_nodes = self.create_tikz_vertices()
-        # node_links = self.get_next_nodes_and_edges(self._data_nodes)
-        # subgraphs = self.create_subgraphs(self._data_nodes)
         code = (
             template["preamble"] + "\n" +
-            template["start_tikz"] + self.get_shape_template() + "\n" #+
-            # template["start_graph"] + self.get_graph_properties(self._parsed_data) + "\n"
+            template["start_tikz"] + self.get_shape_template() + "\n" 
         )
+        # Generate code for nodes first
         code += f"% Create nodes \n"
-        for main_node_id, representation in all_nodes.items():
-            # subgraph = subgraphs.get(main_node_id)
-            # if subgraph:
-            #     code += f"{representation} // {subgraph}; \n"  
-            # else:
+        for _, representation in all_nodes.items():
             code += f"{representation}; \n"
             
-        code += f"% Connect nodes \n"     
-       
-        for edge in self.graph.edges:
-                if edge.head.is_dummy and edge.tail.is_dummy:
-                    code += f"\\draw ({edge.head.vertex_id}.center) -- ({edge.tail.vertex_id}.center); \n"
-                    
-                elif edge.head.is_dummy:
-                    code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}.center) -- ({edge.tail.vertex_id}); \n"
-                elif edge.tail.is_dummy:
-                    code += f"\\draw ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}.center); \n"
-                else:
-                    code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}); \n"
-                        
-                # edge_label = node[1]
-                # end_node = node[0] if all_nodes.get(node[0]) else "default[as=Default End, terminator]"
-                # edge_id = "E" + str(random.randint(0,1000)) 
-                # if edge_label:
-                #     code += f" -- {edge_id}[as={edge_label}] -> [-Latex]{end_node},\n"
-                # else:
-                #     code += f" -> [-Latex]{end_node},\n"
-       
+        code += f"% Connect nodes \n" 
             
+        # Generate code for connecting nodes
+        for edge in self.graph.edges:
+            # Handle different cases of edges
+            if edge.head.is_dummy and edge.tail.is_dummy:
+                code += f"\\draw ({edge.head.vertex_id}.center) -- ({edge.tail.vertex_id}.center); \n"             
+            elif edge.head.is_dummy:
+                code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}.center) -- ({edge.tail.vertex_id}); \n"
+            elif edge.tail.is_dummy:
+                code += f"\\draw ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}.center); \n"
+            else:
+                code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}) -- ({edge.tail.vertex_id}); \n"
+                    
         code += template["end"]    
         
         return code
     
     def create_tikz_vertices(self,) -> OrderedDict[str, str]:
-        """Create nodes based on input data"""
+        '''
+        Create TikZ vertex representations based on input data.
+        Returns:
+            OrderedDict[str, str]: Ordered dictionary containing vertex IDs as keys and TikZ node representations as values.
+        '''
         vertices = OrderedDict()
         for vertex in self.graph.vertices:
             vertex_id = vertex.vertex_id
@@ -113,24 +104,14 @@ class TikzCodeGenerator:
                          )
                 inner_graphs[node_id] = graph
         return inner_graphs 
-
-                
-            
-    # def get_next_nodes_and_edges(self, graph: Graph) -> OrderedDict[str, List[Tuple[str,str]]]:
-    #     """get information about next nodes and edges from input data"""
-    #     nodes = OrderedDict()
-    #     for edge in graph.edges:
-    #         next_nodes = detail.get("next",[])
-    #         connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_nodes]
-    #         nodes[node_id] = connected_nodes
-        
-    #     return nodes
-                
-    # node [draw,terminator] // [layered layout] {idx1[draw,text=blue,as=a, terminator] -> idx2[as=a]}  
-        
-
+ 
     def template(self) -> Dict[str, str]:
-        """Generate a template for tikz code"""
+        '''
+        Generate a template for TikZ code.
+        Returns:
+            Dict[str, str]: Dictionary containing TikZ code template components.
+        '''
+        # Define the preamble containing necessary TikZ libraries
         preamble = (r"\usetikzlibrary{graphs,positioning,quotes,shapes.geometric,arrows.meta}"
                     "\n" 
         )
@@ -141,29 +122,16 @@ class TikzCodeGenerator:
                 }
        
     def get_shape_template(self)-> str:
-        '''Return the shape based on type'''
-        # style = self._parsed_data.get("chartStyle",{})
+        '''
+        get all shape templates
+        Returns:
+            str -- String representing the shape templates for different vertex types in TikZ.
+        '''
         template = (r"[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}},dummy/.style={{rectangle, minimum size=1mm, text opacity=0}}]"
-                    # .format(style.get("fontColor","black"))
                     )
         return template
     
-    # def get_graph_properties(self, data: Dict[str,str])-> str:
-    #     '''Return the graph properties'''
-    #     direction = self.get_graph_orientation(data)
-    #     edge_color = self._parsed_data.get("chartStyle",{})
-    #     properties = r"[layered layout, grow'={}, edges={{{},thick}}]{{".format(direction, edge_color.get("edgeColor", "black"))
-    #     return properties
-    
-    # def get_graph_orientation(self, data: Dict[str,str]) -> str:
-    #     orientation = data.get("orientation").lower()
-    #     direction = "right" if orientation == "lr" else "down"
-    #     return direction
-    
-
 # MAJOR 
-#TODO: Give a edge a random id, so that it can be reused --DONE
-#TODO: fit picture on page and centre
 #TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key
 
 # MINOR

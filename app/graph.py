@@ -108,12 +108,12 @@ class Edge:
         return f"Edge({self.head} --{self.weight}-> {self.tail}) [is_back_edge = {self.reversed}]"
         
 class Graph:
-    def __init__(self, data: Dict[str,str]) -> None:
+    def __init__(self, data: Dict[str,Dict[str,str]]) -> None:
         '''
         Initialize a Graph object.
 
         Args:
-            data (Dict[str,str]) -- The parsed data to create the graph from.
+            data (Dict[str,Dict[str,str]]) -- The parsed data to create the graph from.
         '''
         self._parsed_data = data
         self.vertices: List[Vertex] = []
@@ -127,15 +127,13 @@ class Graph:
         self.ordering: Dict[int, List[Vertex]] = {}
         
     
-    def get_vertices_from_data(self, data: Dict[str,str]) -> Dict[str,str]:
+    def get_vertices_from_data(self, data: Dict[str,Dict[str,str]]) -> Dict[str,Dict[str,str]]:
         '''
         Extract vertices data from the parsed data.
-
         Args:
-            data (Dict[str, str]) -- The parsed data containing information about vertices.
-
+            data (Dict[str,Dict[str,str]]) -- The parsed data containing information about vertices.
         Returns:
-            Dict[str, str] -- A dictionary containing only the vertices data, with their id as key.
+            Dict[str,Dict[str,str]] -- A dictionary containing only the vertices data, with their id as key.
         '''
         data_vertices = {key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
         return data_vertices
@@ -164,12 +162,18 @@ class Graph:
         self.edges.append(new_edge)
         self.update_vertices()
         
-    def add_dummy_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white", shape_fill: str = "white") -> Vertex:
+    def add_dummy_vertex(self,vertex_id: str, label: str,layer: int, font_color: str = "white") -> Vertex:
         vertex = Vertex(vertex_id,"dummy","white","black",font_color,label,layer)
         return vertex
     
-    def create_edges(self, data_vertices: dict[str,str]) -> List[Edge]:
-        # data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+    def create_edges(self, data_vertices: Dict[str,Dict[str,str] ]) -> List[Edge]:
+        '''
+        Create edges between vertices based on the provided data.
+        Args:
+            data_vertices (Dict[str,Dict[str,str]]) -- Dictionary containing vertex IDs as keys and details as values.
+        Returns:
+            List[Edge] -- List of edges created between vertices.
+        '''
         vertex_mapping = self.create_vertices(data_vertices)
         edges: List[Edge] = []
         for vertex_id, detail in data_vertices.items():
@@ -181,8 +185,15 @@ class Graph:
         self.remove_duplicates(edges)
         return edges
     
-    def create_vertices(self, data_vertices: dict[str,str]) -> Dict[str,Vertex]:
-        # data_nodes={key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+    def create_vertices(self, data_vertices: Dict[str,Dict[str,str]]) -> Dict[str,Vertex]:
+        '''
+        Create vertices based on the provided data.
+        Args:
+            data_vertices (Dict[str,Dict[str,str]]) -- Dictionary containing vertex IDs as keys and details as values. 
+        Returns:
+            Dict[str,Vertex] -- Dictionary containing vertex IDs as keys and is corresponding Vertex as values. 
+        '''
+        #TODO:if user create next but not the vertex.. create default terminator
         vertex_mapping = {}
         for vertex_id,detail in data_vertices.items():
             label = detail.get("label", "")
@@ -206,45 +217,47 @@ class Graph:
         self.edge_color = self._parsed_data.get("edgeColor", "black")
     
     def all_outgoing_edges(self, vertex: Vertex) -> List[Edge]:
-        edges: List[Edge] = []
-        for edge in self.edges:
-            if edge.head == vertex:
-                edges.append(edge)
-        
-        return edges
-    
-    # def get_all_non_back_edges(self,) -> List[Edge]:
-    #     edges = []
-    #     for edge in self.edges:
-    #         if not edge.reversed:
-    #             edges.append(edge)
-        
-    #     return edges
-    
-    # def outgoing_non_back_edges(self, vertex: Vertex) -> List[Edge]:
-    #     edges = [edge for edge in self.edges if not edge.reversed and edge.head == vertex] 
-    #     return edges
+        '''
+        Get all outgoing edges of a given vertex.
+        Args:
+            vertex (Vertex) -- The vertex whose outgoing edges are to be retrieved.
+        Returns:
+            List[Edge] -- List of outgoing edges from the given vertex
+        '''
+        return [edge for edge in self.edges if edge.head == vertex]  
     
 
     def all_incoming_edges(self, vertex: Vertex) -> List[Edge]:
-        edges: List[Edge] = []
-        for edge in self.edges:
-            if edge.tail == vertex:
-                edges.append(edge)
-            
-        return edges
+        '''
+        Get all incoming edges of a given vertex.
+        Args:
+            vertex (Vertex) -- The vertex whose incoming edges are to be retrieved.
+        Returns:
+            List[Edge] -- List of incoming edges from the given vertex
+        '''   
+        return [edge for edge in self.edges if edge.tail == vertex]
     
-    # def incoming_non_back_edges(self, vertex: Vertex) -> List[Edge]:
-    #     edges = [edge for edge in self.edges if not edge.reversed and edge.tail == vertex] 
-    #     return edges
+    
 
     def get_vertex(self, vertex_id: str) -> Vertex:
+        '''
+        Get a vertex by its ID.
+        Args:
+            vertex_id (str) -- The ID of the vertex to retrieve.
+        Returns:
+            Vertex or None -- The vertex with the given ID if found, otherwise None.
+        '''
         for v in self.vertices:
             if vertex_id == v.vertex_id:
                 return v
         return None
 
     def get_source_vertices(self) -> List[Vertex]:
+        '''
+        Get vertices with no incoming edges.
+        Returns:
+            List[Vertex] -- List of source vertices.
+        '''
         source_vertices = []
         for vertex in self.vertices:
             if len(self.all_incoming_edges(vertex)) == 0:
@@ -253,7 +266,11 @@ class Graph:
         return source_vertices
     
     def get_max_layer(self,) -> int:
-        '''Return source vertex with the higher layer'''
+        '''
+        Get the maximum layer among all vertices.
+        Returns:
+            int -- The maximum layer value found among all vertices
+        '''
         max_layer = 0
         for vertex in self.vertices:
             max_layer = max(max_layer, vertex.layer)  
@@ -275,6 +292,7 @@ class Graph:
         elements.extend(list(seen.keys()))
         
     
+    #TODO: delete below
     def print_graph(self):
         for edge in self.edges:
             print(edge)

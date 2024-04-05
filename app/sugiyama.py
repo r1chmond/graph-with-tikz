@@ -370,13 +370,13 @@ def coordinate_assignment(graph: Graph) -> Graph:
 
 def down_sweep_assignment(graph: Graph, vertices_position: Dict[Vertex, int]):
     for layer in range(2, graph.get_max_layer() + 1):
-        copy_layer_vertices = copy.copy(graph.get_ordering().get(layer, []))
+        # copy_layer_vertices = copy.copy(graph.get_ordering().get(layer, []))
         # sort layer vertices in increasing order of predecessor count
-        vertices_tuple = [(v, len(graph.all_incoming_edges(v))) for v in copy_layer_vertices]
-        layer_vertices = [v for v, _ in sorted(vertices_tuple, key=lambda x: x[1])]
+        # vertices_tuple = [(v, len(graph.all_incoming_edges(v))) for v in copy_layer_vertices]
+        layer_vertices = graph.get_ordering().get(layer, [])
 
         for vertex in layer_vertices:
-            incoming_positions = [graph.get_ordering().get(e.head.layer).index(e.head) for e in
+            incoming_positions = [vertices_position.get(e.head) for e in
                                   graph.all_incoming_edges(vertex)]
 
             position = median_position(incoming_positions)
@@ -386,13 +386,13 @@ def down_sweep_assignment(graph: Graph, vertices_position: Dict[Vertex, int]):
 
 def up_sweep_assignment(graph: Graph, vertices_position: Dict[Vertex, int]):
     for layer in range(graph.get_max_layer() - 1, 0, -1):
-        copy_layer_vertices = copy.copy(graph.get_ordering().get(layer, []))
+        # copy_layer_vertices = copy.copy(graph.get_ordering().get(layer, []))
         # sort layer vertices in increasing order of successor count
-        vertices_tuple = [(v, len(graph.all_outgoing_edges(v))) for v in copy_layer_vertices]
-        layer_vertices = [v for v, _ in sorted(vertices_tuple, key=lambda x: x[1])]
+        # vertices_tuple = [(v, len(graph.all_outgoing_edges(v))) for v in copy_layer_vertices]
+        layer_vertices = graph.get_ordering().get(layer, [])
 
         for vertex in layer_vertices:
-            outgoing_positions = [graph.get_ordering().get(e.tail.layer).index(e.tail) for e in
+            outgoing_positions = [vertices_position.get(e.tail) for e in
                                   graph.all_outgoing_edges(vertex)]
             position = median_position(outgoing_positions)
             vertices_position[vertex] = adjust_vertex_position(vertex, position, vertices_position,
@@ -420,15 +420,16 @@ def adjust_vertex_position(vertex: Vertex,
     rightmost = None
 
     # closest vertices already positioned to the left
-    vertex_current_position = positioned_vertices.get(vertex) if vertex in positioned_vertices else vertices_on_layer.index(vertex)
     leftmost_list = [v for v in vertices_on_layer if
-                     v in positioned_vertices and positioned_vertices.get(v) < vertex_current_position]
+                     v in positioned_vertices and v != vertex and
+                     positioned_vertices.get(v) < positioned_vertices.get(vertex)]
     if leftmost_list:
         leftmost = max(leftmost_list, key=lambda x: positioned_vertices.get(x))
 
     # closest vertices already positioned to the right
     rightmost_list = [v for v in vertices_on_layer if
-                      v in positioned_vertices and positioned_vertices.get(v) > vertex_current_position]
+                      v in positioned_vertices and v != vertex and
+                      positioned_vertices.get(v) > positioned_vertices.get(vertex)]
     if rightmost_list:
         rightmost = min(rightmost_list, key=lambda x: positioned_vertices.get(x))
 

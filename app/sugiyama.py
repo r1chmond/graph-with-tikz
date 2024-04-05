@@ -1,19 +1,17 @@
 from app.graph import Graph
 from app.graph import Vertex
 from app.data import ParsedData
-from typing import Dict
+from typing import Dict, List
 from typing import List
 import copy
 from collections import defaultdict
 
 
-
 def draw_graph(current_filepath: str) -> Graph:
-    
     parsed_data = ParsedData(current_filepath)
-    #create graph from parsed data
+    # create graph from parsed data
     graph = Graph(parsed_data.get_parsed_data())
-    #invoke sugiyama framework methods
+    # invoke sugiyama framework methods
     dfs_cycle_removal(graph)
     layer_graph = longest_path_layer_assigment(graph)
     add_dummy_vertices(layer_graph)
@@ -23,7 +21,8 @@ def draw_graph(current_filepath: str) -> Graph:
     set_orientation(x_assigned_graph)
     undo_reversed_edges(x_assigned_graph)
     return x_assigned_graph
-    
+
+
 def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[Vertex]) -> None:
     '''
     Performs a depth-first search (DFS) visit on the given vertex in the graph.
@@ -43,15 +42,15 @@ def dfs_visit(graph: Graph, vertex: Vertex, visited: set[Vertex], stacked: set[V
         stacked.add(vertex)
 
         for edge in graph.all_outgoing_edges(vertex):
-            if edge.tail in stacked:      
+            if edge.tail in stacked:
                 edge.reversed = True
                 edge.head, edge.tail = edge.tail, edge.head
             else:
                 dfs_visit(graph, edge.tail, visited, stacked)
-        
+
         stacked.remove(vertex)
 
-                
+
 def dfs_cycle_removal(graph: Graph) -> None:
     '''
     Uses dfs visits to remove cycles in the given graph.
@@ -61,10 +60,11 @@ def dfs_cycle_removal(graph: Graph) -> None:
     '''
     visited = set()
     stacked = set()
-    
+
     for v in graph.get_vertices():
-        dfs_visit(graph,v,visited,stacked)  
-    
+        dfs_visit(graph, v, visited, stacked)
+
+
 def topological_ordering(graph: Graph) -> List[Vertex]:
     '''
     Performs topological ordering of vertices in a directed acyclic graph (DAG)
@@ -93,10 +93,9 @@ def topological_ordering(graph: Graph) -> List[Vertex]:
                 # Check if all incoming edges of the tail vertex are marked
                 if all(in_edge in marked for in_edge in graph.all_incoming_edges(tail)):
                     source_vertices.append(tail)
-    
+
     return sorted_vertices
-            
-            
+
 
 def longest_path_layer_assigment(graph: Graph) -> Graph:
     '''
@@ -111,12 +110,13 @@ def longest_path_layer_assigment(graph: Graph) -> Graph:
     vertices = topological_ordering(graph)
     for vertex in vertices:
         vertex.layer = 1
-        
+
         for edge in graph.all_incoming_edges(vertex):
             head = edge.head
-            vertex.layer = max(vertex.layer, head.layer+1)
-            
+            vertex.layer = max(vertex.layer, head.layer + 1)
+
     return graph
+
 
 def add_dummy_vertices(graph: Graph) -> None:
     '''
@@ -127,38 +127,38 @@ def add_dummy_vertices(graph: Graph) -> None:
     '''
     dummies = []
     edges_require_dummies = []
-    
+
     # Iterate through all edges in the graph
     for edge in graph.edges:
         layer_diff = edge.tail.layer - edge.head.layer
-        
+
         if layer_diff > 1:
             start_vertex = edge.head
             edges_require_dummies.append(copy.copy(edge))
             # Add a dummy vertex between the head and tail vertices
-            edge.head = graph.add_dummy_vertex("*1","dummy",edge.head.layer+1)
+            edge.head = graph.add_dummy_vertex("*1", "dummy", edge.head.layer + 1)
             edge.head.is_dummy = True
             end_vertex = edge.head
             dummies_on_edge = [end_vertex]
-            
+
             # Add additional dummy vertices to bridge the gap in layers
-            for vertex_id in range(2,layer_diff):
-                new_vertex = graph.add_dummy_vertex("*"+str(vertex_id),"dummy",end_vertex.layer+1)
+            for vertex_id in range(2, layer_diff):
+                new_vertex = graph.add_dummy_vertex("*" + str(vertex_id), "dummy", end_vertex.layer + 1)
                 new_vertex.is_dummy = True
                 dummies_on_edge.append(new_vertex)
-                
+
             dummies_on_edge.append(start_vertex)
             dummies.append(dummies_on_edge)
-            
-    #Add edges between dummy vertices to maintain connectivity
+
+    # Add edges between dummy vertices to maintain connectivity
     for vertices in dummies:
-        for i in range(1,len(vertices)):
+        for i in range(1, len(vertices)):
             for e in edges_require_dummies:
                 if e.head in vertices:
-                    graph.add_edge(vertices[i], vertices[i-1], 1, e.reversed)
+                    graph.add_edge(vertices[i], vertices[i - 1], 1, e.reversed)
                     break
 
-        graph.get_vertices().extend(vertices) # update the graph's vertices with dummy vertices
+        graph.get_vertices().extend(vertices)  # update the graph's vertices with dummy vertices
         graph.remove_duplicates(graph.get_vertices())
 
 
@@ -179,22 +179,23 @@ def init_ordering(graph: Graph, vertex: Vertex = None) -> None:
 
     ordered_vertices = defaultdict(list)
 
-    def dfs(vertex: Vertex):
-        ordered_vertices[vertex.layer].append(vertex)
-        graph.remove_duplicates(ordered_vertices[vertex.layer])
-        for edge in graph.all_outgoing_edges(vertex):
+    def dfs(current_vertex: Vertex):
+        ordered_vertices[current_vertex.layer].append(current_vertex)
+        graph.remove_duplicates(ordered_vertices[current_vertex.layer])
+        for edge in graph.all_outgoing_edges(current_vertex):
             dfs(edge.tail)
 
     dfs(vertex)
 
     graph.update_ordering(ordered_vertices)
     # return graph.get_ordering()           
-        
-        
+
+
 def cross_reduction(graph: Graph) -> None:
     layer_cross_minimisation(graph)
     sifting(graph)
-    
+
+
 def layer_cross_minimisation(graph: Graph) -> None:
     '''
        Perform the first phase of TALA's(Terrastruct's AutoLayout Approach) method for minimising edge crossings.
@@ -211,9 +212,9 @@ def layer_cross_minimisation(graph: Graph) -> None:
     ordering = graph.get_ordering()
     not_matching_order = True
     while not_matching_order:
-    # for _ in range(max_iterations):
+        # for _ in range(max_iterations):
         copy_ordering = copy.copy(ordering)
-        for layer in range(1,graph.get_max_layer()):
+        for layer in range(1, graph.get_max_layer()):
             vertices = ordering[layer]
             adj_delta = .00
             vertices_adj_delta = []
@@ -225,13 +226,14 @@ def layer_cross_minimisation(graph: Graph) -> None:
                 if num_of_tail_vertices != 0:
                     adj_delta /= num_of_tail_vertices
                 adj_delta = abs(adj_delta - ordering[vertex.layer].index(vertex))
-                vertices_adj_delta.append((vertex,adj_delta))   
-            #sort by adjacent delta
-            ordering[layer] = [v for v,_ in sorted(vertices_adj_delta, key=lambda x: x[1])]
-        
+                vertices_adj_delta.append((vertex, adj_delta))
+                # sort by adjacent delta
+            ordering[layer] = [v for v, _ in sorted(vertices_adj_delta, key=lambda x: x[1])]
+
         if ordering == copy_ordering:
             not_matching_order = False
-                    
+
+
 def sifting(graph: Graph) -> None:
     '''
     Performs the second phase of TALA's(Terrastruct's AutoLayout Approach) method for minimising edge crossings.
@@ -245,47 +247,46 @@ def sifting(graph: Graph) -> None:
       sorts vertices based on their degrees, and performs vertex swaps to reduce edge crossings.
       The best vertex ordering after swaps is selected based on the minimum number of edge crossings.
     '''
-     #sifting      
+    # sifting
     ordering = graph.get_ordering()
     max_iterations = 10
-    vertices_degree = []    
-        # get the degree of each vertex
+    vertices_degree = []
+    # get the degree of each vertex
     for vertex in graph.get_vertices():
         incoming = len(graph.all_incoming_edges(vertex))
         outgoing = len(graph.all_outgoing_edges(vertex))
         degree = incoming + outgoing
         vertices_degree.append((vertex, degree))
-        
-    #sort by highest degree
-    vertices_q = [v for v,_ in sorted(vertices_degree, key=lambda x: x[1])]
+
+    # sort by highest degree
+    vertices_q = [v for v, _ in sorted(vertices_degree, key=lambda x: x[1])]
     vertices_q.reverse()
     for _ in range(max_iterations):
-        
+
         for vertex in vertices_q:
             vertices_on_layer = ordering.get(vertex.layer)
 
             best = []
             for sibling in vertices_on_layer:
                 crossing = 0
-                #swap vertices
+                # swap vertices
                 v_index = vertices_on_layer.index(vertex)
-                s_index = vertices_on_layer.index(sibling) 
+                s_index = vertices_on_layer.index(sibling)
                 vertices_on_layer[v_index], vertices_on_layer[s_index] = sibling, vertex
-                
+
                 crossing += count_crossing_above_vertex(vertex, graph)
                 crossing += count_crossing_below_vertex(vertex, graph)
                 best.append((copy.copy(vertices_on_layer), crossing))
-                
-                #swap vertices back
+
+                # swap vertices back
                 # at this point, s_index is the index of vertex
                 # and v_index is the index of sibling
                 vertices_on_layer[v_index], vertices_on_layer[s_index] = vertex, sibling
-            
-            new_ordering = min(best,key=lambda x: x[1])[0]
+
+            new_ordering = min(best, key=lambda x: x[1])[0]
             ordering[vertex.layer] = new_ordering
-                                
-             
-    
+
+
 def count_crossing_above_vertex(vertex: Vertex, graph: Graph) -> int:
     '''
     Counts the number of edges crossing above a given vertex in a graph.
@@ -302,20 +303,21 @@ def count_crossing_above_vertex(vertex: Vertex, graph: Graph) -> int:
     for edge in incoming_edges:
         head = edge.head
         tail = edge.tail
-    
+
         head_index = graph.get_ordering().get(head.layer).index(head)
         tail_index = graph.get_ordering().get(tail.layer).index(tail)
 
         vertices_on_layer = graph.get_ordering().get(head.layer)
-        for v_index,v in enumerate(vertices_on_layer):
-           outgoing = graph.all_outgoing_edges(v)
-           for out_edge in outgoing:
-               out_edge_tail_index = graph.get_ordering().get(out_edge.tail.layer).index(out_edge.tail)
-               if (v_index > head_index and out_edge_tail_index < tail_index) or \
-                    (v_index < head_index and out_edge_tail_index > tail_index) :
-                        crossing += 1
-    
+        for v_index, v in enumerate(vertices_on_layer):
+            outgoing = graph.all_outgoing_edges(v)
+            for out_edge in outgoing:
+                out_edge_tail_index = graph.get_ordering().get(out_edge.tail.layer).index(out_edge.tail)
+                if (v_index > head_index and out_edge_tail_index < tail_index) or \
+                        (v_index < head_index and out_edge_tail_index > tail_index):
+                    crossing += 1
+
     return crossing
+
 
 def count_crossing_below_vertex(vertex: Vertex, graph: Graph) -> int:
     '''
@@ -333,62 +335,74 @@ def count_crossing_below_vertex(vertex: Vertex, graph: Graph) -> int:
     for edge in outgoing_edges:
         head = edge.head
         tail = edge.tail
-    
+
         head_index = graph.get_ordering().get(head.layer).index(head)
         tail_index = graph.get_ordering().get(tail.layer).index(tail)
 
         vertices_on_layer = graph.get_ordering().get(tail.layer)
-        for v_index,v in enumerate(vertices_on_layer):
-           incoming = graph.all_incoming_edges(v)
-           for in_edge in incoming:
-               in_edge_head_index = graph.get_ordering().get(in_edge.head.layer).index(in_edge.head)
-               if (v_index > tail_index and in_edge_head_index < head_index) or \
-                    (v_index < tail_index and in_edge_head_index > head_index) :
-                        crossing += 1
-    
+        for v_index, v in enumerate(vertices_on_layer):
+            incoming = graph.all_incoming_edges(v)
+            for in_edge in incoming:
+                in_edge_head_index = graph.get_ordering().get(in_edge.head.layer).index(in_edge.head)
+                if (v_index > tail_index and in_edge_head_index < head_index) or \
+                        (v_index < tail_index and in_edge_head_index > head_index):
+                    crossing += 1
+
     return crossing
 
-def coordinate_assignment(graph: Graph) -> Graph:
-    vertices = []
-    for layer_vertices in graph.get_ordering().values():
-        vertices.extend(layer_vertices)
-    vertices_position = {v: 0 for v in vertices}
-    
-    for _ in range(2):
-        down_sweep_assignment(graph, vertices_position)
-        up_sweep_assignment(graph, vertices_position)
-    
-    for vertex, x in vertices_position.items():
-        vertex.position = x, vertex.layer*4  
-    
-    return graph
-           
-def down_sweep_assignment(graph:Graph, vertices_position: Dict[Vertex, int]):
 
-    for layer in range(0, graph.get_max_layer()+1):
-        layer_vertices = graph.get_ordering().get(layer,[])
-        
+def coordinate_assignment(graph: Graph) -> Graph:
+
+    positioned_vertices = {}
+    for layer_vertices in graph.get_ordering().values():
+        for i, vertex in enumerate(layer_vertices):
+            positioned_vertices[vertex] = i
+
+    for _ in range(2):
+        down_sweep_assignment(graph, positioned_vertices)
+        up_sweep_assignment(graph, positioned_vertices)
+
+    for vertex, x in positioned_vertices.items():
+        vertex.position = x, vertex.layer * 4
+
+    return graph
+
+
+def down_sweep_assignment(graph: Graph, vertices_position: Dict[Vertex, int]):
+    for layer in range(2, graph.get_max_layer() + 1):
+        copy_layer_vertices = copy.copy(graph.get_ordering().get(layer, []))
+        # sort layer vertices in increasing order of predecessor count
+        vertices_tuple = [(v, len(graph.all_incoming_edges(v))) for v in copy_layer_vertices]
+        layer_vertices = [v for v, _ in sorted(vertices_tuple, key=lambda x: x[1])]
+
         for vertex in layer_vertices:
-            
-            incoming_positions = [vertices_position[e.head] for e in graph.all_incoming_edges(vertex)]
-            
+            incoming_positions = [graph.get_ordering().get(e.head.layer).index(e.head) for e in
+                                  graph.all_incoming_edges(vertex)]
+
             position = median_position(incoming_positions)
-            vertices_position[vertex] = adjust_vertex_position(vertex, position, vertices_position, graph.get_ordering())
-            
+            vertices_position[vertex] = adjust_vertex_position(vertex, position, vertices_position,
+                                                               graph.get_ordering())
+
+
 def up_sweep_assignment(graph: Graph, vertices_position: Dict[Vertex, int]):
-    
-    for layer in range(graph.get_max_layer(), 1, -1):
-        layer_vertices =graph.get_ordering().get(layer) 
-       
+    for layer in range(graph.get_max_layer() - 1, 0, -1):
+        copy_layer_vertices = copy.copy(graph.get_ordering().get(layer, []))
+        # sort layer vertices in increasing order of successor count
+        vertices_tuple = [(v, len(graph.all_outgoing_edges(v))) for v in copy_layer_vertices]
+        layer_vertices = [v for v, _ in sorted(vertices_tuple, key=lambda x: x[1])]
+
         for vertex in layer_vertices:
-            outgoing_positions = [vertices_position[e.tail] for e in graph.all_outgoing_edges(vertex)]
+            outgoing_positions = [graph.get_ordering().get(e.tail.layer).index(e.tail) for e in
+                                  graph.all_outgoing_edges(vertex)]
             position = median_position(outgoing_positions)
-            vertices_position[vertex] = adjust_vertex_position(vertex, position, vertices_position,graph.get_ordering()) 
-     
-def adjust_vertex_position(vertex: Vertex, 
-               position: int, 
-               vertices_position: Dict[Vertex, int], 
-               ordering: Dict[int, List[Vertex]]) -> int:
+            vertices_position[vertex] = adjust_vertex_position(vertex, position, vertices_position,
+                                                               graph.get_ordering())
+
+
+def adjust_vertex_position(vertex: Vertex,
+                           position: int,
+                           positioned_vertices: Dict[Vertex, int],
+                           ordering: Dict[int, List[Vertex]]) -> int:
     '''
     Adjusts the position of a vertex based on its neighbours within a layer.
 
@@ -400,63 +414,69 @@ def adjust_vertex_position(vertex: Vertex,
 
     Returns:
      (int) -- The adjusted position of the vertex.
-    ''' 
+    '''
     vertices_on_layer = ordering.get(vertex.layer)
     leftmost = None
     rightmost = None
-    
-    #closest vertices already positioned to the left
-    leftmost_list = [v for v in vertices_on_layer if vertices_position.get(v) < vertices_position.get(vertex)]
-    if leftmost_list:
-        leftmost = max(leftmost_list, key=lambda x: vertices_position.get(x))
 
-    #closest vertices already positioned to the right
-    rightmost_list = [v for v in vertices_on_layer if vertices_position.get(v) > vertices_position.get(vertex)] 
+    # closest vertices already positioned to the left
+    vertex_current_position = positioned_vertices.get(vertex) if vertex in positioned_vertices else vertices_on_layer.index(vertex)
+    leftmost_list = [v for v in vertices_on_layer if
+                     v in positioned_vertices and positioned_vertices.get(v) < vertex_current_position]
+    if leftmost_list:
+        leftmost = max(leftmost_list, key=lambda x: positioned_vertices.get(x))
+
+    # closest vertices already positioned to the right
+    rightmost_list = [v for v in vertices_on_layer if
+                      v in positioned_vertices and positioned_vertices.get(v) > vertex_current_position]
     if rightmost_list:
-        rightmost = min(rightmost_list, key=lambda x: vertices_position.get(x)) 
-    
+        rightmost = min(rightmost_list, key=lambda x: positioned_vertices.get(x))
+
     vertex_width = 4
     vertex_offset = 4
-    
-    min_x = vertices_position.get(leftmost, 0) + vertex_width + vertex_offset
-    max_x = vertices_position.get(rightmost,len(vertices_position)) - vertex_width # using len of positions might be a problem
-    
+
+    min_x = positioned_vertices.get(leftmost, 0) + vertex_width + vertex_offset
+    max_x = positioned_vertices.get(rightmost,
+                                    len(positioned_vertices)) - vertex_width  # using len of positions might be a problem
+
     return min(max(position, min_x), max_x)
-      
-        
-                        
+
+
 def median_position(vertices_position: List[Vertex]) -> int:
-    if not vertices_position: 
+    if not vertices_position:
         return 0
-    
+
     n = len(vertices_position)
-    
-    if n%2 != 0:
-        return vertices_position[n//2]
+
+    if n % 2 != 0:
+        return vertices_position[n // 2]
     else:
-        mid_r = vertices_position[n//2]
-        mid_l = vertices_position[(n//2)-1]
-        return (mid_r + mid_l)//2      
-                    
-            
-def right_to_left(graph: Graph)-> None:
-    '''90 degrees counter clockwise rotation of the graph(graph has the bottom to top orientation)'''
+        mid_r = vertices_position[n // 2]
+        mid_l = vertices_position[(n // 2) - 1]
+        return (mid_r + mid_l) // 2
+
+
+def right_to_left(graph: Graph) -> None:
+    '''90 degrees counterclockwise rotation of the graph(graph has the bottom to top orientation)'''
     for vertex in graph.get_vertices():
         x, y = vertex.position
         vertex.position = -y, x
+
 
 def left_to_right(graph: Graph) -> None:
     '''90 degrees clockwise rotation of the graph(graph has the bottom to top orientation)'''
     for vertex in graph.get_vertices():
         x, y = vertex.position
-        vertex.position = y, -x   
+        vertex.position = y, -x
+
 
 def top_to_bottom(graph: Graph) -> None:
     '''Reflection in the x_axis of the graph(graph has the bottom to top orientation)'''
     for vertex in graph.get_vertices():
         _, y = vertex.position
-        vertex.position = _, -y   
-         
+        vertex.position = _, -y
+
+
 def set_orientation(graph: Graph) -> None:
     match graph.orientation:
         case "dt":
@@ -465,14 +485,13 @@ def set_orientation(graph: Graph) -> None:
             left_to_right(graph)
         case "rl":
             right_to_left(graph)
-        case _: 
-            top_to_bottom(graph)  
+        case _:
+            top_to_bottom(graph)
 
-           
-def undo_reversed_edges(graph: Graph) -> None: 
+
+def undo_reversed_edges(graph: Graph) -> None:
     for edge in graph.edges:
         if edge.reversed:
-            edge.head, edge.tail = edge.tail, edge.head   
-           
+            edge.head, edge.tail = edge.tail, edge.head
 
-#TODO: Test wrong file and wrong json format
+            # TODO: Test wrong file and wrong json format

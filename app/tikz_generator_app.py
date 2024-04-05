@@ -247,10 +247,6 @@ class TikzCodeGeneratorApp:
         Returns:
             str -- The extracted filename.
         '''
-        # i = len(path) - 1
-        # while i >= 0 and path[i] != "/" and path[i] != "\\":
-        #     i -= 1
-        # return path[i+1:]
         return os.path.basename(path)
     
     def generate_code_btn_action(self) -> None:

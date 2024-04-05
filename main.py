@@ -8,15 +8,15 @@ from app import graph
 import os
 import tkinter as tk
 
-# d = ParsedData(os.path.join("test-graphs/example_2.json"))
+d = ParsedData(os.path.join("test-graphs/example_2.json"))
 
 
-# print("================== Original Graph ==================\n")
-# G = Graph(d.get_parsed_data())
-# G.print_graph()
+print("================== Original Graph ==================\n")
+G = Graph(d.get_parsed_data())
+G.print_graph()
 
-# print("\n=============== Cycles removed =====================\n")
-# sugiyama.dfs_cycle_removal(G)
+print("\n=============== Cycles removed =====================\n")
+sugiyama.dfs_cycle_removal(G)
 
 # G.print_graph()
 # print("\n===============Top Sort =====================\n")
@@ -24,32 +24,33 @@ import tkinter as tk
 # V = sugiyama.topological_ordering(G)
 # print(f"{V=}")
 
-# print("\n===============Layered =====================\n")
-# layered_G = sugiyama.longest_path_layer_assigment(G)
+print("\n===============Layered =====================\n")
+layered_G = sugiyama.longest_path_layer_assigment(G)
 
-# layered_G.print_graph()
+layered_G.print_graph()
 
-# print("\n===============Dummy vertices added =====================\n")
-# sugiyama.add_dummy_vertices(layered_G)
-# layered_G.print_graph()
+print("\n===============Dummy vertices added =====================\n")
+sugiyama.add_dummy_vertices(layered_G)
+layered_G.print_graph()
 
 
-# sugiyama.init_ordering(layered_G)
+sugiyama.init_ordering(layered_G)
 
-# print("\n=============== crossing reduction =====================\n")
+print("\n=============== crossing reduction =====================\n")
 # for v in layered_G.get_ordering().values():
 #     print(v)
-# sugiyama.cross_reduction(layered_G)
-
+sugiyama.cross_reduction(layered_G)
+for layer in layered_G.get_ordering().values():
+    print(f"{layer}  ------------")
 
 # print("\n=============== bfs shortest path =====================\n")
 # print("\n=============== x cord  =====================\n")
 # v = layered_G.get_vertex("idx1")
 # p,l, n = sugiyama.bfs_single_source_shortest_path(layered_G, v)
 
-
-# x_cor = sugiyama.x_coordinate_assignment(layered_G)
-# layered_G.print_graph()
+print("\n===============coord assignment =====================\n")
+cord = sugiyama.coordinate_assignment(layered_G)
+cord.print_graph()
 # print("\n=============== bfs tree  =====================\n")
 # print(l)
 # print("\n=============== predecessors  =====================\n")
@@ -115,7 +116,7 @@ import tkinter as tk
 
 # print(f"{adj_pos=}")
 # t = TikzCodeGenerator(layered_G)
-
+#
 # code = t.generate_tikz_code()
 # print(code)
 
@@ -127,9 +128,9 @@ import tkinter as tk
 
 
 
-"""Start GUI"""
-root = tk.Tk() 
-app = tikz_generator_app.TikzCodeGeneratorApp(root)
-root.minsize(500,600)
-root.maxsize(800, 620)
-root.mainloop()
+# """Start GUI"""
+# root = tk.Tk()
+# app = tikz_generator_app.TikzCodeGeneratorApp(root)
+# root.minsize(500,600)
+# root.maxsize(800, 620)
+# root.mainloop()

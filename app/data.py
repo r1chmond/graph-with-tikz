@@ -10,6 +10,9 @@ class ParsedData:
         self._handler = FileHandler()
         self._parsed_data = JSONParser(self._handler.read(self._path)).parse_json_data()
         
-    def get_parsed_data(self,) -> Dict[str, str]:
-        '''Return a dictionary containing parsed JSON data'''
+    def get_parsed_data(self,) -> Dict[str, Dict[str,str]]:
+        '''
+        Return:
+        Dict[str,Dict[str,str]] -- a dictionary containing parsed JSON data
+        '''
         return self._parsed_data

@@ -5,6 +5,7 @@ from app.json_parser import JSONParser
 from app.tikz_generator import TikzCodeGenerator
 from app.data import ParsedData
 from app.graph import Vertex, Edge, Graph
+from app import sugiyama
 
 class TestFileHandler(unittest.TestCase):
     
@@ -12,7 +13,8 @@ class TestFileHandler(unittest.TestCase):
         self.write_valid_json_file()
         self.handler = FileHandler()
         self.parsed_data = ParsedData(os.path.join("valid.json"))
-        self.generator = TikzCodeGenerator(self.parsed_data.get_parsed_data())
+        self.graph = Graph(self.parsed_data.get_parsed_data())
+        self.generator = TikzCodeGenerator(self.graph)
         
     def tearDown(self) -> None:
         try:
@@ -41,10 +43,7 @@ class TestFileHandler(unittest.TestCase):
     
     def write_valid_json_file(self) -> None:
         data =""" {
-    "orientation": "LR",
-    "chartStyle": {
-        "fontColor": "red"
-    },
+    "orientation": "td",
     "idx1": {
         "label": "start",
         "type": "terminator",

@@ -10,8 +10,36 @@ class TikzCodeGenerator:
         Args:
             graph (Graph) -- graph to generate tikz code from.
         '''
-        self.graph = graph
-
+        self.graph:Graph = graph
+        
+    def create_tikz_vertices(self,) -> OrderedDict[str, str]:
+        '''
+        Create TikZ vertex representations based on input data.
+        Returns:
+            OrderedDict[str, str]: Ordered dictionary containing vertex IDs as keys and TikZ node representations as values.
+        '''
+        vertices_representation = OrderedDict()
+        for vertex in self.graph.get_vertices():
+            vertex_id = vertex.vertex_id
+            label = vertex.label
+            node_type = vertex.vertex_type
+            # style = self._parsed_data.get("chartStyle",{})
+            text_color = vertex.font_color
+            # subgraph = detail.get("subgraph")
+            fill_color = vertex.shape_fill 
+            position = vertex.position
+            if vertex.is_dummy:
+                node_representation = f"\\node[{node_type},draw= none, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
+            else:
+                node_representation = f"\\node[{node_type},draw= black, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
+            # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
+            # if not subgraph:
+            #     node_representation = f"\\node[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]({node_id}) {{{label}}}"
+            # else:
+            #     node_representation = f"{node_id}[{node_type},draw={shape_color}]"
+            vertices_representation[vertex_id] = node_representation
+        return vertices_representation
+    
     def generate_tikz_code(self) -> str:
         """
         Generates tikz code
@@ -47,63 +75,37 @@ class TikzCodeGenerator:
         
         return code
     
-    def create_tikz_vertices(self,) -> OrderedDict[str, str]:
-        '''
-        Create TikZ vertex representations based on input data.
-        Returns:
-            OrderedDict[str, str]: Ordered dictionary containing vertex IDs as keys and TikZ node representations as values.
-        '''
-        vertices = OrderedDict()
-        for vertex in self.graph.vertices:
-            vertex_id = vertex.vertex_id
-            label = vertex.label
-            node_type = vertex.vertex_type
-            # style = self._parsed_data.get("chartStyle",{})
-            text_color = vertex.font_color
-            # subgraph = detail.get("subgraph")
-            fill_color = vertex.shape_fill 
-            position = vertex.position
-            if vertex.is_dummy:
-                node_representation = f"\\node[{node_type},draw= none, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
-            else:
-                node_representation = f"\\node[{node_type},draw= black, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
-            # shape_color = detail.get("shapeColor",style.get("shapeColor", "black"))
-            # if not subgraph:
-            #     node_representation = f"\\node[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]({node_id}) {{{label}}}"
-            # else:
-            #     node_representation = f"{node_id}[{node_type},draw={shape_color}]"
-            vertices[vertex_id] = node_representation
-        return vertices
     
-    def create_subgraphs(self, data: Dict[str,str]):
-        inner_graphs = OrderedDict()
-        for node_id, detail in data.items():
-            subgraph = detail.get("subgraph")   
-            if subgraph:
-                data_nodes = {key: value for key, value in subgraph.items() if key != "orientation" and key != "chartStyle"} 
-                all_nodes = self.create_nodes(data_nodes)
-                temp = ""
-                for node_representation in all_nodes.values():
-                    temp += f"{node_representation},\n"
-                node_links = self.get_next_nodes_and_edges(data_nodes)
+    
+    # def create_subgraphs(self, data: Dict[str,str]):
+    #     inner_graphs = OrderedDict()
+    #     for node_id, detail in data.items():
+    #         subgraph = detail.get("subgraph")   
+    #         if subgraph:
+    #             data_nodes = {key: value for key, value in subgraph.items() if key != "orientation" and key != "chartStyle"} 
+    #             all_nodes = self.create_nodes(data_nodes)
+    #             temp = ""
+    #             for node_representation in all_nodes.values():
+    #                 temp += f"{node_representation},\n"
+    #             node_links = self.get_next_nodes_and_edges(data_nodes)
                 
-                connections = ""
-                for inner_node_id,attached_nodes in node_links.items():
-                    for node in attached_nodes:
-                        edge_label = node[1]
-                        edge_id = "E"+str(random.randint(1,10000))
-                        if edge_label:
-                            connections += f"{inner_node_id} -- {edge_id}[as={edge_label}] -> [-Latex]{node[0]}, \n" 
-                        else:
-                            connections += f"{inner_node_id} -> [-Latex]{node[0]}, \n"
-                graph = (f"[layered layout, grow'={self.get_graph_orientation(subgraph)}]"
-                         f"{{\n"
-                             f"{temp}"
-                             f"{connections};"
-                             f"}}"
-                         )
-                inner_graphs[node_id] = graph
-        return inner_graphs 
+    #             connections = ""
+    #             for inner_node_id,attached_nodes in node_links.items():
+    #                 for node in attached_nodes:
+    #                     edge_label = node[1]
+    #                     edge_id = "E"+str(random.randint(1,10000))
+    #                     if edge_label:
+    #                         connections += f"{inner_node_id} -- {edge_id}[as={edge_label}] -> [-Latex]{node[0]}, \n" 
+    #                     else:
+    #                         connections += f"{inner_node_id} -> [-Latex]{node[0]}, \n"
+    #             graph = (f"[layered layout, grow'={self.get_graph_orientation(subgraph)}]"
+    #                      f"{{\n"
+    #                          f"{temp}"
+    #                          f"{connections};"
+    #                          f"}}"
+    #                      )
+    #             inner_graphs[node_id] = graph
+    #     return inner_graphs 
  
     def template(self) -> Dict[str, str]:
         '''

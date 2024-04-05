@@ -136,6 +136,15 @@ class Graph:
             Dict[str,Dict[str,str]] -- A dictionary containing only the vertices data, with their id as key.
         '''
         data_vertices = {key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+        all_vertices = {}
+        for details in data_vertices.values():
+            next_vertices = details.get("next", [])
+            for next_dict in next_vertices:
+                all_vertices[next_dict.get("id")] = {}
+                
+        for vertex_id in all_vertices:
+            if vertex_id not in data_vertices:
+                data_vertices[vertex_id] = {}
         return data_vertices
     
     def update_vertices(self) -> None:
@@ -176,12 +185,15 @@ class Graph:
         '''
         vertex_mapping = self.create_vertices(data_vertices)
         edges: List[Edge] = []
+        count = 0 #ensure unique default vertices
         for vertex_id, detail in data_vertices.items():
             next_vertices = detail.get("next",[])                                                    
             connected_nodes = [(node.get("id",""), node.get("edge",""))  for node in next_vertices]
-            head = vertex_mapping[vertex_id]
+            head = vertex_mapping.get(vertex_id)
+            # if head not in vertex_mapping:
+            #     vertex_mapping[head.vertex_id] = head
             edges.extend([Edge(head,vertex_mapping[next_id]) for next_id,_ in connected_nodes])
-
+            count += 1
         self.remove_duplicates(edges)
         return edges
     
@@ -195,8 +207,9 @@ class Graph:
         '''
         #TODO:if user create next but not the vertex.. create default terminator
         vertex_mapping = {}
+        
         for vertex_id,detail in data_vertices.items():
-            label = detail.get("label", "")
+            label = detail.get("label", "default")
             vertex_type = detail.get("type", "process")
             # style = self._parsed_data.get("chartStyle",{})
             text_color = detail.get("fontColor",self.font_color)
@@ -208,6 +221,11 @@ class Graph:
             vertex_mapping[vertex_id] = vertex
             self.vertices.append(vertex)
         return vertex_mapping
+
+    def add_vertex(self, vertex_id: str) -> Vertex:
+        new_vertex = Vertex(vertex_id, "terminator", "white", "black", "black", "default")   
+        self.get_vertices().append(new_vertex)
+        return new_vertex
     
     def set_graph_styles(self,) -> None:
         self.orientation = self._parsed_data.get("orientation", "td")
@@ -251,6 +269,10 @@ class Graph:
             if vertex_id == v.vertex_id:
                 return v
         return None
+    
+    def get_vertices(self) -> List[Vertex]:
+        return self.vertices
+
 
     def get_source_vertices(self) -> List[Vertex]:
         '''

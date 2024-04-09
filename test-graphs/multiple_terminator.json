@@ -1,0 +1,18 @@
+{
+    "idx6": {
+        "label": "Process 4",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx8"
+            },
+            {
+                "id": "idx11"
+            }
+        ]
+    },
+    "idx11": {
+        "label": "Stop C",
+        "type": "terminator"
+    }
+}

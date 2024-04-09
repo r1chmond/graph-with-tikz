@@ -173,22 +173,25 @@ def init_ordering(graph: Graph, vertex: Vertex = None) -> None:
     """
     if not vertex:
         source_vertices = graph.get_source_vertices()
-        # if len(source_vertices) > 1:
-        #     raise ValueError("Graph has multiple source vertices")
-        vertex = source_vertices[0]
+        
+        vertex = source_vertices[0] if source_vertices else graph.get_vertices()[0]
 
     ordered_vertices = defaultdict(list)
+    visited = set()  # track visited vertices
 
     def dfs(current_vertex: Vertex):
+        if current_vertex in visited:
+            return
+        visited.add(current_vertex)
         ordered_vertices[current_vertex.layer].append(current_vertex)
         graph.remove_duplicates(ordered_vertices[current_vertex.layer])
         for edge in graph.all_outgoing_edges(current_vertex):
-            dfs(edge.tail)
+            if edge.head != current_vertex:
+                dfs(edge.tail)
 
     dfs(vertex)
 
     graph.update_ordering(ordered_vertices)
-    # return graph.get_ordering()           
 
 
 def cross_reduction(graph: Graph) -> None:

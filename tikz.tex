@@ -2,20 +2,13 @@
 
 \begin{tikzpicture}[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}},dummy/.style={{rectangle, minimum size=1mm, text opacity=0}}]
 % Create nodes 
-\node[terminator,draw= black, text=black,fill=yellow!50](idx1) at (4, -4) {Start}; 
-\node[io,draw= black, text=black,fill=white!50](idx2) at (8, -4) {Input}; 
-\node[process,draw= black, text=black,fill=white!50](idx3) at (12, -4) {Process 1}; 
-\node[decision,draw= black, text=black,fill=white!50](idx4) at (16, -4) {Decision 1}; 
-\node[process,draw= black, text=black,fill=white!50](idx5) at (20, -4) {Process 2a}; 
-\node[process,draw= black, text=black,fill=white!50](idx6) at (20, 0) {Process 2b}; 
-\node[io,draw= black, text=black,fill=white!50](idx7) at (24, -4) {Output}; 
-\node[terminator,draw= black, text=black,fill=white!50](idx8) at (28, -4) {Stop}; 
+\node[terminator,draw= black, text=black,fill=white!50](idx1) at (0, -4) {start}; 
+\node[process,draw= black, text=black,fill=white!50](idx2) at (-4, -8) {go}; 
+\node[terminator,draw= black, text=black,fill=white!50](idx3) at (0, -12) {default}; 
+\node[dummy,draw= none, text=white,fill=white!50](*1) at (0, -8) {dummy}; 
 % Connect nodes 
 \draw[-{Latex}] (idx1) -- (idx2); 
+\draw[-{Latex}] (*1.center) -- (idx3); 
 \draw[-{Latex}] (idx2) -- (idx3); 
-\draw[-{Latex}] (idx3) -- (idx4); 
-\draw[-{Latex}] (idx4) -- (idx5); 
-\draw[-{Latex}] (idx4) -- (idx6); 
-\draw[-{Latex}] (idx5) -- (idx7); 
-\draw[-{Latex}] (idx7) -- (idx8); 
+\draw (idx1) -- (*1.center); 
 \end{tikzpicture}

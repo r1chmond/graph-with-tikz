@@ -8,7 +8,7 @@ from app import graph
 import os
 import tkinter as tk
 
-d = ParsedData(os.path.join("test-graphs/crossing_example.json"))
+d = ParsedData(os.path.join("test-graphs/circular_reference.json"))
 
 
 print("================== Original Graph ==================\n")
@@ -127,10 +127,10 @@ cord.print_graph()
 
 
 
-
-"""Start GUI"""
-root = tk.Tk()
-app = tikz_generator_app.TikzCodeGeneratorApp(root)
-root.minsize(500,600)
-root.maxsize(800, 620)
-root.mainloop()
+#
+# """Start GUI"""
+# root = tk.Tk()
+# app = tikz_generator_app.TikzCodeGeneratorApp(root)
+# root.minsize(500,600)
+# root.maxsize(800, 620)
+# root.mainloop()

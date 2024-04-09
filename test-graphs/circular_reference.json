@@ -1,0 +1,14 @@
+{
+    "idx4": {
+        "label": "Process 2",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx4"
+            },
+            {
+                "id": "idx7"
+            }
+        ]
+    }
+}

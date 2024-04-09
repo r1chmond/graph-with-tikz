@@ -8,7 +8,7 @@ from app import graph
 import os
 import tkinter as tk
 
-d = ParsedData(os.path.join("test-graphs/circular_reference.json"))
+d = ParsedData(os.path.join("json_examples/example_3.json"))
 
 
 print("================== Original Graph ==================\n")
@@ -34,7 +34,11 @@ sugiyama.add_dummy_vertices(layered_G)
 layered_G.print_graph()
 
 
+print("\n=============== Ordering =====================\n")
 sugiyama.init_ordering(layered_G)
+
+for layer in layered_G.get_ordering().values():
+    print(layer)
 
 print("\n=============== crossing reduction =====================\n")
 # for v in layered_G.get_ordering().values():
@@ -127,10 +131,10 @@ cord.print_graph()
 
 
 
-#
-# """Start GUI"""
-# root = tk.Tk()
-# app = tikz_generator_app.TikzCodeGeneratorApp(root)
-# root.minsize(500,600)
-# root.maxsize(800, 620)
-# root.mainloop()
+
+"""Start GUI"""
+root = tk.Tk()
+app = tikz_generator_app.TikzCodeGeneratorApp(root)
+root.minsize(500,600)
+root.maxsize(800, 620)
+root.mainloop()

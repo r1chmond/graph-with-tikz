@@ -8,49 +8,49 @@ from app import graph
 import os
 import tkinter as tk
 
-d = ParsedData(os.path.join("test-graphs/circular_reference.json"))
+# d = ParsedData(os.path.join("test-graphs/circular_reference.json"))
 
 
-print("================== Original Graph ==================\n")
-G = Graph(d.get_parsed_data())
-G.print_graph()
-
-print("\n=============== Cycles removed =====================\n")
-sugiyama.dfs_cycle_removal(G)
-
+# print("================== Original Graph ==================\n")
+# G = Graph(d.get_parsed_data())
 # G.print_graph()
-# print("\n===============Top Sort =====================\n")
 
-# V = sugiyama.topological_ordering(G)
-# print(f"{V=}")
+# print("\n=============== Cycles removed =====================\n")
+# sugiyama.dfs_cycle_removal(G)
 
-print("\n===============Layered =====================\n")
-layered_G = sugiyama.longest_path_layer_assigment(G)
+# # G.print_graph()
+# # print("\n===============Top Sort =====================\n")
 
-layered_G.print_graph()
+# # V = sugiyama.topological_ordering(G)
+# # print(f"{V=}")
 
-print("\n===============Dummy vertices added =====================\n")
-sugiyama.add_dummy_vertices(layered_G)
-layered_G.print_graph()
+# print("\n===============Layered =====================\n")
+# layered_G = sugiyama.longest_path_layer_assigment(G)
+
+# layered_G.print_graph()
+
+# print("\n===============Dummy vertices added =====================\n")
+# sugiyama.add_dummy_vertices(layered_G)
+# layered_G.print_graph()
 
 
-sugiyama.init_ordering(layered_G)
+# sugiyama.init_ordering(layered_G)
 
-print("\n=============== crossing reduction =====================\n")
-# for v in layered_G.get_ordering().values():
-#     print(v)
-sugiyama.cross_reduction(layered_G)
-for layer in layered_G.get_ordering().values():
-    print(f"{layer}  ------------")
+# print("\n=============== crossing reduction =====================\n")
+# # for v in layered_G.get_ordering().values():
+# #     print(v)
+# sugiyama.cross_reduction(layered_G)
+# for layer in layered_G.get_ordering().values():
+#     print(f"{layer}  ------------")
 
-# print("\n=============== bfs shortest path =====================\n")
-# print("\n=============== x cord  =====================\n")
-# v = layered_G.get_vertex("idx1")
-# p,l, n = sugiyama.bfs_single_source_shortest_path(layered_G, v)
+# # print("\n=============== bfs shortest path =====================\n")
+# # print("\n=============== x cord  =====================\n")
+# # v = layered_G.get_vertex("idx1")
+# # p,l, n = sugiyama.bfs_single_source_shortest_path(layered_G, v)
 
-print("\n===============coord assignment =====================\n")
-cord = sugiyama.coordinate_assignment(layered_G)
-cord.print_graph()
+# print("\n===============coord assignment =====================\n")
+# cord = sugiyama.coordinate_assignment(layered_G)
+# cord.print_graph()
 # print("\n=============== bfs tree  =====================\n")
 # print(l)
 # print("\n=============== predecessors  =====================\n")
@@ -127,10 +127,10 @@ cord.print_graph()
 
 
 
-#
-# """Start GUI"""
-# root = tk.Tk()
-# app = tikz_generator_app.TikzCodeGeneratorApp(root)
-# root.minsize(500,600)
-# root.maxsize(800, 620)
-# root.mainloop()
+
+"""Start GUI"""
+root = tk.Tk()
+app = tikz_generator_app.TikzCodeGeneratorApp(root)
+root.minsize(500,600)
+root.maxsize(800, 620)
+root.mainloop()

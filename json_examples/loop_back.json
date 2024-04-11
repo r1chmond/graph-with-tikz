@@ -1,6 +1,6 @@
 {
     "idx10": {
-        "label": "Loop Back",
+        "label": "Application produced cannot scan two-dimensional barcodes nor generate two dimensional barcodes. ZXing library used to scan and generate barcodeonly supports linear, 1D barcodes. So if a loyalty card has ",
         "type": "process",
         "next": [
             {

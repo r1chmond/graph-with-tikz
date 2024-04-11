@@ -5,6 +5,7 @@ from tkinter import filedialog as fd, messagebox
 import os
 from app.file_handler import FileHandler
 import subprocess
+import sys
 import pyperclip
 from tktooltip import ToolTip
 from app import helper
@@ -132,7 +133,7 @@ class TikzCodeGeneratorApp:
         preview_btn = tk.Button(parent_frame, text="Preview PDF", command=self.preview_btn_action)
         generate_btn = tk.Button(parent_frame, text="Generate Tikz Code", command=self.generate_code_btn_action)
 
-        preview_btn.pack(side=tk.RIGHT)
+        preview_btn.pack(side=tk.RIGHT, padx=5)
         generate_btn.pack(side=tk.RIGHT)
 
     def radio_btn_on_select_action(self) -> None:
@@ -252,12 +253,17 @@ class TikzCodeGeneratorApp:
 
     def generate_code_btn_action(self) -> None:
         if self.current_filepath != "/":
-            graph = sugiyama.draw_graph(self.current_filepath)
-            generator = TikzCodeGenerator(graph)
-            tikz_code = generator.generate_tikz_code()
-            self.textbox.delete("1.0", tk.END)  # clear textbox before generation
-            self.textbox.insert(tk.END, tikz_code)
-
+            try:
+                graph = sugiyama.draw_graph(self.current_filepath)
+                generator = TikzCodeGenerator(graph)
+                tikz_code = generator.generate_tikz_code()
+                self.textbox.delete("1.0", tk.END)  # clear textbox before generation
+                self.textbox.insert(tk.END, tikz_code)
+            except AttributeError:
+                messagebox.showerror("Error", message= "JSON does not match the specification. Please add a valid JSON file")
+            except Exception as e:
+                print(f"-=-=-=-=-=-{e}-=-=--=-")
+                
         else:
             messagebox.showinfo("JSON File Required", "Please add an appropriate JSON file and select.")
 
@@ -277,6 +283,10 @@ class TikzCodeGeneratorApp:
         if self.current_filepath != "/" and len(tikz_code) > 1:
             self.filehandler.write("tikz.tex", tikz_code)
             subprocess.run("sh run_tex.sh", shell=True)
+            last_ln_output = self.filehandler.read(os.path.join("lastln_output.txt"))
+            if last_ln_output:
+                messagebox.showerror("Compilation Error", "An error occurred while compiling the generated Tikz code. This may be due to an incorrect value mapped to key. Please check your JSON input and try again or correct the generated code in the text area.")
+                os.remove(os.path.join("lastln_output.txt"))
         else:
             messagebox.showinfo("Nothing To Preview",
                                 "Please add an appropriate JSON file, select and then click on generate. You will "

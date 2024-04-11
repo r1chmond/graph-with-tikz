@@ -1,5 +1,5 @@
 TikZ Code Generator App
-This app allows you to generate TikZ code for flowcharts from a JSON file. The TikZ code can then be integrated into your LaTeX document for creating sophisticated diagrams and illustrations.
+This app allows you to generate TikZ code for flowcharts from a JSON file. The TikZ code can then be integrated into your LaTeX document for creating diagrams and illustrations.
 
 JSON Specification:
 Refer to the provided documentation for details on the JSON format required as input. The JSON file should adhere to the specified structure to ensure accurate generation of TikZ code.

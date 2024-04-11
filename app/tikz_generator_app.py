@@ -260,7 +260,7 @@ class TikzCodeGeneratorApp:
                 self.textbox.delete("1.0", tk.END)  # clear textbox before generation
                 self.textbox.insert(tk.END, tikz_code)
             except AttributeError:
-                messagebox.showerror("Error", message= "JSON does not match the specification. Please add a valid JSON file")
+                messagebox.showerror("Error (Invalid JSON)", message= "JSON does not match the specification. Please add a valid JSON file")
             except Exception as e:
                 print(f"-=-=-=-=-=-{e}-=-=--=-")
                 

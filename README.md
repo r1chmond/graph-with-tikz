@@ -41,6 +41,15 @@ For linux or windows visit - https://eu.mirrors.cicku.me/ctan/systems/texlive/tl
 
 For macOS visit - https://www.tug.org/mactex/mactex-download.html
 
+## Known Issues
+
+Linux:
+If using the copy button gives an error, ensure that you have "xclip" installed
+
+```
+$ sudo apt install xclip
+```
+
 ## References
 
 ICONS:

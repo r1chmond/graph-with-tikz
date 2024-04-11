@@ -283,7 +283,9 @@ class TikzCodeGeneratorApp:
         if self.current_filepath != "/" and len(tikz_code) > 1:
             self.filehandler.write("tikz.tex", tikz_code)
             subprocess.run("sh run_tex.sh", shell=True)
-            last_ln_output = self.filehandler.read(os.path.join("lastln_output.txt"))
+            #check if last output file exist
+            path_exist = os.path.exists("lastln_output.txt")
+            last_ln_output = self.filehandler.read(os.path.join("lastln_output.txt")) if path_exist else None
             if last_ln_output:
                 messagebox.showerror("Compilation Error", "An error occurred while compiling the generated Tikz code. This may be due to an incorrect value mapped to key. Please check your JSON input and try again or correct the generated code in the text area.")
                 os.remove(os.path.join("lastln_output.txt"))

@@ -4,6 +4,7 @@
 - [Project structure](#project-structure)
 - [Installation instruction](#installation-instructions)
 - [Installing TexLive](#installing-texlive)
+- [Known Issues](#known-issues)
 - [References](#references)
 
 ## Graph With Tikz (Flowcharts)

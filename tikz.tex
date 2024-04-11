@@ -2,38 +2,20 @@
 
 \begin{tikzpicture}[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}},dummy/.style={{rectangle, minimum size=1mm, text opacity=0}}]
 % Create nodes 
-\node[terminator,draw= black, text=black,fill=yellow!50](idx1) at (10, -4) {Start}; 
-\node[io,draw= black, text=black,fill=white!50](idx2) at (10, -8) {Input}; 
-\node[process,draw= black, text=black,fill=white!50](idx3) at (10, -12) {Process 1}; 
-\node[decision,draw= black, text=black,fill=white!50](idx4) at (10, -16) {Decision 1}; 
-\node[process,draw= black, text=black,fill=white!50](idx5) at (8, -20) {Process 2a}; 
-\node[decision,draw= black, text=black,fill=white!50](idx6) at (12, -20) {Process 2b}; 
-\node[process,draw= black, text=black,fill=white!50](idx7) at (4, -24) {Process c}; 
-\node[process,draw= black, text=black,fill=white!50](idx8) at (8, -24) {Process e}; 
-\node[process,draw= black, text=black,fill=white!50](idx9) at (12, -24) {Process d}; 
-\node[process,draw= black, text=black,fill=white!50](idx10) at (3, -28) {Process d}; 
-\node[process,draw= black, text=black,fill=white!50](idx11) at (8, -28) {Process f}; 
-\node[terminator,draw= black, text=black,fill=white!50](idx12) at (8, -32) {Stop}; 
-\node[terminator,draw= black, text=black,fill=white!50](idx13) at (12, -28) {Stop}; 
-\node[process,draw= black, text=black,fill=white!50](idx14) at (-4, -24) {Process g}; 
-\node[process,draw= black, text=black,fill=white!50](idx15) at (-12, -24) {Process h}; 
-\node[dummy,draw= none, text=white,fill=white!50](*1idx12) at (-5, -28) {dummy}; 
+\node[terminator,draw= black, text=black,fill=red!50](idx1) at (4, 4) {Start the process}; 
+\node[io,draw= black, text=black,fill=blue!50](idx2) at (4, 8) {Input}; 
+\node[process,draw= black, text=black,fill=orange!50](idx3) at (4, 12) {Process 1 proceed}; 
+\node[decision,draw= black, text=black,fill=green!50](idx4) at (4, 16) {Decision 1}; 
+\node[process,draw= black, text=black,fill=orange!50](idx5) at (4, 20) {Process 2a}; 
+\node[process,draw= black, text=black,fill=orange!50](idx6) at (0, 20) {Process 2b}; 
+\node[io,draw= black, text=black,fill=blue!50](idx7) at (4, 24) {Output}; 
+\node[terminator,draw= black, text=black,fill=red!50](idx8) at (4, 28) {Stop entire process}; 
 % Connect nodes 
 \draw[-{Latex}] (idx1) -- (idx2); 
 \draw[-{Latex}] (idx2) -- (idx3); 
 \draw[-{Latex}] (idx3) -- (idx4); 
 \draw[-{Latex}] (idx4) -- (idx5); 
 \draw[-{Latex}] (idx4) -- (idx6); 
-\draw[-{Latex}] (idx5) -- (idx14); 
-\draw[-{Latex}] (idx5) -- (idx15); 
-\draw[-{Latex}] (idx6) -- (idx7); 
-\draw[-{Latex}] (idx6) -- (idx8); 
-\draw[-{Latex}] (idx6) -- (idx9); 
-\draw[-{Latex}] (idx7) -- (idx10); 
-\draw[-{Latex}] (idx8) -- (idx11); 
-\draw[-{Latex}] (idx9) -- (idx13); 
-\draw[-{Latex}] (idx11) -- (idx12); 
-\draw[-{Latex}] (idx14) -- (idx10); 
-\draw[-{Latex}] (*1idx12.center) -- (idx12); 
-\draw (idx15) -- (*1idx12.center); 
+\draw[-{Latex}] (idx5) -- (idx7); 
+\draw[-{Latex}] (idx7) -- (idx8); 
 \end{tikzpicture}

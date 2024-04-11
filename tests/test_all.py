@@ -145,7 +145,16 @@ class TestEdge(unittest.TestCase):
     def test_hash(self):
         self.assertEqual(hash(self.edge1), hash(self.edge2))
         self.assertNotEqual(hash(self.edge1), hash(self.edge3))
+
+class TestGraph(unittest.TestCase):
+    
+    def setUp(self) -> None:
         
+        pass
+    
+    def test_graph(self):
+        pass
        
+
 class TestTikzGenerator(unittest.TestCase):
     pass

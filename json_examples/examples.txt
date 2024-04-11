@@ -1,0 +1,9 @@
+This text file describes what each example tests
+
+Example 1 --  
+Example 2 --  
+Example 3 -- Incomplete flow
+empty.json -- Empty json content
+random.json -- json without any match with the specification of the application
+incorrect.json -- Incorrect values of keys eg: orientation set to "bt" which is
+ not one of the expected values (td, rl, lr, dt).

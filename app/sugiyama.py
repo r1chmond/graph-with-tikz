@@ -4,7 +4,7 @@ from app.data import ParsedData
 from typing import Dict
 from typing import List
 import copy
-from collections import defaultdict
+from collections import defaultdict, deque
 
 
 def draw_graph(current_filepath: str) -> Graph:
@@ -81,7 +81,7 @@ def topological_ordering(graph: Graph) -> List[Vertex]:
       and |E| is the number of edges in the graph.
     """
     sorted_vertices = []
-    source_vertices = graph.get_source_vertices()
+    source_vertices = graph.get_source_vertices() if graph.get_source_vertices() else copy.copy(graph.get_vertices())
     marked = set()
     while source_vertices:
         vertex = source_vertices.pop()
@@ -136,16 +136,18 @@ def add_dummy_vertices(graph: Graph) -> None:
             start_vertex = edge.head
             edges_require_dummies.append(copy.copy(edge))
             # Add a dummy vertex between the head and tail vertices
-            edge.head = graph.add_dummy_vertex("*1", "dummy", edge.head.layer + 1)
+            edge.head = graph.add_dummy_vertex(f"*1{edge.tail.vertex_id}", "dummy", edge.tail.layer - 1)
             edge.head.is_dummy = True
             end_vertex = edge.head
             dummies_on_edge = [end_vertex]
 
             # Add additional dummy vertices to bridge the gap in layers
+            dummy_layer = edge.tail.layer - 2
             for vertex_id in range(2, layer_diff):
-                new_vertex = graph.add_dummy_vertex("*" + str(vertex_id), "dummy", end_vertex.layer + 1)
+                new_vertex = graph.add_dummy_vertex(f"*{vertex_id}{edge.tail.vertex_id}", "dummy", dummy_layer)
                 new_vertex.is_dummy = True
                 dummies_on_edge.append(new_vertex)
+                dummy_layer -= 1
 
             dummies_on_edge.append(start_vertex)
             dummies.append(dummies_on_edge)
@@ -162,19 +164,15 @@ def add_dummy_vertices(graph: Graph) -> None:
         graph.remove_duplicates(graph.get_vertices())
 
 
-def init_ordering(graph: Graph, vertex: Vertex = None) -> None:
+def init_ordering(graph: Graph) -> None:
     """
     Initialise vertex ordering within layers using depth-first search (DFS) traversal.
 
     Args:
      graph (Graph) -- The graph for which vertex ordering is to be initialised.
-     vertex (Vertex, optional) -- The starting vertex for DFS traversal. If not provided,
-      the first source vertex is used as the starting point.
     """
-    if not vertex:
-        source_vertices = graph.get_source_vertices()
-        
-        vertex = source_vertices[0] if source_vertices else graph.get_vertices()[0]
+
+    source_vertices = deque(graph.get_source_vertices()) if graph.get_source_vertices() else deque(graph.vertices)
 
     ordered_vertices = defaultdict(list)
     visited = set()  # track visited vertices
@@ -186,10 +184,11 @@ def init_ordering(graph: Graph, vertex: Vertex = None) -> None:
         ordered_vertices[current_vertex.layer].append(current_vertex)
         graph.remove_duplicates(ordered_vertices[current_vertex.layer])
         for edge in graph.all_outgoing_edges(current_vertex):
-            if edge.head != current_vertex:
-                dfs(edge.tail)
+            dfs(edge.tail)
 
-    dfs(vertex)
+    while source_vertices:
+        vertex = source_vertices.popleft()
+        dfs(vertex)
 
     graph.update_ordering(ordered_vertices)
 
@@ -211,10 +210,11 @@ def layer_cross_minimisation(graph: Graph) -> None:
       Vertices are then sorted based on their adjacent delta values, and the ordering within each layer
       is updated accordingly.
     """
-    # max_iterations = 10
+    max_iterations = 10
+    i = 0
     ordering = graph.get_ordering()
-    not_matching_order = True
-    while not_matching_order:
+    # not_matching_order = True
+    while i < max_iterations:  # not_matching_order:
         # for _ in range(max_iterations):
         copy_ordering = copy.copy(ordering)
         for layer in range(1, graph.get_max_layer()):
@@ -232,9 +232,11 @@ def layer_cross_minimisation(graph: Graph) -> None:
                 vertices_adj_delta.append((vertex, adj_delta))
                 # sort by adjacent delta
             ordering[layer] = [v for v, _ in sorted(vertices_adj_delta, key=lambda x: x[1])]
+        i += 1
+        # if ordering == copy_ordering:
+        #     not_matching_order = False
 
-        if ordering == copy_ordering:
-            not_matching_order = False
+    print(f"layer min completed-=-=-=-=-=-=-=-=-=-=-=-=-=-=")
 
 
 def sifting(graph: Graph) -> None:

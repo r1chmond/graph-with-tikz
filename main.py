@@ -1,4 +1,3 @@
-
 from app import tikz_generator_app
 from app.data import ParsedData
 from app.tikz_generator import TikzCodeGenerator
@@ -8,15 +7,14 @@ from app import graph
 import os
 import tkinter as tk
 
-# d = ParsedData(os.path.join("test-graphs/circular_reference.json"))
+d = ParsedData(os.path.join("json_examples/circular_reference.json"))
 
+print("================== Original Graph ==================\n")
+G = Graph(d.get_parsed_data())
+G.print_graph()
 
-# print("================== Original Graph ==================\n")
-# G = Graph(d.get_parsed_data())
-# G.print_graph()
-
-# print("\n=============== Cycles removed =====================\n")
-# sugiyama.dfs_cycle_removal(G)
+print("\n=============== Cycles removed =====================\n")
+sugiyama.dfs_cycle_removal(G)
 
 # # G.print_graph()
 # # print("\n===============Top Sort =====================\n")
@@ -24,24 +22,25 @@ import tkinter as tk
 # # V = sugiyama.topological_ordering(G)
 # # print(f"{V=}")
 
-# print("\n===============Layered =====================\n")
-# layered_G = sugiyama.longest_path_layer_assigment(G)
+print("\n===============Layered =====================\n")
+layered_G = sugiyama.longest_path_layer_assigment(G)
 
 # layered_G.print_graph()
 
-# print("\n===============Dummy vertices added =====================\n")
-# sugiyama.add_dummy_vertices(layered_G)
-# layered_G.print_graph()
+print("\n===============Dummy vertices added =====================\n")
+sugiyama.add_dummy_vertices(layered_G)
+layered_G.print_graph()
 
+print("\n=============== Ordering =====================\n")
+sugiyama.init_ordering(layered_G)
 
-# sugiyama.init_ordering(layered_G)
+for layer in layered_G.get_ordering().values():
+    print(layer)
 
-# print("\n=============== crossing reduction =====================\n")
-# # for v in layered_G.get_ordering().values():
-# #     print(v)
-# sugiyama.cross_reduction(layered_G)
-# for layer in layered_G.get_ordering().values():
-#     print(f"{layer}  ------------")
+print("\n=============== crossing reduction =====================\n")
+sugiyama.cross_reduction(layered_G)
+for layer in layered_G.get_ordering().values():
+    print(f"{layer}  ------------")
 
 # # print("\n=============== bfs shortest path =====================\n")
 # # print("\n=============== x cord  =====================\n")
@@ -59,7 +58,7 @@ import tkinter as tk
 # print("\n=============== num of shortest paths  =====================\n")
 # for v, i in n.items():
 #     print(v, i)
-    
+
 
 # print("\n=============== paths  =====================\n")
 # paths = sugiyama.find_paths(p)
@@ -80,7 +79,7 @@ import tkinter as tk
 # #
 # print("================== Vertex ordering ==================\n")
 # sugiyama.vertex_ordering(layered_G)
- 
+
 # print("================== x cordinates ==================\n")
 # ordered = sugiyama.vertex_positioning(layered_G)
 # for k,v in ordered.ordering.items():
@@ -95,7 +94,7 @@ import tkinter as tk
 
 # for k,v in pos.items():
 #     print(f"{k}: {v} \n")
-    
+
 
 # print("================== adj pos ==================\n")
 
@@ -103,16 +102,16 @@ import tkinter as tk
 #     sugiyama.weighted_median_sweep(layered_G,pos,i,5)
 #     print("================== adj pos ==================\n")
 #     print(pos)
-    
+
 # # print("================== total crossings ==================\n")
 # # print(f"{app.visualisation.overall_crossing(layered_G,pos)=}")
-   
+
 # print("================== transpose ==================\n")
 # sugiyama.transpose(layered_G,pos)
 
 # for k,v in pos.items():
 #     print(f"{k}: {v} \n")
-    
+
 
 # print(f"{adj_pos=}")
 # t = TikzCodeGenerator(layered_G)
@@ -126,11 +125,10 @@ import tkinter as tk
 # print(c)
 
 
-
-
 """Start GUI"""
 root = tk.Tk()
 app = tikz_generator_app.TikzCodeGeneratorApp(root)
-root.minsize(500,600)
+# app.refresh_radio_btns()
+root.minsize(500, 600)
 root.maxsize(800, 620)
 root.mainloop()

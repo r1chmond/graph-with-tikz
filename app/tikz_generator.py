@@ -59,6 +59,10 @@ class TikzCodeGenerator:
         # Generate code for connecting nodes
         for edge in self.graph.edges:
             # Handle different cases of edges
+            if edge.head == edge.tail:
+                code += f"\\draw[-{{Latex}}] ({edge.head.vertex_id}) edge [loop above] (); \n"
+                continue
+
             if edge.head.is_dummy and edge.tail.is_dummy:
                 code += f"\\draw ({edge.head.vertex_id}.center) -- ({edge.tail.vertex_id}.center); \n"
             elif edge.head.is_dummy:

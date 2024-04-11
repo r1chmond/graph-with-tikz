@@ -22,8 +22,7 @@ class TikzCodeGeneratorApp:
 
         self.left_mainframe = tk.Frame(self.root, padx=5, pady=5)
         self.right_mainframe = tk.Frame(self.root, padx=5, pady=5)
-        self.list_box = tk.Listbox(self.left_mainframe, selectmode=tk.SINGLE, width=30)
-        self.textbox = tk.Text(self.right_mainframe)
+        self.textbox = tk.Text(self.right_mainframe, font=('TkFixedFont', 9))
 
         self.filehandler = FileHandler()
         self.radio_count = 0
@@ -82,11 +81,6 @@ class TikzCodeGeneratorApp:
         remove_file_btn.pack(side=tk.RIGHT, padx=(0, 15))
         ToolTip(remove_file_btn, msg="Remove JSON file")
 
-    def create_listbox(self, parent_frame: tk.Frame) -> None:
-        l_list_frame = tk.Frame(parent_frame)
-        l_list_frame.pack(fill=tk.X, pady=10)
-        self.list_box.pack()
-
     def create_status_bar(self, parent_frame: tk.Frame) -> None:
         l_status_frame = tk.Frame(parent_frame)
         l_status_frame.pack(side=tk.BOTTOM)
@@ -94,7 +88,7 @@ class TikzCodeGeneratorApp:
         self.status_label.pack(side=tk.LEFT)
 
     def create_right_section(self) -> None:
-        self.right_mainframe.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        self.right_mainframe.pack(side=tk.LEFT, fill=tk.Y, expand=True)
 
         self.create_right_top_frame(self.right_mainframe)
         self.create_right_middle_frame(self.right_mainframe)
@@ -129,7 +123,6 @@ class TikzCodeGeneratorApp:
     def create_right_middle_frame(self, parent_frame: tk.Frame) -> None:
         r_middle_frame = tk.Frame(parent_frame)
         r_middle_frame.pack(fill=tk.X, pady=10)
-
         self.textbox.pack(padx=5, pady=5)
 
     def create_right_bottom_frame(self, parent_frame: tk.Frame) -> None:
@@ -139,7 +132,7 @@ class TikzCodeGeneratorApp:
         preview_btn = tk.Button(parent_frame, text="Preview PDF", command=self.preview_btn_action)
         generate_btn = tk.Button(parent_frame, text="Generate Tikz Code", command=self.generate_code_btn_action)
 
-        preview_btn.pack(side=tk.RIGHT, padx=(10, 30))
+        preview_btn.pack(side=tk.RIGHT)
         generate_btn.pack(side=tk.RIGHT)
 
     def radio_btn_on_select_action(self) -> None:
@@ -172,17 +165,29 @@ class TikzCodeGeneratorApp:
             self.radio_count += 1
 
     def refresh_radio_btns(self, ) -> None:
-
         for widget in self.left_mainframe.winfo_children():
-            if "!radiobutton" in widget.winfo_name():
+            # print(widget.winfo_name())
+            if ("!radiobutton" in widget.winfo_name() or
+                    "!canvas" in widget.winfo_name() or
+                    "!scrollbar" in widget.winfo_name()):
                 widget.destroy()
         self.set_count_for_paths()
-        for path, value in self.filepath_list:
+        listspace = tk.Canvas(self.left_mainframe, width=150)
+        listspace.pack(side=tk.LEFT, expand=True, fill=tk.Y, pady=(25, 110))
+
+        scrollbar = tk.Scrollbar(self.left_mainframe, orient=tk.VERTICAL)
+        scrollbar.pack(side=tk.RIGHT, pady=(25, 110), fill=tk.Y)
+
+        for i, (path, value) in enumerate(self.filepath_list):
             filename = self.get_filename(path)
             radio_txt = filename if len(filename) <= MAX_FILENAME_LENGTH else self.shorten_filename(filename)
-            radio_btn = tk.Radiobutton(self.left_mainframe, text=radio_txt, variable=self.var, value=value, width=20,
+            radio_btn = tk.Radiobutton(self.left_mainframe, text=radio_txt, variable=self.var, value=value,
                                        command=self.radio_btn_on_select_action)
-            radio_btn.pack(pady=5)
+
+            listspace.create_window((0, i * 30), window=radio_btn, anchor=tk.NW)
+
+        scrollbar.config(command=listspace.yview)
+        listspace.config(yscrollcommand=scrollbar.set, scrollregion=listspace.bbox("all"))
 
     def file_save_action(self) -> None:
         self.current_status = "Saving..."

@@ -1,0 +1,19 @@
+{
+  "name": "Alice",
+  "age": 28,
+  "city": "New York",
+  "email": "alice@example.com",
+  "is_student": false,
+  "grades": {
+    "math": 85,
+    "science": 78,
+    "history": 92
+  },
+  "hobbies": ["reading", "painting", "hiking"],
+  "address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "zipcode": "10001",
+    "country": "USA"
+  }
+}

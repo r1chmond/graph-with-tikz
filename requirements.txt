@@ -1,4 +1,5 @@
 colorama==0.4.6
+coverage==7.4.4
 iniconfig==2.0.0
 packaging==23.2
 pluggy==1.3.0

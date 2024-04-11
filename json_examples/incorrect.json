@@ -1,0 +1,129 @@
+{
+  "orientation": "bt",
+  "idx1": {
+    "label": "Start",
+    "type": "terminator",
+    "next": [
+      {
+        "id": "idx2",
+        "edge": "begin process"
+      }
+    ],
+    "shapeFill": "yellow"
+  },
+  "idx2": {
+    "label": "Input",
+    "type": "square",
+    "next": [
+      {
+        "id": "idx3",
+        "edge": "begin process"
+      }
+    ]
+  },
+  "idx3": {
+    "label": "Process 1",
+    "type": "process",
+    "next": [
+      {
+        "id": "idx4"
+      }
+    ]
+  },
+  "idx4": {
+    "label": "Decision 1",
+    "type": "decision",
+    "next": [
+      {
+        "id": "idx5"
+      }
+    ]
+  },
+  "idx5": {
+    "label": "Process 2a",
+    "type": "process",
+    "next": [
+      {
+        "id": "idx14"
+      },
+      {
+        "id": "idx15"
+      }
+    ]
+  },
+  "idx6": {
+    "label": "Process 2b",
+    "type": "decision",
+    "next": [
+      {
+        "id": "idx7"
+      }
+    ]
+  },
+  "idx7": {
+    "label": "Process c",
+    "type": "process",
+    "next": [
+      {
+        "id": "idx10"
+      }
+    ]
+  },
+  "idx8": {
+    "label": "Process e",
+    "type": "rhombus",
+    "next": [
+      {
+        "id": "idx11"
+      }
+    ]
+  },
+  "idx9": {
+    "label": "Process d",
+    "type": "process",
+    "next": [
+      {
+        "id": "idx13"
+      }
+    ]
+  },
+  "idx10": {
+    "label": "Process d",
+    "type": "process"
+  },
+  "idx11": {
+    "label": "Process f",
+    "type": "process",
+    "next": [
+      {
+        "id": "idx12"
+      }
+    ]
+  },
+  "idx12": {
+    "label": "Stop",
+    "type": "terminator"
+  },
+  "idx13": {
+    "label": "Stop",
+    "type": "terminator"
+  },
+  "idx14": {
+    "label": "Process g",
+    "type": "process",
+    "next": [
+      {
+        "id": "idx10"
+      }
+    ]
+  },
+  "idx15": {
+    "label": "Process h",
+    "type": "process",
+    "next": [
+      {
+        "id": "idx12"
+      }
+    ]
+  }
+}

@@ -4,6 +4,7 @@
 - [Installation instruction](#installation-instructions)
 - [Installing TexLive](#installing-texlive)
 - [Known Issues](#known-issues)
+- - [Example](#example)
 - [References](#references)
 
 ## Graph With Tikz (Flowcharts)
@@ -46,6 +47,8 @@ If using the copy button gives an error, ensure that you have "xclip" installed
 $ sudo apt install xclip
 ```
 
+## Example Graph
+![alt text](icons/g1.png)
 ## References
 
 ICONS:
@@ -61,3 +64,4 @@ https://docs.python.org/3/library/tk.html
 LITERATURE:
 http://www.tcs.uni-luebeck.de/downloads/papers/2011/2011-10-14-configurable-graph-drawing-algorithms-jannis-pohlmann.pdf
 refer to bibliography in report
+

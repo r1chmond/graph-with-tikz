@@ -1,7 +1,6 @@
 ## Contents
 
 - [Graph With Tikz](#graph-with-tikz)
-- [Project structure](#project-structure)
 - [Installation instruction](#installation-instructions)
 - [Installing TexLive](#installing-texlive)
 - [Known Issues](#known-issues)
@@ -11,9 +10,6 @@
 
 This app allows users to generate TikZ code for flowcharts from a JSON file. The TikZ code can then be integrated into your LaTeX document for creating sophisticated diagrams and illustrations.
 
-## Project structure
-
-Project structure here...
 
 ## Installation instructions
 
@@ -64,3 +60,4 @@ https://docs.python.org/3/library/tk.html
 
 LITERATURE:
 http://www.tcs.uni-luebeck.de/downloads/papers/2011/2011-10-14-configurable-graph-drawing-algorithms-jannis-pohlmann.pdf
+refer to bibliography in report

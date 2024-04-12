@@ -1,4 +1,4 @@
-from typing import Dict,  OrderedDict
+from typing import Dict, OrderedDict
 from app.graph import Graph
 
 
@@ -22,18 +22,13 @@ class TikzCodeGenerator:
             vertex_id = vertex.vertex_id
             label = vertex.label
             node_type = vertex.vertex_type
-            # style = self._parsed_data.get("chartStyle",{})
             text_color = vertex.font_color
-            # subgraph = detail.get("subgraph")
             fill_color = vertex.shape_fill
             position = vertex.position
             if vertex.is_dummy:
                 node_representation = f"\\node[{node_type},draw= none, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
             else:
                 node_representation = f"\\node[{node_type},draw= black, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
-            # shape_color = detail.get("shapeColor",style.get("shapeColor", "black")) if not subgraph:
-            # node_representation = f"\\node[{node_type},draw={shape_color},text={text_color},fill={fill_color}!50]({
-            # node_id}) {{{label}}}" else: node_representation = f"{node_id}[{node_type},draw={shape_color}]"
             vertices_representation[vertex_id] = node_representation
         return vertices_representation
 
@@ -76,36 +71,6 @@ class TikzCodeGenerator:
 
         return code
 
-    # def create_subgraphs(self, data: Dict[str,str]):
-    #     inner_graphs = OrderedDict()
-    #     for node_id, detail in data.items():
-    #         subgraph = detail.get("subgraph")   
-    #         if subgraph:
-    #             data_nodes = {key: value for key, value in subgraph.items() if key != "orientation" and key != "chartStyle"} 
-    #             all_nodes = self.create_nodes(data_nodes)
-    #             temp = ""
-    #             for node_representation in all_nodes.values():
-    #                 temp += f"{node_representation},\n"
-    #             node_links = self.get_next_nodes_and_edges(data_nodes)
-
-    #             connections = ""
-    #             for inner_node_id,attached_nodes in node_links.items():
-    #                 for node in attached_nodes:
-    #                     edge_label = node[1]
-    #                     edge_id = "E"+str(random.randint(1,10000))
-    #                     if edge_label:
-    #                         connections += f"{inner_node_id} -- {edge_id}[as={edge_label}] -> [-Latex]{node[0]}, \n" 
-    #                     else:
-    #                         connections += f"{inner_node_id} -> [-Latex]{node[0]}, \n"
-    #             graph = (f"[layered layout, grow'={self.get_graph_orientation(subgraph)}]"
-    #                      f"{{\n"
-    #                          f"{temp}"
-    #                          f"{connections};"
-    #                          f"}}"
-    #                      )
-    #             inner_graphs[node_id] = graph
-    #     return inner_graphs 
-
     def template(self) -> Dict[str, str]:
         """
         Generate a template for TikZ code.
@@ -134,8 +99,5 @@ class TikzCodeGenerator:
             r"minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, "
             r"minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}},"
             r"dummy/.style={{rectangle, minimum size=1mm, text opacity=0}}]"
-            )
+        )
         return template
-
-# MAJOR 
-#TODO: handle error when json key is not in specification, maybe have a list of valid keys. extract the keys from the input json as a set and check if they are all in the valid key

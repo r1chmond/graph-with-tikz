@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from typing import Dict, List, Tuple, Any
+from app import helper
 
 
 class Vertex:
@@ -189,7 +190,7 @@ class Graph:
             connected_nodes = [(node.get("id", ""), node.get("edge", "")) for node in next_vertices]
             head = vertex_mapping.get(vertex_id)
             edges.extend([Edge(head, vertex_mapping[next_id]) for next_id, _ in connected_nodes])
-        self.remove_duplicates(edges)
+        helper.remove_duplicates(edges)
         return edges
 
     def create_vertices(self, data_vertices: Dict[str, Dict[str, str]]) -> Dict[str, Vertex]:
@@ -206,10 +207,7 @@ class Graph:
         for vertex_id, detail in data_vertices.items():
             label = detail.get("label", "default")
             vertex_type = detail.get("type", "terminator")
-            # style = self._parsed_data.get("chartStyle",{})
             text_color = detail.get("fontColor", self.font_color)
-            # edge_color = detail.get("edgeColor")
-            # subgraph = detail.get("subgraph")
             fill_color = detail.get("shapeFill", self.shape_fill)
             shape_color = detail.get("shapeColor", self.shape_color)
             vertex = Vertex(vertex_id, vertex_type, fill_color, shape_color, text_color, label)
@@ -295,16 +293,3 @@ class Graph:
     def update_ordering(self, new_ordering: Dict[int, List[Vertex]]) -> None:
         self.ordering = new_ordering
 
-    def remove_duplicates(self, elements: List[Any]) -> None:
-        seen = OrderedDict()
-        for element in elements:
-            if element not in seen:
-                seen[element] = None
-
-        elements.clear()
-        elements.extend(list(seen.keys()))
-
-    # TODO: delete below
-    def print_graph(self):
-        for edge in self.edges:
-            print(edge)

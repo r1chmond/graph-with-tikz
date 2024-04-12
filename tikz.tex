@@ -2,20 +2,24 @@
 
 \begin{tikzpicture}[nodes={}, io/.style={{trapezium,thick,trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm}}, decision/.style={{diamond, thick,minimum width=3cm, minimum height=1cm}}, terminator/.style={{rectangle, rounded corners=3ex, thick, minimum width=3cm, minimum height=1cm}}, process/.style={{rectangle, thick, minimum width=3cm, minimum height=1cm}},dummy/.style={{rectangle, minimum size=1mm, text opacity=0}}]
 % Create nodes 
-\node[terminator,draw= black, text=black,fill=yellow!50](idx1) at (4, -4) {Start}; 
-\node[io,draw= black, text=black,fill=white!50](idx2) at (8, -4) {Input}; 
-\node[process,draw= black, text=black,fill=white!50](idx3) at (12, -4) {Process 1}; 
-\node[decision,draw= black, text=black,fill=white!50](idx4) at (16, -4) {Decision 1}; 
-\node[process,draw= black, text=black,fill=white!50](idx5) at (20, -4) {Process 2a}; 
-\node[process,draw= black, text=black,fill=white!50](idx6) at (20, 0) {Process 2b}; 
-\node[io,draw= black, text=black,fill=white!50](idx7) at (24, -4) {Output}; 
-\node[terminator,draw= black, text=black,fill=white!50](idx8) at (28, -4) {Stop}; 
+\node[terminator,draw= black, text=black,fill=white!50](idx1) at (5, -4) {Start}; 
+\node[decision,draw= black, text=black,fill=white!50](idx2) at (5, -8) {Decide}; 
+\node[process,draw= black, text=black,fill=white!50](idx3) at (-3, -16) {Process 1}; 
+\node[process,draw= black, text=black,fill=white!50](idx4) at (1, -12) {Process 2}; 
+\node[process,draw= black, text=black,fill=white!50](idx5) at (5, -12) {Process 3}; 
+\node[process,draw= black, text=black,fill=white!50](idx6) at (5, -16) {Process 4}; 
+\node[terminator,draw= black, text=black,fill=white!50](idx7) at (1, -16) {Stop A}; 
+\node[terminator,draw= black, text=black,fill=white!50](idx8) at (5, -20) {Stop B}; 
+\node[dummy,draw= none, text=white,fill=white!50](*1idx3) at (-3, -12) {dummy}; 
 % Connect nodes 
 \draw[-{Latex}] (idx1) -- (idx2); 
-\draw[-{Latex}] (idx2) -- (idx3); 
-\draw[-{Latex}] (idx3) -- (idx4); 
-\draw[-{Latex}] (idx4) -- (idx5); 
-\draw[-{Latex}] (idx4) -- (idx6); 
+\draw[-{Latex}] (idx2) -- (idx4); 
+\draw[-{Latex}] (idx2) -- (idx5); 
+\draw (idx3) -- (*1idx3.center); 
+\draw[-{Latex}] (idx4) -- (idx3); 
+\draw[-{Latex}] (idx4) -- (idx7); 
+\draw[-{Latex}] (idx5) -- (idx6); 
 \draw[-{Latex}] (idx5) -- (idx7); 
-\draw[-{Latex}] (idx7) -- (idx8); 
+\draw[-{Latex}] (idx6) -- (idx8); 
+\draw[-{Latex}] (*1idx3.center) -- (idx2); 
 \end{tikzpicture}

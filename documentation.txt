@@ -1,6 +1,21 @@
-User Manual
 
-Tutorials
+Creating a Vertex
+• idx: the unique id provided by the user. It does not always have to be “idx”. It can be
+any text but must be unique for different vertices.
+• label: the label of the vertex.
+• type: the flowchart vertex type. Valid values include, terminator, process, io and decision.
+• next: array of vertices this vertex is connected to. The ids of the vertices connected
+are used before they are created. If a referenced vertex is not created when indicated
+as the next vertex, a default vertex will be automatically created. A default vertex is
+represented as a terminator with the label “default”.
+• shapeFill: changes the background contour colour of a particular vertex to the specified
+colour.
+• shapeColor: changes the contour colour of a particular vertex to the specified colour.
+• fontColor: changes the font colour of a particular vertex to the specified colour
 
-Troubleshooting Guide
+
 Information on common problems or errors that users may encounter while using the software, along with troubleshooting steps to resolve them.
+Linux:
+If using the copy button gives an error, ensure that you have "xclip" installed
+
+$ sudo apt install xclip

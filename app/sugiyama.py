@@ -1,6 +1,7 @@
 from app.graph import Graph
 from app.graph import Vertex
 from app.data import ParsedData
+from app import helper
 from typing import Dict
 from typing import List
 import copy
@@ -161,7 +162,7 @@ def add_dummy_vertices(graph: Graph) -> None:
                     break
 
         graph.get_vertices().extend(vertices)  # update the graph's vertices with dummy vertices
-        graph.remove_duplicates(graph.get_vertices())
+        helper.remove_duplicates(graph.get_vertices())
 
 
 def init_ordering(graph: Graph) -> None:
@@ -182,7 +183,7 @@ def init_ordering(graph: Graph) -> None:
             return
         visited.add(current_vertex)
         ordered_vertices[current_vertex.layer].append(current_vertex)
-        graph.remove_duplicates(ordered_vertices[current_vertex.layer])
+        helper.remove_duplicates(ordered_vertices[current_vertex.layer])
         for edge in graph.all_outgoing_edges(current_vertex):
             dfs(edge.tail)
 
@@ -213,10 +214,9 @@ def layer_cross_minimisation(graph: Graph) -> None:
     max_iterations = 10
     i = 0
     ordering = graph.get_ordering()
-    # not_matching_order = True
-    while i < max_iterations:  # not_matching_order:
-        # for _ in range(max_iterations):
-        copy_ordering = copy.copy(ordering)
+
+    while i < max_iterations:
+
         for layer in range(1, graph.get_max_layer()):
             vertices = ordering[layer]
             adj_delta = .00
@@ -233,10 +233,6 @@ def layer_cross_minimisation(graph: Graph) -> None:
                 # sort by adjacent delta
             ordering[layer] = [v for v, _ in sorted(vertices_adj_delta, key=lambda x: x[1])]
         i += 1
-        # if ordering == copy_ordering:
-        #     not_matching_order = False
-
-    print(f"layer min completed-=-=-=-=-=-=-=-=-=-=-=-=-=-=")
 
 
 def sifting(graph: Graph) -> None:
@@ -526,5 +522,3 @@ def undo_reversed_edges(graph: Graph) -> None:
         if edge.reversed:
             edge.head, edge.tail = edge.tail, edge.head
             edge.reversed = False
-
-            # TODO: Test wrong file and wrong json format

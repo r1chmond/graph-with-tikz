@@ -167,7 +167,6 @@ class TikzCodeGeneratorApp:
 
     def refresh_radio_btns(self, ) -> None:
         for widget in self.left_mainframe.winfo_children():
-            # print(widget.winfo_name())
             if ("!radiobutton" in widget.winfo_name() or
                     "!canvas" in widget.winfo_name() or
                     "!scrollbar" in widget.winfo_name()):
@@ -260,10 +259,12 @@ class TikzCodeGeneratorApp:
                 self.textbox.delete("1.0", tk.END)  # clear textbox before generation
                 self.textbox.insert(tk.END, tikz_code)
             except AttributeError:
-                messagebox.showerror("Error (Invalid JSON)", message= "JSON does not match the specification. Please add a valid JSON file")
+                messagebox.showerror("Error (Invalid JSON)", message="JSON does not match the specification. Please "
+                                                                     "add a valid JSON file")
             except Exception as e:
-                print(f"-=-=-=-=-=-{e}-=-=--=-")
-                
+                messagebox.showerror("Error (Oops!)", message="Something went wrong while generating the code. ")
+                print(f"Error: unable to generate code -> {e}")
+
         else:
             messagebox.showinfo("JSON File Required", "Please add an appropriate JSON file and select.")
 
@@ -287,7 +288,10 @@ class TikzCodeGeneratorApp:
             path_exist = os.path.exists("lastln_output.txt")
             last_ln_output = self.filehandler.read(os.path.join("lastln_output.txt")) if path_exist else None
             if last_ln_output:
-                messagebox.showerror("Compilation Error", "An error occurred while compiling the generated Tikz code. This may be due to an incorrect value mapped to key. Please check your JSON input and try again or correct the generated code in the text area.")
+                messagebox.showerror("Compilation Error",
+                                     "An error occurred while compiling the generated Tikz code. This may be due to "
+                                     "an incorrect value mapped to key. Please check your JSON input and try again or "
+                                     "correct the generated code in the text area.")
                 os.remove(os.path.join("lastln_output.txt"))
         else:
             messagebox.showinfo("Nothing To Preview",

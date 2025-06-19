@@ -23,12 +23,13 @@ class TikzCodeGenerator:
             label = vertex.label
             node_type = vertex.vertex_type
             text_color = vertex.font_color
+            shape_color = vertex.shape_color
             fill_color = vertex.shape_fill
             position = vertex.position
             if vertex.is_dummy:
                 node_representation = f"\\node[{node_type},draw= none, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
             else:
-                node_representation = f"\\node[{node_type},draw= black, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
+                node_representation = f"\\node[{node_type},draw= {shape_color}, text={text_color},fill={fill_color}!50]({vertex_id}) at {position} {{{label}}}"
             vertices_representation[vertex_id] = node_representation
         return vertices_representation
 

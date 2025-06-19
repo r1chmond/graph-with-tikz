@@ -137,7 +137,7 @@ def add_dummy_vertices(graph: Graph) -> None:
             start_vertex = edge.head
             edges_require_dummies.append(copy.copy(edge))
             # Add a dummy vertex between the head and tail vertices
-            edge.head = graph.add_dummy_vertex(f"*1{edge.tail.vertex_id}", "dummy", edge.tail.layer - 1)
+            edge.head = graph.add_dummy_vertex(f"*1{edge.head.vertex_id}{edge.tail.vertex_id}", "dummy", edge.tail.layer - 1)
             edge.head.is_dummy = True
             end_vertex = edge.head
             dummies_on_edge = [end_vertex]
@@ -145,7 +145,7 @@ def add_dummy_vertices(graph: Graph) -> None:
             # Add additional dummy vertices to bridge the gap in layers
             dummy_layer = edge.tail.layer - 2
             for vertex_id in range(2, layer_diff):
-                new_vertex = graph.add_dummy_vertex(f"*{vertex_id}{edge.tail.vertex_id}", "dummy", dummy_layer)
+                new_vertex = graph.add_dummy_vertex(f"*{vertex_id}{edge.head.vertex_id}{edge.tail.vertex_id}", "dummy", dummy_layer)
                 new_vertex.is_dummy = True
                 dummies_on_edge.append(new_vertex)
                 dummy_layer -= 1

@@ -1,0 +1,62 @@
+{   
+    "idx1": {
+        "label": "A",
+        "type": "terminator",
+        "next": [
+            {
+                "id": "idx2"
+            },
+            {
+                "id": "idx5"
+            }
+        ],
+        "shapeFill": "red", 
+        "shapeColor": "blue"
+    },
+    "idx2": {
+        "label": "B",
+        "type": "decision",
+        "next": [
+            {
+                "id": "idx3"
+            }, 
+            {
+                "id": "idx4"
+            }, 
+            {
+                "id": "idx6"
+            }
+        ],
+        "shapeFill": "blue"
+    },
+    "idx3": {
+        "label": "C",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx4"
+            }
+        ],
+        "shapeFill": "orange"
+    },
+    "idx4": {
+        "label": "D",
+        "type": "terminator",
+        "shapeFill": "green"
+    },
+    "idx5": {
+        "label": "E",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx3"
+            }
+        ],
+        "shapeFill": "orange"
+    },
+    "idx6": {
+        "label": "F",
+        "type": "terminator",
+        "shapeFill": "orange"
+    }
+}

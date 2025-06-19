@@ -1,0 +1,111 @@
+{
+    "idx1": {
+        "label": "Start",
+        "type": "terminator",
+        "next": [
+            {
+                "id": "idx2"
+            }
+        ]
+    },
+    "idx2": {
+        "label": "input N",
+        "type": "io",
+        "next":[
+            {
+                "id": "idx3"
+            }
+        ]
+    },
+    "idx3": {
+        "label": "$l = 1$",
+        "type": "process",
+        "next":[
+            {
+                "id": "idx4"
+            }
+        ]
+    },
+    "idx4": {
+        "label": "$l > N ?$",
+        "type": "decision",
+        "next":[
+            {
+                "id": "idx5"
+            },
+             {
+                "id": "idx6"
+            }
+        ]
+    },
+    "idx5": {
+        "label": "Yes",
+        "type": "process",
+        "next":[
+            {
+                "id": "idx8"
+            }
+        ]
+    },
+    "idx6": {
+        "label": "No",
+        "type": "process",
+        "next":[
+            {
+                "id": "idx7"
+            }
+        ]
+    },
+    "idx7": {
+        "label": "if (l $modulo$ 2 = 0)",
+        "type":"decision",
+        "next":[
+            {
+                "id": "idx9"
+            },
+            {
+                "id": "idx10"
+            }
+        ]
+    }, 
+    "idx8": {
+        "label": "Stop",
+        "type": "terminator"
+    },
+    "idx9":{
+        "label": "No",
+        "type": "process",
+        "next":[
+            {
+                "id": "idx11"
+            }
+        ]
+    },
+    "idx11": {
+        "label":"$l = l + 1$",
+        "type": "process",
+        "next": [
+            {
+                "id": "idx4"
+            }
+        ]
+    },
+    "idx10": {
+        "label": "Yes",
+        "type": "process",
+        "next":[
+            {
+                "id": "idx12"
+            }
+        ]
+    }, 
+    "idx12": {
+        "label": "Print $l$",
+        "type": "io",
+        "next":[
+            {
+                "id": "idx11"
+            }
+        ]
+    }
+}

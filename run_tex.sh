@@ -1,14 +1,10 @@
 #!/bin/sh
 
-#!/bin/bash
-
 # Define a function to handle errors
 handle_error() {
   echo "ERR" > "$output_file"
-
   echo "<!!!> ERR: An error occurred in the script"
-
-    exit 1
+  exit 1
 }
 
 # Set up a trap to catch errors
@@ -30,7 +26,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Execute the Python script
-python3 run_tex.py
+python run_tex.py
 
 # Check if Python execution failed
 if [ $? -ne 0 ]; then

@@ -1,6 +1,11 @@
-class FileFormatError(ValueError):
-    """Exception for invalid UTF-8 text"""
+class ValidationError(ValueError):
+    """Base class for invalid user input"""
 
 
-class InvalidJSONError(ValueError):
-    """Exception for invalid json"""
+class FileFormatError(ValidationError): ...
+
+
+class InvalidJSONError(ValidationError): ...
+
+
+class InvalidKeywordError(ValidationError): ...

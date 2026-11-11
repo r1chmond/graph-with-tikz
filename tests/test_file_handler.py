@@ -1,9 +1,9 @@
-import unittest
-import tempfile
-from unittest.mock import patch
-from app.file_handler import FileHandler
-from app.custom_log import log
 import os
+import tempfile
+import unittest
+from unittest.mock import patch
+
+from app.file_handler import FileHandler
 
 
 class TestFileHandler(unittest.TestCase):
@@ -29,17 +29,15 @@ class TestFileHandler(unittest.TestCase):
         with patch(
             "app.file_handler.open",
             side_effect=PermissionError("Error occurred while reading file."),
-        ):
-            with self.assertRaises(PermissionError):
-                self.handler.read("file.json")
+        ), self.assertRaises(PermissionError):
+            self.handler.read("file.json")
 
     def test_read_io_error_file(self) -> None:
         with patch(
             "app.file_handler.open",
-            side_effect=IOError("Error occurred while reading file."),
-        ):
-            with self.assertRaises(IOError):
-                self.handler.read("file.json")
+            side_effect=OSError("Error occurred while reading file."),
+        ), self.assertRaises(OSError):
+              self.handler.read("file.json")
 
     def test_write_file_successful(self) -> None:
         content = "Some content"
@@ -52,21 +50,22 @@ class TestFileHandler(unittest.TestCase):
         self.assertEqual(file_content, content)
 
     def test_write_file_unsuccessful(self) -> None:
+        file_path = os.path.join(self.test_dir.name, "file.json")
         with patch(
             "app.file_handler.open",
-            side_effect=IOError("Error occurred while writing file"),
-        ):
-            with self.assertRaises(IOError):
-                self.handler.write("file.json", "some code")
+            side_effect=OSError("Error occurred while writing file"),
+        ), self.assertRaises(OSError):
+            self.handler.write(file_path, "some code")
 
     def test_write_file_unsuccessful_during_write(self) -> None:
+        file_path = os.path.join(self.test_dir.name, "file.json")
         with patch(
             "app.file_handler.open",
         ) as mock_open:
             mock_file = mock_open.return_value.__enter__.return_value
-            mock_file.write.side_effect = IOError("Error occurred while writing file")
-            with self.assertRaises(IOError):
-                self.handler.write("file.json", "some code")
+            mock_file.write.side_effect = OSError("Error occurred while writing file")
+            with self.assertRaises(OSError):
+                self.handler.write(file_path, "some code")
 
     def write_valid_json_file(self) -> str:
         data = """ {

@@ -17,6 +17,7 @@
 *.cb2
 .*.lb
 
+todo.md
 ## Intermediate documents:
 *.dvi
 *.xdv

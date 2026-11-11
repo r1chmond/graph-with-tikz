@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from app.exceptions import FileFormatError
 from app.file_handler import read, write
 
 
@@ -26,17 +27,29 @@ class TestFileHandler(unittest.TestCase):
     def test_read_permission_denied_file(self) -> None:
         with (
             patch(
-                "app.file_handler.open",
+                "app.file_handler.Path.read_text",
                 side_effect=PermissionError("Error occurred while reading file."),
             ),
             self.assertRaises(PermissionError),
         ):
             read("file.json")
 
+    def test_read_file_with_invalid_uft8_text(self) -> None:
+        with (
+            patch(
+                "app.file_handler.Path.read_text",
+                side_effect=UnicodeDecodeError(
+                    "utf-8", b"", 0, 1, "invalid start byte"
+                ),
+            ),
+            self.assertRaises(FileFormatError),
+        ):
+            read("file.json")
+
     def test_read_io_error_file(self) -> None:
         with (
             patch(
-                "app.file_handler.open",
+                "app.file_handler.Path.read_text",
                 side_effect=OSError("Error occurred while reading file."),
             ),
             self.assertRaises(OSError),
@@ -57,7 +70,7 @@ class TestFileHandler(unittest.TestCase):
         file_path = os.path.join(self.test_dir.name, "file.json")
         with (
             patch(
-                "app.file_handler.open",
+                "app.file_handler.os.fdopen",
                 side_effect=OSError("Error occurred while writing file"),
             ),
             self.assertRaises(OSError),
@@ -67,7 +80,7 @@ class TestFileHandler(unittest.TestCase):
     def test_write_file_unsuccessful_during_write(self) -> None:
         file_path = os.path.join(self.test_dir.name, "file.json")
         with patch(
-            "app.file_handler.open",
+            "app.file_handler.os.fdopen",
         ) as mock_open:
             mock_file = mock_open.return_value.__enter__.return_value
             mock_file.write.side_effect = OSError("Error occurred while writing file")

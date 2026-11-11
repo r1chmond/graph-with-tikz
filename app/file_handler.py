@@ -13,7 +13,7 @@ class FileHandler:
         try:
             with open(path, "r") as file:
                 return file.read()
-        except IOError:
+        except OSError:
             log.exception("Error occurred while reading file.")
             raise
 
@@ -26,8 +26,7 @@ class FileHandler:
         """
         try:
             with open(path, "w") as file:
-                log.debug("============== open run ==============")
                 file.write(content)
-        except IOError:
+        except OSError:
             log.exception("Error occurred while writing file.")
             raise

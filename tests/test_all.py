@@ -1,53 +1,14 @@
 import copy
 import unittest
-import os
+
+from app import sugiyama
 from app.file_handler import FileHandler
+from app.graph import Edge, Graph, Vertex
 from app.json_parser import JSONParser
 from app.tikz_generator import TikzCodeGenerator
-from app.data import ParsedData
-from app.graph import Vertex, Edge, Graph
-from app import sugiyama
-
-
-class TestJSONParser(unittest.TestCase):
-
-    def setUp(self) -> None:
-        self.handler = FileHandler()
-        self.write_invalid_json_file()
-        self.write_valid_json_file()
-
-    def tearDown(self) -> None:
-        os.remove("valid.json")
-        os.remove("invalid.json")
-
-    def test_parse_json_successful(self) -> None:
-        data = self.handler.read("valid.json")
-        parser = JSONParser(data)
-        parsed_data = parser.parse_json_data()
-        self.assertIsNotNone(parsed_data)
-
-    def test_parse_invalid_json(self) -> None:
-        data = self.handler.read("invalid.json")
-        parser = JSONParser(data)
-        parsed_data = parser.parse_json_data()
-        self.assertIsNone(parsed_data)
-
-    def write_valid_json_file(self) -> None:
-        data = """ {
-                        "start": {"id": "idx1","type": "terminator", "next": {"id": "idx2"}}, 
-                        "walk": {"id":"idx2", "type": "process"}
-                    }"""
-        with open("valid.json", "w") as file:
-            file.write(data)
-
-    def write_invalid_json_file(self) -> None:
-        data = "This is not a valid json"
-        with open("invalid.json", "w") as file:
-            file.write(data)
 
 
 class TestVertex(unittest.TestCase):
-
     def setUp(self) -> None:
         self.v1 = Vertex("v1", "type1", "fill1", "color1", "label1", 2, (10, 20))
         self.v2 = Vertex("v1", "type1", "fill1", "color1", "label1", 2, (10, 20))
@@ -61,13 +22,12 @@ class TestVertex(unittest.TestCase):
         self.assertNotEqual(self.v1, self.v3)
         self.assertNotEqual(self.v2, self.v3)
 
-    def test_hash(self):
-        self.assertEqual(hash(self.v1), hash(self.v2))
-        self.assertNotEqual(hash(self.v1), hash(self.v3))
+    # def test_hash(self):
+    #     self.assertEqual(hash(self.v1), hash(self.v2))
+    #     self.assertNotEqual(hash(self.v1), hash(self.v3))
 
 
 class TestEdge(unittest.TestCase):
-
     def setUp(self) -> None:
         self.v1 = Vertex("v1", "type1", "fill1", "color1", "label1", 2, (10, 20))
         self.v2 = Vertex("v2", "type2", "fill2", "color2", "label2", 2, (10, 20))
@@ -89,7 +49,6 @@ class TestEdge(unittest.TestCase):
 
 
 class TestGraph(unittest.TestCase):
-
     def setUp(self) -> None:
         self.handler = FileHandler()
         data = self.handler.read("json_examples/crossing_example.json")

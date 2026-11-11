@@ -1,17 +1,20 @@
-from collections import OrderedDict
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
+
 from app import helper
 
 
 class Vertex:
-    def __init__(self, vertex_id: str,
-                 vertex_type: str,
-                 shape_fill: str,
-                 shape_color: str,
-                 font_color: str,
-                 label: str = "",
-                 layer: int = 0,
-                 position: Tuple[int, int] = (0, 0)) -> None:
+    def __init__(
+        self,
+        vertex_id: str,
+        vertex_type: str,
+        shape_fill: str,
+        shape_color: str,
+        font_color: str,
+        label: str = "",
+        layer: int = 0,
+        position: tuple[int, int] = (0, 0),
+    ) -> None:
         """
         Initialise a Vertex object
         Args:
@@ -38,17 +41,19 @@ class Vertex:
 
     def __eq__(self, other: object) -> bool:
         """Return True if both instances are equal, False if otherwise"""
-        return (self.vertex_id == other.vertex_id and
-                self.label == other.label and
-                self.layer == other.layer and
-                self.vertex_type == other.vertex_type and
-                self.shape_fill == other.shape_fill and
-                self.shape_color == other.shape_color and
-                self.font_color == other.font_color and
-                self.position == other.position and
-                self.is_sink == other.is_sink and
-                self.is_dummy == other.is_dummy and
-                self.is_source == other.is_source)
+        return (
+            self.vertex_id == other.vertex_id
+            and self.label == other.label
+            and self.layer == other.layer
+            and self.vertex_type == other.vertex_type
+            and self.shape_fill == other.shape_fill
+            and self.shape_color == other.shape_color
+            and self.font_color == other.font_color
+            and self.position == other.position
+            and self.is_sink == other.is_sink
+            and self.is_dummy == other.is_dummy
+            and self.is_source == other.is_source
+        )
 
     def __ne__(self, other: object) -> bool:
         """Return True if both instances are not equal, False if otherwise"""
@@ -56,8 +61,20 @@ class Vertex:
 
     def __hash__(self) -> int:
         """Return the hash value of the Vertex object"""
-        return hash((self.vertex_id, self.label, self.layer, self.vertex_type, self.position, self.shape_fill,
-                     self.shape_color, self.is_source, self.is_sink, self.is_dummy))
+        return hash(
+            (
+                self.vertex_id,
+                self.label,
+                self.layer,
+                self.vertex_type,
+                self.position,
+                self.shape_fill,
+                self.shape_color,
+                self.is_source,
+                self.is_sink,
+                self.is_dummy,
+            )
+        )
 
     def __repr__(self) -> str:
         """Return a str representation of the Vertex object"""
@@ -70,7 +87,9 @@ class Vertex:
 
 
 class Edge:
-    def __init__(self, head: Vertex, tail: Vertex, weight: int = 1, edge_color: str = "black") -> None:
+    def __init__(
+        self, head: Vertex, tail: Vertex, weight: int = 1, edge_color: str = "black"
+    ) -> None:
         """
         Initialize an Edge object.
 
@@ -89,10 +108,12 @@ class Edge:
     def __eq__(self, other: object) -> bool:
         """Return True if both instances are equal, False if otherwise"""
         if isinstance(other, Edge):
-            return self.head == other.head and \
-                self.tail == other.tail and \
-                self.weight == other.weight and \
-                self.reversed == other.reversed
+            return (
+                self.head == other.head
+                and self.tail == other.tail
+                and self.weight == other.weight
+                and self.reversed == other.reversed
+            )
         return False
 
     def __ne__(self, other: object) -> bool:
@@ -127,7 +148,9 @@ class Graph:
         self.edges = self.create_edges(self.get_vertices_from_data(self._parsed_data))
         self.ordering: Dict[int, List[Vertex]] = {}
 
-    def get_vertices_from_data(self, data: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
+    def get_vertices_from_data(
+        self, data: Dict[str, Dict[str, str]]
+    ) -> Dict[str, Dict[str, str]]:
         """
         Extract vertices data from the parsed data.
         Args:
@@ -135,7 +158,11 @@ class Graph:
         Returns:
             Dict[str,Dict[str,str]] -- A dictionary containing only the vertices data, with their id as key.
         """
-        data_vertices = {key: value for key, value in data.items() if key != 'orientation' and key != 'chartStyle'}
+        data_vertices = {
+            key: value
+            for key, value in data.items()
+            if key != "orientation" and key != "chartStyle"
+        }
         all_vertices = {}
         for details in data_vertices.values():
             next_vertices = details.get("next", [])
@@ -156,7 +183,9 @@ class Graph:
     def get_num_of_vertices(self) -> int:
         return len(self.vertices)
 
-    def add_edge(self, head: Vertex, tail: Vertex, weight: int = 1, is_reversed: bool = False) -> None:
+    def add_edge(
+        self, head: Vertex, tail: Vertex, weight: int = 1, is_reversed: bool = False
+    ) -> None:
         """
         Add a new edge to the graph.
 
@@ -171,7 +200,9 @@ class Graph:
         self.edges.append(new_edge)
         self.update_vertices()
 
-    def add_dummy_vertex(self, vertex_id: str, label: str, layer: int, font_color: str = "white") -> Vertex:
+    def add_dummy_vertex(
+        self, vertex_id: str, label: str, layer: int, font_color: str = "white"
+    ) -> Vertex:
         vertex = Vertex(vertex_id, "dummy", "white", "black", font_color, label, layer)
         return vertex
 
@@ -187,13 +218,19 @@ class Graph:
         edges: List[Edge] = []
         for vertex_id, detail in data_vertices.items():
             next_vertices = detail.get("next", [])
-            connected_nodes = [(node.get("id", ""), node.get("edge", "")) for node in next_vertices]
+            connected_nodes = [
+                (node.get("id", ""), node.get("edge", "")) for node in next_vertices
+            ]
             head = vertex_mapping.get(vertex_id)
-            edges.extend([Edge(head, vertex_mapping[next_id]) for next_id, _ in connected_nodes])
+            edges.extend(
+                [Edge(head, vertex_mapping[next_id]) for next_id, _ in connected_nodes]
+            )
         helper.remove_duplicates(edges)
         return edges
 
-    def create_vertices(self, data_vertices: Dict[str, Dict[str, str]]) -> Dict[str, Vertex]:
+    def create_vertices(
+        self, data_vertices: Dict[str, Dict[str, str]]
+    ) -> Dict[str, Vertex]:
         """
         Create vertices based on the provided data.
         Args:
@@ -210,17 +247,23 @@ class Graph:
             text_color = detail.get("fontColor", self.font_color)
             fill_color = detail.get("shapeFill", self.shape_fill)
             shape_color = detail.get("shapeColor", self.shape_color)
-            vertex = Vertex(vertex_id, vertex_type, fill_color, shape_color, text_color, label)
+            vertex = Vertex(
+                vertex_id, vertex_type, fill_color, shape_color, text_color, label
+            )
             vertex_mapping[vertex_id] = vertex
             self.vertices.append(vertex)
         return vertex_mapping
 
     def add_vertex(self, vertex_id: str) -> Vertex:
-        new_vertex = Vertex(vertex_id, "terminator", "white", "black", "black", "default")
+        new_vertex = Vertex(
+            vertex_id, "terminator", "white", "black", "black", "default"
+        )
         self.get_vertices().append(new_vertex)
         return new_vertex
 
-    def set_graph_styles(self, ) -> None:
+    def set_graph_styles(
+        self,
+    ) -> None:
         self.orientation = self._parsed_data.get("orientation", "td")
         self.font_color = self._parsed_data.get("fontColor", "black")
         self.shape_color = self._parsed_data.get("shapeColor", "black")
@@ -276,7 +319,9 @@ class Graph:
                 source_vertices.append(vertex)
         return source_vertices
 
-    def get_max_layer(self, ) -> int:
+    def get_max_layer(
+        self,
+    ) -> int:
         """
         Get the maximum layer among all vertices.
         Returns:
@@ -292,4 +337,3 @@ class Graph:
 
     def update_ordering(self, new_ordering: Dict[int, List[Vertex]]) -> None:
         self.ordering = new_ordering
-

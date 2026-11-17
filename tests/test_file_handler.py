@@ -87,6 +87,17 @@ class TestFileHandler(unittest.TestCase):
             with self.assertRaises(OSError):
                 write(file_path, "some code")
 
+    def test_write_file_occurs_atomically(self) -> None:
+        content = "Some content"
+        file_path = os.path.join(self.test_dir.name, "exported.tex")
+        with (
+            patch("app.file_handler.os.replace", side_effect=OSError()),
+            self.assertRaises(OSError),
+        ):
+            write(file_path, content)
+
+        assert not os.path.exists(file_path)
+
     def write_valid_json_file(self) -> str:
         data = """ {
     "orientation": "td",
